@@ -14,7 +14,7 @@ def build_argparser():
     additional_description = "\nhttps://github.com/pepkit/eido"
 
     parser = VersionInHelpParser(
-            prog=pkg_name,
+            prog=PKG_NAME,
             description=banner,
             epilog=additional_description)
 
@@ -39,7 +39,7 @@ def main():
     parser = logmuse.add_logging_options(build_argparser())
     args, remaining_args = parser.parse_known_args()
     logger_kwargs = {"level": args.verbosity, "devmode": args.logdev}
-    logmuse.init_logger(name=pkg_name, **logger_kwargs)
+    logmuse.init_logger(name=PKG_NAME, **logger_kwargs)
     global _LOGGER
     _LOGGER = logmuse.logger_via_cli(args)
     _LOGGER.info("Comparing PEP ('{}') against schema: {}.".format(args.pep, args.schema))

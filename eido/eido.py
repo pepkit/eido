@@ -50,11 +50,11 @@ def load_yaml(filepath):
     return data
 
 
-def validate_pep(p, schema):
+def validate_project(project, schema):
     """
     Validate a project object against a schema
 
-    :param peppy.Project p: a project object to validate
+    :param peppy.Project project: a project object to validate
     :param str | dict schema: schema dict to validate against or a path to one
     :return:
     """
@@ -64,8 +64,8 @@ def validate_pep(p, schema):
         schema_dict = schema
     else:
         raise TypeError("schema has to be either a dict or a path to an existing file")
-    p_dict = p.to_dict()
-    jsonschema.validate(p_dict, schema_dict)
+    project_dict = project.to_dict()
+    jsonschema.validate(project_dict, schema_dict)
 
 
 def main():
@@ -77,7 +77,8 @@ def main():
     logmuse.init_logger(name=PKG_NAME, **logger_kwargs)
     global _LOGGER
     _LOGGER = logmuse.logger_via_cli(args)
+    _LOGGER.debug("Creating a Project object from: {}".format(args.pep))
     p = Project(args.pep)
-    _LOGGER.debug("Comparing PEP ('{}') against schema: {}.".format(args.pep, args.schema))
-    validate_pep(p, args.schema)
+    _LOGGER.debug("Comparing the Project ('{}') against a schema: {}.".format(args.pep, args.schema))
+    validate_project(p, args.schema)
     _LOGGER.info("Validation successful")

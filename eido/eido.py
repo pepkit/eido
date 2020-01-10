@@ -1,23 +1,20 @@
 
-import argparse
-from attmap import PathExAttMap
+from ubiquerg import VersionInHelpParser
+import logging
+import logmuse
 
-from . import  __version__
+from . import __version__
+from .const import *
 
-class _VersionInHelpParser(argparse.ArgumentParser):
-    def format_help(self):
-        """ Add version information to help text. """
-        return "version: {}\n".format(__version__) + \
-               super(_VersionInHelpParser, self).format_help()
+_LOGGER = logging.getLogger(__name__)
 
 
-
-
-def parse_args():
+def build_argparser():
     banner = "%(prog)s - validate project metadata against a schema"
     additional_description = "\nhttps://github.com/pepkit/eido"
 
-    parser = _VersionInHelpParser(
+    parser = VersionInHelpParser(
+            prog=pkg_name,
             description=banner,
             epilog=additional_description)
 
@@ -28,29 +25,21 @@ def parse_args():
 
     parser.add_argument(
             "-p", "--pep", required=True,
-            help="PEP configuration file (yaml format).")
+            help="PEP configuration file in yaml format.")
 
     parser.add_argument(
             "-s", "--schema", required=True,
-            help="PEP schema file (yaml format)")
+            help="PEP schema file in yaml format.")
 
-
-    args = parser.parse_args()
-    return args
+    return parser
 
  
-
 def main():
     """ Primary workflow """
-
-    args = parse_args()
-
-    print("Compare PEP {} against schema {}.").format(args.pep, args.schema)
-
-
-
-if __name__ == '__main__':
-    try:
-        sys.exit(main())
-    except KeyboardInterrupt:
-        sys.exit(1)
+    parser = logmuse.add_logging_options(build_argparser())
+    args, remaining_args = parser.parse_known_args()
+    logger_kwargs = {"level": args.verbosity, "devmode": args.logdev}
+    logmuse.init_logger(name=pkg_name, **logger_kwargs)
+    global _LOGGER
+    _LOGGER = logmuse.logger_via_cli(args)
+    _LOGGER.info("Comparing PEP ('{}') against schema: {}.".format(args.pep, args.schema))

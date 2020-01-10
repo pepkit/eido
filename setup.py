@@ -4,7 +4,6 @@ import os
 from setuptools import setup
 import sys
 
-
 # Additional keyword arguments for setup().
 extra = {}
 
@@ -62,11 +61,11 @@ setup(
     ],
     keywords="project, metadata, bioinformatics, sequencing, ngs, workflow",
     url='https://github.com/pepkit/eido/',
-    author=u"Nathan Sheffield",
+    author=u"Michal Stolarczyk, Nathan Sheffield",
     license="BSD2",
     entry_points={
         "console_scripts": [
-            'eido = eido.eido:main'
+            'eido = eido.__main__:main'
         ],
     },   
     scripts=scripts,

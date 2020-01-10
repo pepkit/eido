@@ -1,0 +1,10 @@
+name: test
+
+metadata:
+  sample_annotation: test_sample_table.csv
+  output_dir: test
+
+implied_attributes:
+  organism:
+    "Homo sapiens":
+      genome: hg38

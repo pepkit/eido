@@ -38,7 +38,25 @@ def build_argparser():
     return parser
 
 
-def load_yaml(filepath):
+def _preprocess_schema(schema_dict):
+    """
+    Preprocess schema before validation for user's convenience
+
+    Preprocessing includes: renaming 'samples' to '_samples'
+    since in the peppy.Project object _samples attribute holds the list of peppy.Samples objects.
+    :param dict schema_dict: schema dictionary to preprocess
+    :return dict: preprocessed schema
+    """
+    _LOGGER.debug("schema ori: {}".format(schema_dict))
+    if "samples" in schema_dict["properties"]:
+        schema_dict["properties"]["_samples"] = schema_dict["properties"]["samples"]
+        del schema_dict["properties"]["samples"]
+        schema_dict["required"][schema_dict["required"].index("samples")] = "_samples"
+    _LOGGER.debug("schema edited: {}".format(schema_dict))
+    return schema_dict
+
+
+def _load_yaml(filepath):
     """
     Read a YAML file
 
@@ -59,13 +77,13 @@ def validate_project(project, schema):
     :return:
     """
     if isinstance(schema, str) and os.path.isfile(schema):
-        schema_dict = load_yaml(schema)
+        schema_dict = _load_yaml(schema)
     elif isinstance(schema, dict):
         schema_dict = schema
     else:
         raise TypeError("schema has to be either a dict or a path to an existing file")
     project_dict = project.to_dict()
-    jsonschema.validate(project_dict, schema_dict)
+    jsonschema.validate(project_dict, _preprocess_schema(schema_dict))
 
 
 def main():

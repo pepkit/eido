@@ -31,3 +31,13 @@ def project_object(project_file_path):
 @pytest.fixture
 def schema_file_path(schemas_path):
     return os.path.join(schemas_path, "test_schema.yaml")
+
+
+@pytest.fixture
+def schema_samples_file_path(schemas_path):
+    return os.path.join(schemas_path, "test_schema_samples.yaml")
+
+
+@pytest.fixture
+def schema_invalid_file_path(schemas_path):
+    return os.path.join(schemas_path, "test_schema_invalid.yaml")

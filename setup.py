@@ -52,6 +52,7 @@ setup(
     version=version,
     description="A project metadata validator",
     long_description=long_description,
+    long_description_content_type='text/markdown',
     classifiers=[
         "Development Status :: 4 - Beta",
         "License :: OSI Approved :: BSD License",
@@ -67,7 +68,7 @@ setup(
         "console_scripts": [
             'eido = eido.__main__:main'
         ],
-    },   
+    },
     scripts=scripts,
     include_package_data=True,
     test_suite="tests",

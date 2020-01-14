@@ -35,6 +35,11 @@ def build_argparser():
             "-s", "--schema", required=True,
             help="PEP schema file in yaml format.")
 
+    parser.add_argument(
+            "-e", "--exclude-case", default=False, action="store_true",
+            help="Whether to exclude the validation case from an error. "
+                 "Only the human readable message explaining the error will be raised. "
+                 "Useful when validating large PEPs.")
     return parser
 
 
@@ -68,13 +73,14 @@ def _load_yaml(filepath):
     return data
 
 
-def validate_project(project, schema):
+def validate_project(project, schema, exclude_case=False):
     """
     Validate a project object against a schema
 
     :param peppy.Project project: a project object to validate
     :param str | dict schema: schema dict to validate against or a path to one
-    :return:
+    :param bool exclude_case: whether to exclude validated objects from the error.
+        Useful when used ith large projects
     """
     if isinstance(schema, str) and os.path.isfile(schema):
         schema_dict = _load_yaml(schema)
@@ -83,7 +89,12 @@ def validate_project(project, schema):
     else:
         raise TypeError("schema has to be either a dict or a path to an existing file")
     project_dict = project.to_dict()
-    jsonschema.validate(project_dict, _preprocess_schema(schema_dict))
+    try:
+        jsonschema.validate(project_dict, _preprocess_schema(schema_dict))
+    except jsonschema.exceptions.ValidationError as e:
+        if not exclude_case:
+            raise e
+        raise jsonschema.exceptions.ValidationError(e.message)
 
 
 def main():
@@ -98,5 +109,4 @@ def main():
     _LOGGER.debug("Creating a Project object from: {}".format(args.pep))
     p = Project(args.pep)
     _LOGGER.debug("Comparing the Project ('{}') against a schema: {}.".format(args.pep, args.schema))
-    validate_project(p, args.schema)
-    _LOGGER.info("Validation successful")
+    validate_project(p, args.schema, args.exclude_case)

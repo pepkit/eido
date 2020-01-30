@@ -155,12 +155,12 @@ def main():
     p = Project(args.pep)
     if args.sample_name:
         try:
-            sn = int(args.sample_name)
+            args.sample_name = int(args.sample_name)
         except ValueError:
             pass
         _LOGGER.debug("Comparing Sample ('{}') in the Project "
-                      "('{}') against a schema: {}.".format(sn, args.pep, args.schema))
-        validate_sample(p, sn, args.schema, args.exclude_case)
+                      "('{}') against a schema: {}.".format(args.sample_name, args.pep, args.schema))
+        validate_sample(p, args.sample_name, args.schema, args.exclude_case)
     else:
         _LOGGER.debug("Comparing the Project ('{}') against a schema: {}.".format(args.pep, args.schema))
         validate_project(p, args.schema, args.exclude_case)

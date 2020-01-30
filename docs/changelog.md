@@ -3,6 +3,9 @@
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html) and [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) format. 
 
 ## [0.0.4] - unreleased
+### Added
+- `validate_sample` function for sample level validation
+- sample validation CLI support (via `-n`/`--sample-name` argument) 
 
 ## [0.0.3] - 2020-01-30
 ### Added

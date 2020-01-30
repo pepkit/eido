@@ -36,6 +36,10 @@ def build_argparser():
             help="PEP schema file in yaml format.")
 
     parser.add_argument(
+        "-n", "--sample-name", required=False,
+        help="Name or index of the sample to validate. Only this sample will be validated.")
+
+    parser.add_argument(
             "-e", "--exclude-case", default=False, action="store_true",
             help="Whether to exclude the validation case from an error. "
                  "Only the human readable message explaining the error will be raised. "
@@ -74,6 +78,14 @@ def _load_yaml(filepath):
 
 
 def _read_schema(schema):
+    """
+    Safely read schema from YAML-formatted file.
+
+    :param str | Mapping schema: path to the schema file
+        or schema in a dict form
+    :return dict: read schema
+    :raise TypeError: if the schema arg is neither a Mapping nor a file path
+    """
     if isinstance(schema, str) and os.path.isfile(schema):
         return _load_yaml(schema)
     elif isinstance(schema, dict):
@@ -141,5 +153,15 @@ def main():
     _LOGGER = logmuse.logger_via_cli(args)
     _LOGGER.debug("Creating a Project object from: {}".format(args.pep))
     p = Project(args.pep)
-    _LOGGER.debug("Comparing the Project ('{}') against a schema: {}.".format(args.pep, args.schema))
-    validate_project(p, args.schema, args.exclude_case)
+    if args.sample_name:
+        try:
+            sn = int(args.sample_name)
+        except ValueError:
+            pass
+        _LOGGER.debug("Comparing Sample ('{}') in the Project "
+                      "('{}') against a schema: {}.".format(sn, args.pep, args.schema))
+        validate_sample(p, sn, args.schema, args.exclude_case)
+    else:
+        _LOGGER.debug("Comparing the Project ('{}') against a schema: {}.".format(args.pep, args.schema))
+        validate_project(p, args.schema, args.exclude_case)
+    _LOGGER.info("Validation successful")

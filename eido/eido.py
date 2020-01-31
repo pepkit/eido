@@ -37,14 +37,21 @@ def build_argparser():
             help="PEP schema file in yaml format.")
 
     parser.add_argument(
-        "-n", "--sample-name", required=False,
-        help="Name or index of the sample to validate. Only this sample will be validated.")
-
-    parser.add_argument(
             "-e", "--exclude-case", default=False, action="store_true",
             help="Whether to exclude the validation case from an error. "
                  "Only the human readable message explaining the error will be raised. "
                  "Useful when validating large PEPs.")
+
+    group = parser.add_mutually_exclusive_group()
+
+    group.add_argument(
+        "-n", "--sample-name", required=False,
+        help="Name or index of the sample to validate. Only this sample will be validated.")
+
+    group.add_argument(
+        "-c", "--just-config", required=False, action="store_true", default=False,
+        help="Whether samples should be excluded from the validation.")
+
     return parser
 
 
@@ -188,7 +195,10 @@ def main():
         _LOGGER.debug("Comparing Sample ('{}') in the Project "
                       "('{}') against a schema: {}.".format(args.sample_name, args.pep, args.schema))
         validate_sample(p, args.sample_name, args.schema, args.exclude_case)
+    elif args.just_config:
+        _LOGGER.debug("Comparing config ('{}') against a schema: {}.".format(args.pep, args.schema))
+        validate_config(p, args.schema, args.exclude_case)
     else:
-        _LOGGER.debug("Comparing the Project ('{}') against a schema: {}.".format(args.pep, args.schema))
+        _LOGGER.debug("Comparing Project ('{}') against a schema: {}.".format(args.pep, args.schema))
         validate_project(p, args.schema, args.exclude_case)
     _LOGGER.info("Validation successful")

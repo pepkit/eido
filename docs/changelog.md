@@ -5,7 +5,9 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 ## [0.0.4] - unreleased
 ### Added
 - `validate_sample` function for sample level validation
-- sample validation CLI support (via `-n`/`--sample-name` argument) 
+- sample validation CLI support (via `-n`/`--sample-name` argument)
+- `validate_config` to facilitate samples exclusion in validation
+- config validation CLI support (via `-c`/`--just-config` argument)  
 
 ## [0.0.3] - 2020-01-30
 ### Added

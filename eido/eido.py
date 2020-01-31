@@ -2,6 +2,7 @@ import logging
 import os
 import jsonschema
 import oyaml as yaml
+from copy import deepcopy as dpcpy
 
 import logmuse
 from ubiquerg import VersionInHelpParser
@@ -93,20 +94,6 @@ def _read_schema(schema):
     raise TypeError("schema has to be either a dict or a path to an existing file")
 
 
-def validate_project(project, schema, exclude_case=False):
-    """
-    Validate a project object against a schema
-
-    :param peppy.Sample project: a project object to validate
-    :param str | dict schema: schema dict to validate against or a path to one
-    :param bool exclude_case: whether to exclude validated objects from the error.
-        Useful when used ith large projects
-    """
-    schema_dict = _read_schema(schema=schema)
-    project_dict = project.to_dict()
-    _validate_object(project_dict, _preprocess_schema(schema_dict), exclude_case)
-
-
 def _validate_object(object, schema, exclude_case=False):
     """
     Generic function to validate object against a schema
@@ -124,6 +111,21 @@ def _validate_object(object, schema, exclude_case=False):
         raise jsonschema.exceptions.ValidationError(e.message)
 
 
+def validate_project(project, schema, exclude_case=False):
+    """
+    Validate a project object against a schema
+
+    :param peppy.Sample project: a project object to validate
+    :param str | dict schema: schema dict to validate against or a path to one
+    :param bool exclude_case: whether to exclude validated objects from the error.
+        Useful when used ith large projects
+    """
+    schema_dict = _read_schema(schema=schema)
+    project_dict = project.to_dict()
+    _validate_object(project_dict, _preprocess_schema(schema_dict), exclude_case)
+    _LOGGER.debug("Project validation successful")
+
+
 def validate_sample(project, sample_name, schema, exclude_case=False):
     """
     Validate the selected sample object against a schema
@@ -133,13 +135,38 @@ def validate_sample(project, sample_name, schema, exclude_case=False):
     :param str | dict schema: schema dict to validate against or a path to one
     :param bool exclude_case: whether to exclude validated objects from the error.
         Useful when used ith large projects
-    :return:
     """
     schema_dict = _read_schema(schema=schema)
     sample_dict = project.samples[sample_name] if isinstance(sample_name, int) \
         else project.get_sample(sample_name)
     sample_schema_dict = schema_dict["properties"]["samples"]["items"]
     _validate_object(sample_dict, sample_schema_dict, exclude_case)
+    _LOGGER.debug("'{}' sample validation successful".format(sample_name))
+
+
+def validate_config(project, schema, exclude_case=False):
+    """
+    Validate the config part of the Project object against a schema
+
+    :param peppy.Project project: a project object to validate
+    :param str | dict schema: schema dict to validate against or a path to one
+    :param bool exclude_case: whether to exclude validated objects from the error.
+        Useful when used ith large projects
+    """
+    schema_dict = _read_schema(schema=schema)
+    schema_cpy = dpcpy(schema_dict)
+    try:
+        del schema_cpy["properties"]["samples"]
+    except KeyError:
+        pass
+    if "required" in schema_cpy:
+        try:
+            schema_cpy["required"].remove("samples")
+        except ValueError:
+            pass
+    project_dict = project.to_dict()
+    _validate_object(project_dict, schema_cpy, exclude_case)
+    _LOGGER.debug("Config validation successful")
 
 
 def main():

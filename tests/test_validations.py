@@ -26,3 +26,24 @@ class TestProjectValidation:
     def test_validate_raises_error_for_incorrect_schema_type(self, project_object, schema_arg):
         with pytest.raises(TypeError):
             validate_project(project=project_object, schema=schema_arg)
+
+
+class TestSampleValidation:
+    @pytest.mark.parametrize("sample_name", [0, 1, "GSM1558746"])
+    def test_validate_works(self, project_object, sample_name, schema_samples_file_path):
+        validate_sample(project=project_object, sample_name=sample_name, schema=schema_samples_file_path)
+
+    @pytest.mark.parametrize("sample_name", [22, "bogus_sample_name"])
+    def test_validate_raises_error_for_incorrect_sample_name(self, project_object, sample_name, schema_samples_file_path):
+        with pytest.raises((ValueError, IndexError)):
+            validate_sample(project=project_object, sample_name=sample_name, schema=schema_samples_file_path)
+
+    @pytest.mark.parametrize("sample_name", [0, 1, "GSM1558746"])
+    def test_validate_detects_invalid(self, project_object, sample_name, schema_sample_invalid_file_path):
+        with pytest.raises(ValidationError):
+            validate_sample(project=project_object, sample_name=sample_name, schema=schema_sample_invalid_file_path)
+
+
+class TestConfigValidation:
+    def test_validate_succeeds_on_invalid_sample(self, project_object, schema_sample_invalid_file_path):
+        validate_config(project=project_object, schema=schema_sample_invalid_file_path)

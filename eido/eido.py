@@ -2,6 +2,7 @@ import logging
 import os
 import jsonschema
 import oyaml as yaml
+from copy import deepcopy as dpcpy
 
 import logmuse
 from ubiquerg import VersionInHelpParser
@@ -40,6 +41,17 @@ def build_argparser():
             help="Whether to exclude the validation case from an error. "
                  "Only the human readable message explaining the error will be raised. "
                  "Useful when validating large PEPs.")
+
+    group = parser.add_mutually_exclusive_group()
+
+    group.add_argument(
+        "-n", "--sample-name", required=False,
+        help="Name or index of the sample to validate. Only this sample will be validated.")
+
+    group.add_argument(
+        "-c", "--just-config", required=False, action="store_true", default=False,
+        help="Whether samples should be excluded from the validation.")
+
     return parser
 
 
@@ -73,28 +85,95 @@ def _load_yaml(filepath):
     return data
 
 
+def _read_schema(schema):
+    """
+    Safely read schema from YAML-formatted file.
+
+    :param str | Mapping schema: path to the schema file
+        or schema in a dict form
+    :return dict: read schema
+    :raise TypeError: if the schema arg is neither a Mapping nor a file path
+    """
+    if isinstance(schema, str) and os.path.isfile(schema):
+        return _load_yaml(schema)
+    elif isinstance(schema, dict):
+        return schema
+    raise TypeError("schema has to be either a dict or a path to an existing file")
+
+
+def _validate_object(object, schema, exclude_case=False):
+    """
+    Generic function to validate object against a schema
+
+    :param Mapping object: an object to validate
+    :param str | dict schema: schema dict to validate against or a path to one
+    :param bool exclude_case: whether to exclude validated objects from the error.
+        Useful when used ith large projects
+    """
+    try:
+        jsonschema.validate(object, schema)
+    except jsonschema.exceptions.ValidationError as e:
+        if not exclude_case:
+            raise e
+        raise jsonschema.exceptions.ValidationError(e.message)
+
+
 def validate_project(project, schema, exclude_case=False):
     """
     Validate a project object against a schema
+
+    :param peppy.Sample project: a project object to validate
+    :param str | dict schema: schema dict to validate against or a path to one
+    :param bool exclude_case: whether to exclude validated objects from the error.
+        Useful when used ith large projects
+    """
+    schema_dict = _read_schema(schema=schema)
+    project_dict = project.to_dict()
+    _validate_object(project_dict, _preprocess_schema(schema_dict), exclude_case)
+    _LOGGER.debug("Project validation successful")
+
+
+def validate_sample(project, sample_name, schema, exclude_case=False):
+    """
+    Validate the selected sample object against a schema
+
+    :param peppy.Project project: a project object to validate
+    :param str | int sample_name: name or index of the sample to validate
+    :param str | dict schema: schema dict to validate against or a path to one
+    :param bool exclude_case: whether to exclude validated objects from the error.
+        Useful when used ith large projects
+    """
+    schema_dict = _read_schema(schema=schema)
+    sample_dict = project.samples[sample_name] if isinstance(sample_name, int) \
+        else project.get_sample(sample_name)
+    sample_schema_dict = schema_dict["properties"]["samples"]["items"]
+    _validate_object(sample_dict, sample_schema_dict, exclude_case)
+    _LOGGER.debug("'{}' sample validation successful".format(sample_name))
+
+
+def validate_config(project, schema, exclude_case=False):
+    """
+    Validate the config part of the Project object against a schema
 
     :param peppy.Project project: a project object to validate
     :param str | dict schema: schema dict to validate against or a path to one
     :param bool exclude_case: whether to exclude validated objects from the error.
         Useful when used ith large projects
     """
-    if isinstance(schema, str) and os.path.isfile(schema):
-        schema_dict = _load_yaml(schema)
-    elif isinstance(schema, dict):
-        schema_dict = schema
-    else:
-        raise TypeError("schema has to be either a dict or a path to an existing file")
-    project_dict = project.to_dict()
+    schema_dict = _read_schema(schema=schema)
+    schema_cpy = dpcpy(schema_dict)
     try:
-        jsonschema.validate(project_dict, _preprocess_schema(schema_dict))
-    except jsonschema.exceptions.ValidationError as e:
-        if not exclude_case:
-            raise e
-        raise jsonschema.exceptions.ValidationError(e.message)
+        del schema_cpy["properties"]["samples"]
+    except KeyError:
+        pass
+    if "required" in schema_cpy:
+        try:
+            schema_cpy["required"].remove("samples")
+        except ValueError:
+            pass
+    project_dict = project.to_dict()
+    _validate_object(project_dict, schema_cpy, exclude_case)
+    _LOGGER.debug("Config validation successful")
 
 
 def main():
@@ -108,5 +187,18 @@ def main():
     _LOGGER = logmuse.logger_via_cli(args)
     _LOGGER.debug("Creating a Project object from: {}".format(args.pep))
     p = Project(args.pep)
-    _LOGGER.debug("Comparing the Project ('{}') against a schema: {}.".format(args.pep, args.schema))
-    validate_project(p, args.schema, args.exclude_case)
+    if args.sample_name:
+        try:
+            args.sample_name = int(args.sample_name)
+        except ValueError:
+            pass
+        _LOGGER.debug("Comparing Sample ('{}') in the Project "
+                      "('{}') against a schema: {}.".format(args.sample_name, args.pep, args.schema))
+        validate_sample(p, args.sample_name, args.schema, args.exclude_case)
+    elif args.just_config:
+        _LOGGER.debug("Comparing config ('{}') against a schema: {}.".format(args.pep, args.schema))
+        validate_config(p, args.schema, args.exclude_case)
+    else:
+        _LOGGER.debug("Comparing Project ('{}') against a schema: {}.".format(args.pep, args.schema))
+        validate_project(p, args.schema, args.exclude_case)
+    _LOGGER.info("Validation successful")

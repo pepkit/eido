@@ -6,7 +6,5 @@
 
 [PEP](http://pepkit.github.io) validation tool based on [`jsonschema`](https://github.com/Julian/jsonschema) package.
 
-See [this jupyter notebook](docs_jupyter/demo.ipynb) for usage demonstration
-
 ---
 *Eidos* is a Greek term meaning "form" "essence", "type" or "species". See Plato's theory of Forms and Aristotle's theory of universals

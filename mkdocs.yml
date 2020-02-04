@@ -1,0 +1,26 @@
+site_name: eido
+site_url: http://eido.databio.org/
+repo_url: http://github.com/pepkit/eido
+pypi_name: eido
+
+nav:
+  - Getting Started: 
+    - Introduction: README.md
+    - Install and configure: install.md
+  - How-to Guides:
+    - "Tutorial: eido in Python": jupyter_docs/demo.md
+    - "Tutorial: eido on the command line": jupyter_docs/cli.md
+  - Reference:
+    - API: autodoc_build/eido.md
+    - Support: https://github.com/pepkit/eido/issues
+    - Contributing: contributing.md
+    - Changelog: changelog.md
+
+theme: databio
+
+plugins:
+  - databio:
+      autodoc_build: "docs/autodoc_build"
+      autodoc_package: "eido"
+      no_top_level: true
+  - search

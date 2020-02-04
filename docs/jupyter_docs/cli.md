@@ -1,16 +1,18 @@
 jupyter:True
 # `eido` command line usage
 
-To use the command line application one just needs two required paths as arguments to the `eido` command: 
+To use the command line application one just needs two required paths as arguments to the `eido` command:
+
 - a path to a project configuration file (`-p`/`--pep` option)
 - a path to a YAML formatted schema (`-s`/`--schema` option)
 
-Optionally, to validate just the config parto of the PEP or a specific sample, `n`/`--sample-name` or `-c`/`--just-config` arguments should be used, respectively. Please refer to the help for more details:
+Optionally, to validate just the config part of the PEP or a specific sample, `-n`/`--sample-name` or `-c`/`--just-config` arguments should be used, respectively. Please refer to the help for more details:
 
 ```
 ~ eido -h
 ```
 ```
+version: 0.0.5
 usage: eido [-h] [-V] -p PEP -s SCHEMA [-e] [-n SAMPLE_NAME | -c] [--silent]
             [--verbosity V] [--logdev]
 
@@ -40,8 +42,10 @@ https://github.com/pepkit/eido
 Successful validation of the project is confirmed with an appropriate message:
 ```
 ~ eido -p config.yaml -s tests/data/schemas/test_schema.yaml
-Reading sample table: '/Users/mstolarczyk/Uczelnia/UVA/code/eido/tests/data/peps/test_sample_table.csv'
+```
+```
+Reading sample annotations sheet: '/Users/mstolarczyk/Uczelnia/UVA/code/ppqc/ppqc_annotation_revised.csv'
 Validation successful
 ```
 
-Alternatively, a `jsonschema.exceptions.ValidationError` is raised with a discrepancy description.
+Alternatively, a [`jsonschema.exceptions.ValidationError`](https://python-jsonschema.readthedocs.io/en/stable/errors/#jsonschema.exceptions.ValidationError) is raised with a discrepancy description.

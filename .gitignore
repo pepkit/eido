@@ -78,3 +78,6 @@ peppy.egg-info/
 #ipynm checkpoints
 *ipynb_checkpoints*
 *.egg-info*
+
+# mkdocs website
+site

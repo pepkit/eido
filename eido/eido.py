@@ -16,17 +16,13 @@ _LOGGER = logging.getLogger(__name__)
 
 def build_argparser():
     banner = "%(prog)s - validate project metadata against a schema"
-    additional_description = "\nhttps://github.com/pepkit/eido"
+    additional_description = "\nhttp://eido.databio.org/"
 
     parser = VersionInHelpParser(
             prog=PKG_NAME,
             description=banner,
-            epilog=additional_description)
-
-    parser.add_argument(
-            "-V", "--version",
-            action="version",
-            version="%(prog)s {v}".format(v=__version__))
+            epilog=additional_description,
+            version=__version__)
 
     parser.add_argument(
             "-p", "--pep", required=True,

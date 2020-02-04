@@ -6,7 +6,7 @@ properties:
     properties:
       compute_packages:
         type: object
-  _samples:
+  samples:
     type: array
     items:
       type: object
@@ -20,4 +20,4 @@ properties:
 
 required:
   - dcc
-  - _samples
+  - samples

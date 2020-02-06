@@ -8,6 +8,8 @@ import logmuse
 from ubiquerg import VersionInHelpParser
 from peppy import Project
 
+from yacman import load_yaml as _load_yaml
+
 from . import __version__
 from .const import *
 
@@ -69,18 +71,6 @@ def _preprocess_schema(schema_dict):
     return schema_dict
 
 
-def _load_yaml(filepath):
-    """
-    Read a YAML file
-
-    :param str filepath: path to the file to read
-    :return dict: read data
-    """
-    with open(filepath, 'r') as f:
-        data = yaml.safe_load(f)
-    return data
-
-
 def _read_schema(schema):
     """
     Safely read schema from YAML-formatted file.
@@ -90,8 +80,11 @@ def _read_schema(schema):
     :return dict: read schema
     :raise TypeError: if the schema arg is neither a Mapping nor a file path
     """
-    if isinstance(schema, str) and os.path.isfile(schema):
-        return _load_yaml(schema)
+    if isinstance(schema, str):
+        try:
+            return _load_yaml(schema)
+        except:
+            raise TypeError("schema has to be either a dict or a path to an existing file")        
     elif isinstance(schema, dict):
         return schema
     raise TypeError("schema has to be either a dict or a path to an existing file")

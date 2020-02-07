@@ -81,10 +81,7 @@ def _read_schema(schema):
     :raise TypeError: if the schema arg is neither a Mapping nor a file path
     """
     if isinstance(schema, str):
-        try:
-            return _load_yaml(schema)
-        except:
-            raise TypeError("schema has to be either a dict or a path to an existing file")        
+        return _load_yaml(schema)
     elif isinstance(schema, dict):
         return schema
     raise TypeError("schema has to be either a dict or a path to an existing file")

@@ -9,8 +9,9 @@ nav:
     - Install and configure: install.md
   - How-to Guides:
     - "Tutorial: eido in Python": jupyter_docs/demo.md
-    - "Tutorial: eido on the command line": jupyter_docs/cli.md
+    - "Tutorial: eido in a shell": jupyter_docs/cli.md
   - Reference:
+    - List of schemas: schemas.md
     - API: autodoc_build/eido.md
     - Support: https://github.com/pepkit/eido/issues
     - Contributing: contributing.md

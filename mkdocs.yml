@@ -8,8 +8,8 @@ nav:
     - Introduction: README.md
     - Install and configure: install.md
   - How-to Guides:
-    - "Tutorial: eido in Python": jupyter_docs/demo.md
-    - "Tutorial: eido in a shell": jupyter_docs/cli.md
+    - "Tutorial: eido in Python": demo.md
+    - "Tutorial: eido in a shell": cli.md
   - Reference:
     - List of schemas: schemas.md
     - API: autodoc_build/eido.md

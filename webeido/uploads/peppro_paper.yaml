@@ -1,0 +1,31 @@
+# Run PEPPRO Paper representative samples through PEPPRO
+name: PEPPRO
+
+metadata:
+  sample_annotation: "peppro_paper.csv"
+  output_dir: "/project/shefflab/processed/peppro/paper/01_22_2020"
+  pipeline_interfaces: "$CODE/peppro/pipeline_interface.yaml" 
+  
+derived_columns: [read1, read2]
+
+data_sources:
+  R: "/project/shefflab/data/sra_fastq/{srr}.fastq.gz"
+  S: "/project/shefflab/data/guertin/fastq/{srr}.fastq.gz"
+  S1: "/project/shefflab/data/guertin/fastq/{srr}.fastq.gz"
+  H1: "/project/shefflab/data/guertin/fastq/{srr}_PE1.fastq.gz"
+  H2: "/project/shefflab/data/guertin/fastq/{srr}_PE2.fastq.gz"
+  R1: "/project/shefflab/data/sra_fastq/{srr}_1.fastq.gz"
+  R2: "/project/shefflab/data/sra_fastq/{srr}_2.fastq.gz"
+  
+implied_columns:
+  organism:
+    human:
+      genome: hg38
+      prealignments: human_rDNA
+      max_len: -1
+      adapter: fastp
+  umi_status:
+    true_8:
+      umi_len: 8
+    true_6:
+      umi_len: 6

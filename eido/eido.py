@@ -67,17 +67,30 @@ def _preprocess_schema(schema_dict):
     """
     Preprocess schema before validation for user's convenience
 
-    Preprocessing includes: renaming 'samples' to '_samples'
-    since in the peppy.Project object _samples attribute holds the list of peppy.Samples objects.
+    Preprocessing includes:
+    - renaming 'samples' to '_samples' since in the peppy.Project object
+        _samples attribute holds the list of peppy.Samples objects.
+    - adding array of strings entry for every string specified to accommodate
+        subsamples in peppy.Project
+
     :param dict schema_dict: schema dictionary to preprocess
     :return dict: preprocessed schema
     """
     _LOGGER.debug("schema ori: {}".format(schema_dict))
     if "samples" in schema_dict["properties"]:
-        schema_dict["properties"]["_samples"] = schema_dict["properties"]["samples"]
+        schema_dict["properties"]["_samples"] = \
+            schema_dict["properties"]["samples"]
         del schema_dict["properties"]["samples"]
-        schema_dict["required"][schema_dict["required"].index("samples")] = "_samples"
-    _LOGGER.debug("schema edited: {}".format(schema_dict))
+        schema_dict["required"][schema_dict["required"].index("samples")] = \
+            "_samples"
+    if "items" in schema_dict["properties"]["_samples"] \
+            and "properties" in schema_dict["properties"]["_samples"]["items"]:
+        s_props = schema_dict["properties"]["_samples"]["items"]["properties"]
+        for prop, val in s_props.items():
+            if "type" in val and val["type"] == "string":
+                s_props[prop] = {}
+                s_props[prop]["anyOf"] = [val, {"type": "array", "items": val}]
+    _LOGGER.info("schema edited: {}".format(schema_dict))
     return schema_dict
 
 

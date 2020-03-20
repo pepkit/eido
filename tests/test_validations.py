@@ -2,7 +2,6 @@ import pytest
 from eido import *
 from eido.eido import _load_yaml
 from jsonschema.exceptions import ValidationError
-from urllib.request import urlopen
 
 
 class TestProjectValidation:
@@ -53,9 +52,6 @@ class TestConfigValidation:
 class TestRemoteValidation:
     @pytest.mark.parametrize("schema_url", ["https://schema.databio.org/PEP/pep.yaml"])
     def test_validate_works_with_remote_schemas(self, project_object, schema_url):
-        if urlopen(schema_url).getcode() == 200:
-            validate_project(project=project_object, schema=schema_url)
-            validate_config(project=project_object, schema=schema_url)
-            validate_sample(project=project_object, schema=schema_url, sample_name=0)
-        else:
-            print("Could not reach remote schema: {}".format(schema_url))
+        validate_project(project=project_object, schema=schema_url)
+        validate_config(project=project_object, schema=schema_url)
+        validate_sample(project=project_object, schema=schema_url, sample_name=0)

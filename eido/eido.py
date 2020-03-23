@@ -87,14 +87,14 @@ def _preprocess_schema(schema_dict):
             and "properties" in schema_dict["properties"]["_samples"]["items"]:
         s_props = schema_dict["properties"]["_samples"]["items"]["properties"]
         for prop, val in s_props.items():
-            if "type" in val and val["type"] == "string":
+            if "type" in val and val["type"] in ["string", "number", "boolean"]:
                 s_props[prop] = {}
                 s_props[prop]["anyOf"] = [val, {"type": "array", "items": val}]
     _LOGGER.info("schema edited: {}".format(schema_dict))
     return schema_dict
 
 
-def _read_schema(schema):
+def read_schema(schema):
     """
     Safely read schema from YAML-formatted file.
 
@@ -136,7 +136,7 @@ def validate_project(project, schema, exclude_case=False):
     :param bool exclude_case: whether to exclude validated objects from the error.
         Useful when used ith large projects
     """
-    schema_dict = _read_schema(schema=schema)
+    schema_dict = read_schema(schema=schema)
     project_dict = project.to_dict()
     _validate_object(project_dict, _preprocess_schema(schema_dict), exclude_case)
     _LOGGER.debug("Project validation successful")
@@ -152,7 +152,7 @@ def validate_sample(project, sample_name, schema, exclude_case=False):
     :param bool exclude_case: whether to exclude validated objects from the error.
         Useful when used ith large projects
     """
-    schema_dict = _read_schema(schema=schema)
+    schema_dict = read_schema(schema=schema)
     sample_dict = project.samples[sample_name] if isinstance(sample_name, int) \
         else project.get_sample(sample_name)
     sample_schema_dict = schema_dict["properties"]["samples"]["items"]
@@ -169,7 +169,7 @@ def validate_config(project, schema, exclude_case=False):
     :param bool exclude_case: whether to exclude validated objects from the error.
         Useful when used ith large projects
     """
-    schema_dict = _read_schema(schema=schema)
+    schema_dict = read_schema(schema=schema)
     schema_cpy = dpcpy(schema_dict)
     try:
         del schema_cpy["properties"]["samples"]

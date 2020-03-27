@@ -13,6 +13,7 @@ from yacman import load_yaml as _load_yaml
 
 from . import __version__
 from .const import *
+from .exceptions import *
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -207,7 +208,7 @@ def _populate_paths(object, schema, check_exist):
         """
         return [k for k, v in mapping.items() if "path" in mapping[k]]
     if PROP_KEY not in schema:
-        raise ValueError("Schema is missing properties section.")
+        raise EidoSchemaInvalidError("Schema is missing properties section.")
     missing = []
     s = schema[PROP_KEY]
     path_sects = _get_path_sect_keys(s)
@@ -221,12 +222,11 @@ def _populate_paths(object, schema, check_exist):
         else:
             setattr(object, ps, populated)
             _LOGGER.debug("Path set to: {}".format(object[ps]))
-            if check_exist:
-                if not os.path.exists(object[ps]):
-                    missing.append(object[ps])
+            if check_exist and not os.path.exists(object[ps]):
+                missing.append(object[ps])
     if missing:
-        raise OSError("Path attributes not found:\n- {}".
-                      format("\n- ".join(missing)))
+        raise PathAttrNotFoundError("Path attributes not found:\n- {}".
+                                    format("\n- ".join(missing)))
 
 
 def populate_sample_paths(sample, schema, check_exist=False):

@@ -7,7 +7,7 @@ from copy import deepcopy as dpcpy
 
 import logmuse
 from ubiquerg import VersionInHelpParser
-from peppy import Project
+from peppy import Project, Sample
 
 from yacman import load_yaml as _load_yaml
 
@@ -77,15 +77,15 @@ def _preprocess_schema(schema_dict):
     :return dict: preprocessed schema
     """
     _LOGGER.debug("schema ori: {}".format(schema_dict))
-    if "samples" in schema_dict["properties"]:
-        schema_dict["properties"]["_samples"] = \
-            schema_dict["properties"]["samples"]
-        del schema_dict["properties"]["samples"]
+    if "samples" in schema_dict[PROP_KEY]:
+        schema_dict[PROP_KEY]["_samples"] = \
+            schema_dict[PROP_KEY]["samples"]
+        del schema_dict[PROP_KEY]["samples"]
         schema_dict["required"][schema_dict["required"].index("samples")] = \
             "_samples"
-    if "items" in schema_dict["properties"]["_samples"] \
-            and "properties" in schema_dict["properties"]["_samples"]["items"]:
-        s_props = schema_dict["properties"]["_samples"]["items"]["properties"]
+    if "items" in schema_dict[PROP_KEY]["_samples"] \
+            and PROP_KEY in schema_dict[PROP_KEY]["_samples"]["items"]:
+        s_props = schema_dict[PROP_KEY]["_samples"]["items"][PROP_KEY]
         for prop, val in s_props.items():
             if "type" in val and val["type"] in ["string", "number", "boolean"]:
                 s_props[prop] = {}
@@ -107,7 +107,8 @@ def read_schema(schema):
         return _load_yaml(schema)
     elif isinstance(schema, dict):
         return schema
-    raise TypeError("schema has to be either a dict or a path to an existing file")
+    raise TypeError("schema has to be either a dict, path to an existing "
+                    "file or URL to a remote one")
 
 
 def _validate_object(object, schema, exclude_case=False):
@@ -116,8 +117,8 @@ def _validate_object(object, schema, exclude_case=False):
 
     :param Mapping object: an object to validate
     :param str | dict schema: schema dict to validate against or a path to one
-    :param bool exclude_case: whether to exclude validated objects from the error.
-        Useful when used ith large projects
+    :param bool exclude_case: whether to exclude validated objects
+        from the error. Useful when used ith large projects
     """
     try:
         jsonschema.validate(object, schema)
@@ -133,12 +134,13 @@ def validate_project(project, schema, exclude_case=False):
 
     :param peppy.Sample project: a project object to validate
     :param str | dict schema: schema dict to validate against or a path to one
-    :param bool exclude_case: whether to exclude validated objects from the error.
-        Useful when used ith large projects
+    :param bool exclude_case: whether to exclude validated objects
+    from the error. Useful when used ith large projects
     """
     schema_dict = read_schema(schema=schema)
     project_dict = project.to_dict()
-    _validate_object(project_dict, _preprocess_schema(schema_dict), exclude_case)
+    _validate_object(project_dict, _preprocess_schema(schema_dict),
+                     exclude_case)
     _LOGGER.debug("Project validation successful")
 
 
@@ -149,13 +151,13 @@ def validate_sample(project, sample_name, schema, exclude_case=False):
     :param peppy.Project project: a project object to validate
     :param str | int sample_name: name or index of the sample to validate
     :param str | dict schema: schema dict to validate against or a path to one
-    :param bool exclude_case: whether to exclude validated objects from the error.
-        Useful when used ith large projects
+    :param bool exclude_case: whether to exclude validated objects
+        from the error. Useful when used ith large projects
     """
     schema_dict = read_schema(schema=schema)
     sample_dict = project.samples[sample_name] if isinstance(sample_name, int) \
         else project.get_sample(sample_name)
-    sample_schema_dict = schema_dict["properties"]["samples"]["items"]
+    sample_schema_dict = schema_dict[PROP_KEY]["samples"]["items"]
     _validate_object(sample_dict, sample_schema_dict, exclude_case)
     _LOGGER.debug("'{}' sample validation successful".format(sample_name))
 
@@ -166,13 +168,13 @@ def validate_config(project, schema, exclude_case=False):
 
     :param peppy.Project project: a project object to validate
     :param str | dict schema: schema dict to validate against or a path to one
-    :param bool exclude_case: whether to exclude validated objects from the error.
-        Useful when used ith large projects
+    :param bool exclude_case: whether to exclude validated objects
+        from the error. Useful when used ith large projects
     """
     schema_dict = read_schema(schema=schema)
     schema_cpy = dpcpy(schema_dict)
     try:
-        del schema_cpy["properties"]["samples"]
+        del schema_cpy[PROP_KEY]["samples"]
     except KeyError:
         pass
     if "required" in schema_cpy:
@@ -183,6 +185,71 @@ def validate_config(project, schema, exclude_case=False):
     project_dict = project.to_dict()
     _validate_object(project_dict, schema_cpy, exclude_case)
     _LOGGER.debug("Config validation successful")
+
+
+def _populate_paths(object, schema):
+    """
+    Populate path-like object attributes with other object attributes
+    based on a defined template, e.g. '/Users/x/test_{name}/{genome}_file.txt'
+
+    :param Mapping object: object with attributes to populate path template with
+    :param dict schema: schema with path attributes defined, e.g.
+        output od read_schema function
+    :return Mapping: object with path templates populated
+    """
+    def _get_path_sect_keys(mapping):
+        """
+        Get names of path-like subsections in a mapping
+
+        :param Mapping mapping: schema subsection to search for paths
+        :return Iterable[str]: collection of keys to path-like sections
+        """
+        return [k for k, v in mapping.items() if "path" in mapping[k]]
+    if PROP_KEY not in schema:
+        raise ValueError("Schema is missing properties section.")
+    s = schema[PROP_KEY]
+    path_sects = _get_path_sect_keys(s)
+    for ps in path_sects:
+        templ = s[ps]["path"]
+        try:
+            populated = templ.format(**dict(object.items()))
+        except Exception as e:
+            _LOGGER.warning("Caught exception: {}.\n"
+                            "Could not populate path: {}".format(str(e), templ))
+        else:
+            setattr(object, ps, populated)
+            _LOGGER.debug("Path set to: {}".format(object[ps]))
+
+
+def populate_sample_paths(sample, schema):
+    """
+    Populate path-like Sample attributes with other object attributes
+    based on a defined template, e.g. '/Users/x/test_{name}/{genome}_file.txt'
+
+    :param peppy.Sample sample: sample to populate paths in
+    :param dict schema: schema with path attributes defined, e.g.
+        output od read_schema function
+    :return Mapping: Sample with path templates populated
+    """
+    if not isinstance(sample, Sample):
+        raise TypeError("Can only populate paths in peppy.Sample objects")
+    if PROP_KEY in schema and "samples" in schema[PROP_KEY]:
+        _populate_paths(sample, schema[PROP_KEY]["samples"]["items"])
+
+
+def populate_project_paths(project, schema):
+    """
+    Populate path-like Project attributes with other object attributes
+    based on a defined template, e.g. '/Users/x/test_{name}/{genome}_file.txt'
+
+    :param peppy.Project project: project to populate paths in
+    :param dict schema: schema with path attributes defined, e.g.
+        output od read_schema function
+    :return Mapping: Project with path templates populated
+    """
+    if not isinstance(project, Project):
+        raise TypeError("Can only populate paths in peppy.Project objects")
+    _populate_paths(project, schema)
 
 
 def main():
@@ -202,14 +269,17 @@ def main():
                 args.sample_name = int(args.sample_name)
             except ValueError:
                 pass
-            _LOGGER.debug("Comparing Sample ('{}') in the Project "
-                          "('{}') against a schema: {}.".format(args.sample_name, args.pep, args.schema))
+            _LOGGER.debug("Comparing Sample ('{}') in the Project ('{}') "
+                          "against a schema: {}.".
+                          format(args.sample_name, args.pep, args.schema))
             validate_sample(p, args.sample_name, args.schema, args.exclude_case)
         elif args.just_config:
-            _LOGGER.debug("Comparing config ('{}') against a schema: {}.".format(args.pep, args.schema))
+            _LOGGER.debug("Comparing config ('{}') against a schema: {}.".
+                          format(args.pep, args.schema))
             validate_config(p, args.schema, args.exclude_case)
         else:
-            _LOGGER.debug("Comparing Project ('{}') against a schema: {}.".format(args.pep, args.schema))
+            _LOGGER.debug("Comparing Project ('{}') against a schema: {}.".
+                          format(args.pep, args.schema))
             validate_project(p, args.schema, args.exclude_case)
         _LOGGER.info("Validation successful")
     if args.command == INSPECT_CMD:

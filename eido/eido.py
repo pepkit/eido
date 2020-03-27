@@ -187,7 +187,7 @@ def validate_config(project, schema, exclude_case=False):
     _LOGGER.debug("Config validation successful")
 
 
-def _populate_paths(object, schema):
+def _populate_paths(object, schema, check_exist):
     """
     Populate path-like object attributes with other object attributes
     based on a defined template, e.g. '/Users/x/test_{name}/{genome}_file.txt'
@@ -195,6 +195,7 @@ def _populate_paths(object, schema):
     :param Mapping object: object with attributes to populate path template with
     :param dict schema: schema with path attributes defined, e.g.
         output od read_schema function
+    :param bool check_exist: whether the paths should be check for existence
     :return Mapping: object with path templates populated
     """
     def _get_path_sect_keys(mapping):
@@ -207,6 +208,7 @@ def _populate_paths(object, schema):
         return [k for k, v in mapping.items() if "path" in mapping[k]]
     if PROP_KEY not in schema:
         raise ValueError("Schema is missing properties section.")
+    missing = []
     s = schema[PROP_KEY]
     path_sects = _get_path_sect_keys(s)
     for ps in path_sects:
@@ -219,9 +221,15 @@ def _populate_paths(object, schema):
         else:
             setattr(object, ps, populated)
             _LOGGER.debug("Path set to: {}".format(object[ps]))
+            if check_exist:
+                if not os.path.exists(object[ps]):
+                    missing.append(object[ps])
+    if missing:
+        raise OSError("Path attributes not found:\n- {}".
+                      format("\n- ".join(missing)))
 
 
-def populate_sample_paths(sample, schema):
+def populate_sample_paths(sample, schema, check_exist=False):
     """
     Populate path-like Sample attributes with other object attributes
     based on a defined template, e.g. '/Users/x/test_{name}/{genome}_file.txt'
@@ -229,15 +237,17 @@ def populate_sample_paths(sample, schema):
     :param peppy.Sample sample: sample to populate paths in
     :param dict schema: schema with path attributes defined, e.g.
         output od read_schema function
+    :param bool check_exist: whether the paths should be check for existence
     :return Mapping: Sample with path templates populated
     """
     if not isinstance(sample, Sample):
         raise TypeError("Can only populate paths in peppy.Sample objects")
     if PROP_KEY in schema and "samples" in schema[PROP_KEY]:
-        _populate_paths(sample, schema[PROP_KEY]["samples"]["items"])
+        _populate_paths(sample, schema[PROP_KEY]["samples"]["items"],
+                        check_exist)
 
 
-def populate_project_paths(project, schema):
+def populate_project_paths(project, schema, check_exist=False):
     """
     Populate path-like Project attributes with other object attributes
     based on a defined template, e.g. '/Users/x/test_{name}/{genome}_file.txt'
@@ -245,11 +255,12 @@ def populate_project_paths(project, schema):
     :param peppy.Project project: project to populate paths in
     :param dict schema: schema with path attributes defined, e.g.
         output od read_schema function
+    :param bool check_exist: whether the paths should be check for existence
     :return Mapping: Project with path templates populated
     """
     if not isinstance(project, Project):
         raise TypeError("Can only populate paths in peppy.Project objects")
-    _populate_paths(project, schema)
+    _populate_paths(project, schema, check_exist)
 
 
 def main():

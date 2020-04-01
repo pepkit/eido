@@ -295,8 +295,8 @@ def get_project_outputs(project, schema):
             try:
                 res[ps][p] = s[ps][p].format(**dict(project.items()))
             except Exception as e:
-                _LOGGER.debug("Caught exception: {}.\n Could not populate "
-                                "path: {}".format(str(e), s[ps][p]))
+                _LOGGER.debug("Caught exception: {}.\n Could not populate {} "
+                              "path".format(p, str(e)))
     return PathExAttMap(res)
 
 

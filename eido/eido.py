@@ -292,12 +292,11 @@ def get_project_outputs(project, schema):
     for ps in path_sects:
         res[ps] = s[ps]
         for p in PATH_LIKE:
-            templ = s[ps][p]
             try:
-                res[ps][p] = templ.format(**dict(project.items()))
+                res[ps][p] = s[ps][p].format(**dict(project.items()))
             except Exception as e:
-                _LOGGER.warning("Caught exception: {}.\n Could not populate "
-                                "path: {}".format(str(e), templ))
+                _LOGGER.debug("Caught exception: {}.\n Could not populate "
+                                "path: {}".format(str(e), s[ps][p]))
     return PathExAttMap(res)
 
 

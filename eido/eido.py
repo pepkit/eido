@@ -187,6 +187,21 @@ def validate_config(project, schema, exclude_case=False):
     _validate_object(project_dict, schema_cpy, exclude_case)
     _LOGGER.debug("Config validation successful")
 
+PATH_KEY = "path"
+THUMB_PATH_KEY = "thumbnail_path"
+PATH_LIKE = [PATH_KEY, THUMB_PATH_KEY]
+
+
+def _get_path_sect_keys(mapping, keys=[PATH_KEY]):
+    """
+    Get names of subsections in a mapping that contain collection of keys
+
+    :param Mapping mapping: schema subsection to search for paths
+    :param  Iterable[str] keys: collection of keys to check for
+    :return Iterable[str]: collection of keys to path-like sections
+    """
+    return [k for k, v in mapping.items() if set(keys) <= set(mapping[k])]
+
 
 def _populate_paths(object, schema, check_exist):
     """
@@ -199,21 +214,13 @@ def _populate_paths(object, schema, check_exist):
     :param bool check_exist: whether the paths should be check for existence
     :return Mapping: object with path templates populated
     """
-    def _get_path_sect_keys(mapping):
-        """
-        Get names of path-like subsections in a mapping
-
-        :param Mapping mapping: schema subsection to search for paths
-        :return Iterable[str]: collection of keys to path-like sections
-        """
-        return [k for k, v in mapping.items() if "path" in mapping[k]]
     if PROP_KEY not in schema:
         raise EidoSchemaInvalidError("Schema is missing properties section.")
     missing = []
     s = schema[PROP_KEY]
     path_sects = _get_path_sect_keys(s)
     for ps in path_sects:
-        templ = s[ps]["path"]
+        templ = s[ps][PATH_KEY]
         try:
             populated = templ.format(**dict(object.items()))
         except Exception as e:
@@ -261,6 +268,37 @@ def populate_project_paths(project, schema, check_exist=False):
     if not isinstance(project, Project):
         raise TypeError("Can only populate paths in peppy.Project objects")
     _populate_paths(project, schema, check_exist)
+
+
+def get_project_outputs(project, schema):
+    """
+    Get project level outputs with path-like attributes populated with
+    project attributes
+
+    :param peppy.Project project:
+    :param dict schema:
+    :return attmap.PathExAttMap: mapping with populated path-like attributes
+    """
+    from attmap import PathExAttMap
+    # if not any([isinstance(project, Project),
+    #             issubclass(type(project), Project)]):
+    #     raise TypeError("Can only populate paths in peppy.Project "
+    #                     "objects or it subclasses")
+    if PROP_KEY not in schema:
+        raise EidoSchemaInvalidError("Schema is missing properties section.")
+    res = {}
+    s = schema[PROP_KEY]
+    path_sects = _get_path_sect_keys(s, keys=PATH_LIKE)
+    for ps in path_sects:
+        res[ps] = s[ps]
+        for p in PATH_LIKE:
+            templ = s[ps][p]
+            try:
+                res[ps][p] = templ.format(**dict(project.items()))
+            except Exception as e:
+                _LOGGER.warning("Caught exception: {}.\n Could not populate "
+                                "path: {}".format(str(e), templ))
+    return PathExAttMap(res)
 
 
 def main():

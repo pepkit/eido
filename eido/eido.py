@@ -200,7 +200,7 @@ def _get_path_sect_keys(mapping, keys=[PATH_KEY]):
     :param  Iterable[str] keys: collection of keys to check for
     :return Iterable[str]: collection of keys to path-like sections
     """
-    return [k for k, v in mapping.items() if set(keys) <= set(mapping[k])]
+    return [k for k, v in mapping.items() if bool(set(keys) & set(mapping[k]))]
 
 
 def _populate_paths(object, schema, check_exist):

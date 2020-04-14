@@ -91,7 +91,6 @@ def _preprocess_schema(schema_dict):
             if "type" in val and val["type"] in ["string", "number", "boolean"]:
                 s_props[prop] = {}
                 s_props[prop]["anyOf"] = [val, {"type": "array", "items": val}]
-    _LOGGER.info("schema edited: {}".format(schema_dict))
     return schema_dict
 
 
@@ -155,10 +154,10 @@ def validate_sample(project, sample_name, schema, exclude_case=False):
     :param bool exclude_case: whether to exclude validated objects
         from the error. Useful when used ith large projects
     """
-    schema_dict = read_schema(schema=schema)
+    schema_dict = _preprocess_schema(read_schema(schema=schema))
     sample_dict = project.samples[sample_name] if isinstance(sample_name, int) \
         else project.get_sample(sample_name)
-    sample_schema_dict = schema_dict[PROP_KEY]["samples"]["items"]
+    sample_schema_dict = schema_dict[PROP_KEY]["_samples"]["items"]
     _validate_object(sample_dict, sample_schema_dict, exclude_case)
     _LOGGER.debug("'{}' sample validation successful".format(sample_name))
 

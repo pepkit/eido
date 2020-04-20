@@ -1,7 +1,7 @@
 """
 Constant variables for eido package
 """
-
+LOGGING_LEVEL = "INFO"
 PKG_NAME = "eido"
 INSPECT_CMD = "inspect"
 VALIDATE_CMD = "validate"

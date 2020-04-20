@@ -2,10 +2,11 @@ import logging
 import os
 import sys
 import jsonschema
+import logging
 import oyaml as yaml
 from copy import deepcopy as dpcpy
 
-import logmuse
+from logmuse import init_logger
 from ubiquerg import VersionInHelpParser
 from peppy import Project, Sample
 
@@ -16,6 +17,9 @@ from .const import *
 from .exceptions import *
 
 _LOGGER = logging.getLogger(__name__)
+
+_LEVEL_BY_VERBOSITY = [logging.ERROR, logging.CRITICAL, logging.WARN,
+                       logging.INFO, logging.DEBUG]
 
 
 def build_argparser():
@@ -29,7 +33,16 @@ def build_argparser():
             version=__version__)
 
     subparsers = parser.add_subparsers(dest="command")
-
+    parser.add_argument(
+            "--verbosity", dest="verbosity",
+            type=int, choices=range(len(_LEVEL_BY_VERBOSITY)),
+            help="Choose level of verbosity (default: %(default)s)")
+    parser.add_argument(
+            "--logging-level", dest="logging_level",
+            help="logging level")
+    parser.add_argument(
+            "--dbg", dest="dbg", action="store_true",
+            help="Turn on debug mode (default: %(default)s)")
     sps = {}
     for cmd, desc in SUBPARSER_MSGS.items():
         sps[cmd] = subparsers.add_parser(cmd, description=desc, help=desc)
@@ -98,15 +111,28 @@ def read_schema(schema):
     """
     Safely read schema from YAML-formatted file.
 
+    If the schema imports any other schemas, they will be read recursively.
+
     :param str | Mapping schema: path to the schema file
         or schema in a dict form
-    :return dict: read schema
-    :raise TypeError: if the schema arg is neither a Mapping nor a file path
+    :return list[dict]: read schemas
+    :raise TypeError: if the schema arg is neither a Mapping nor a file path or
+        if the 'imports' sections in any of the schemas is not a list
     """
+    schema_list = []
     if isinstance(schema, str):
-        return _load_yaml(schema)
+        s = _load_yaml(schema)
+        if "imports" in s:
+            if isinstance(s["imports"], list):
+                for sch in s["imports"]:
+                    schema_list.extend(read_schema(sch))
+            else:
+                raise TypeError("'imports' section has to be a list")
+        schema_list.append(s)
+        return schema_list
     elif isinstance(schema, dict):
-        return schema
+        schema_list.append(schema)
+        return schema_list
     raise TypeError("schema has to be either a dict, path to an existing "
                     "file or URL to a remote one")
 
@@ -137,11 +163,12 @@ def validate_project(project, schema, exclude_case=False):
     :param bool exclude_case: whether to exclude validated objects
     from the error. Useful when used ith large projects
     """
-    schema_dict = read_schema(schema=schema)
-    project_dict = project.to_dict()
-    _validate_object(project_dict, _preprocess_schema(schema_dict),
-                     exclude_case)
-    _LOGGER.debug("Project validation successful")
+    schema_dicts = read_schema(schema=schema)
+    for schema_dict in schema_dicts:
+        project_dict = project.to_dict()
+        _validate_object(project_dict, _preprocess_schema(schema_dict),
+                         exclude_case)
+        _LOGGER.debug("Project validation successful")
 
 
 def validate_sample(project, sample_name, schema, exclude_case=False):
@@ -154,12 +181,14 @@ def validate_sample(project, sample_name, schema, exclude_case=False):
     :param bool exclude_case: whether to exclude validated objects
         from the error. Useful when used ith large projects
     """
-    schema_dict = _preprocess_schema(read_schema(schema=schema))
-    sample_dict = project.samples[sample_name] if isinstance(sample_name, int) \
-        else project.get_sample(sample_name)
-    sample_schema_dict = schema_dict[PROP_KEY]["_samples"]["items"]
-    _validate_object(sample_dict, sample_schema_dict, exclude_case)
-    _LOGGER.debug("'{}' sample validation successful".format(sample_name))
+    schema_dicts = read_schema(schema=schema)
+    for schema_dict in schema_dicts:
+        schema_dict = _preprocess_schema(schema_dict)
+        sample_dict = project.samples[sample_name] \
+            if isinstance(sample_name, int) else project.get_sample(sample_name)
+        sample_schema_dict = schema_dict[PROP_KEY]["_samples"]["items"]
+        _validate_object(sample_dict, sample_schema_dict, exclude_case)
+        _LOGGER.debug("'{}' sample validation successful".format(sample_name))
 
 
 def validate_config(project, schema, exclude_case=False):
@@ -171,31 +200,42 @@ def validate_config(project, schema, exclude_case=False):
     :param bool exclude_case: whether to exclude validated objects
         from the error. Useful when used ith large projects
     """
-    schema_dict = read_schema(schema=schema)
-    schema_cpy = dpcpy(schema_dict)
-    try:
-        del schema_cpy[PROP_KEY]["samples"]
-    except KeyError:
-        pass
-    if "required" in schema_cpy:
+    schema_dicts = read_schema(schema=schema)
+    for schema_dict in schema_dicts:
+        schema_cpy = dpcpy(schema_dict)
         try:
-            schema_cpy["required"].remove("samples")
-        except ValueError:
+            del schema_cpy[PROP_KEY]["samples"]
+        except KeyError:
             pass
-    project_dict = project.to_dict()
-    _validate_object(project_dict, schema_cpy, exclude_case)
-    _LOGGER.debug("Config validation successful")
+        if "required" in schema_cpy:
+            try:
+                schema_cpy["required"].remove("samples")
+            except ValueError:
+                pass
+        project_dict = project.to_dict()
+        _validate_object(project_dict, schema_cpy, exclude_case)
+        _LOGGER.debug("Config validation successful")
 
 
 def main():
     """ Primary workflow """
-    parser = logmuse.add_logging_options(build_argparser())
+    parser = build_argparser()
     args, remaining_args = parser.parse_known_args()
-    logger_kwargs = {"level": args.verbosity, "devmode": args.logdev}
-    logmuse.init_logger(name="peppy", **logger_kwargs)
-    logmuse.init_logger(name=PKG_NAME, **logger_kwargs)
+    # Set the logging level.
+    if args.dbg:
+        # Debug mode takes precedence and will listen for all messages.
+        level = args.logging_level or logging.DEBUG
+    elif args.verbosity is not None:
+        # Verbosity-framed specification trumps logging_level.
+        level = _LEVEL_BY_VERBOSITY[args.verbosity]
+    else:
+        # Normally, we're not in debug mode, and there's not verbosity.
+        level = LOGGING_LEVEL
+
+    logger_kwargs = {"level": level, "devmode": args.dbg}
+    init_logger(name="peppy", **logger_kwargs)
     global _LOGGER
-    _LOGGER = logmuse.logger_via_cli(args)
+    _LOGGER = init_logger(name=PKG_NAME, **logger_kwargs)
     _LOGGER.debug("Creating a Project object from: {}".format(args.pep))
     p = Project(args.pep)
     if args.command == VALIDATE_CMD:

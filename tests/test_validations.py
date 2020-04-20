@@ -50,8 +50,13 @@ class TestConfigValidation:
 
 
 class TestRemoteValidation:
-    @pytest.mark.parametrize("schema_url", ["https://schema.databio.org/PEP/pep.yaml"])
+    @pytest.mark.parametrize("schema_url", ["https://schema.databio.org/pep/2.0.0.yaml"])
     def test_validate_works_with_remote_schemas(self, project_object, schema_url):
         validate_project(project=project_object, schema=schema_url)
         validate_config(project=project_object, schema=schema_url)
         validate_sample(project=project_object, schema=schema_url, sample_name=0)
+
+
+class TestImportsValidation:
+    def test_validate(self, project_object, schema_file_path):
+        validate_project(project=project_object, schema=schema_file_path)

@@ -127,7 +127,8 @@ def read_schema(schema):
                 for sch in s["imports"]:
                     schema_list.extend(read_schema(sch))
             else:
-                raise TypeError("'imports' section has to be a list")
+                raise TypeError("In schema the 'imports' section has "
+                                "to be a list")
         schema_list.append(s)
         return schema_list
     elif isinstance(schema, dict):
@@ -150,7 +151,7 @@ def _validate_object(object, schema, exclude_case=False):
         jsonschema.validate(object, schema)
     except jsonschema.exceptions.ValidationError as e:
         if not exclude_case:
-            raise e
+            raise
         raise jsonschema.exceptions.ValidationError(e.message)
 
 

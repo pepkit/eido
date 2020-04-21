@@ -10,6 +10,7 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
     - `boolean`
     - `numeric`
 - `eido inspect` CLI command  
+- schema importing functionality (via top level `imports` key)
 
 ### Changed
 - previous CLI `eido` functionality moved to `eido validate`

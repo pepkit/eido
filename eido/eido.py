@@ -262,6 +262,10 @@ def main():
         # TODO: add more detailed Project info
         if args.sample_name:
             samples = p.get_samples(args.sample_name)
+            if not samples:
+                print("No samples matched by names: {}".
+                      format(", ".join(args.sample_name)))
+                sys.exit(0)
             for s in samples:
                 print(s)
                 print("\n")

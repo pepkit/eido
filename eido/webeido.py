@@ -1,14 +1,10 @@
-from fastapi import FastAPI
 from typing import List
-
 from fastapi import FastAPI, File, UploadFile
 from starlette.responses import HTMLResponse
-
-app = FastAPI()
-
 import eido
 from peppy import Project
 
+app = FastAPI()
 
 
 @app.get("/hello")
@@ -25,12 +21,13 @@ async def create_files(files: List[bytes] = File(...)):
 async def create_upload_files(files: List[UploadFile] = File(...)):
     return {"filenames": [file.filename for file in files]}
 
+
 @app.post("/validate/")
 async def validate_pep(file: UploadFile = File(...)):
-	p = Project("../tests/data/peps/test_cfg.yaml")
-	x = eido.validate_project(project=p, schema="http://schema.databio.org/PEP/pep.yaml")
-	return {"filename": file.filename, "valid": x}
-
+    p = Project("../tests/data/peps/test_cfg.yaml")
+    x = eido.validate_project(project=p,
+                              schema="http://schema.databio.org/pep/2.0.0.yaml")
+    return {"filename": file.filename, "valid": x}
 
 
 @app.get("/")

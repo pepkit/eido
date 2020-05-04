@@ -217,7 +217,8 @@ def validate_config(project, schema, exclude_case=False):
 
 def inspect_project(p, sample_names=None):
     """
-    Print inspection info. If
+    Print inspection info: Project or,
+    if sample_names argument is provided, matched samples
 
     :param peppy.Project p: project to inspect
     :param Iterable[str] sample_names: list of samples to inspect

@@ -9,4 +9,4 @@ from .eido import *
 
 
 __all__ = ["validate_project", "validate_sample", "validate_config",
-           "read_schema"]
+           "read_schema", "inspect_project"]

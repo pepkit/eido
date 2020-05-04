@@ -1,14 +1,11 @@
-import logging
-import os
 import sys
 import jsonschema
 import logging
-import oyaml as yaml
 from copy import deepcopy as dpcpy
 
 from logmuse import init_logger
 from ubiquerg import VersionInHelpParser
-from peppy import Project, Sample
+from peppy import Project
 
 from yacman import load_yaml as _load_yaml
 
@@ -218,6 +215,26 @@ def validate_config(project, schema, exclude_case=False):
         _LOGGER.debug("Config validation successful")
 
 
+def inspect_project(p, sample_names=None):
+    """
+    Print inspection info. If
+
+    :param peppy.Project p: project to inspect
+    :param Iterable[str] sample_names: list of samples to inspect
+    """
+    if sample_names:
+        samples = p.get_samples(sample_names)
+        if not samples:
+            print("No samples matched by names: {}".format(sample_names))
+            return
+        for s in samples:
+            print(s)
+            print("\n")
+        return
+    print(p)
+    return
+
+
 def main():
     """ Primary workflow """
     parser = build_argparser()
@@ -259,15 +276,5 @@ def main():
             validate_project(p, args.schema, args.exclude_case)
         _LOGGER.info("Validation successful")
     if args.command == INSPECT_CMD:
-        # TODO: add more detailed Project info
-        if args.sample_name:
-            samples = p.get_samples(args.sample_name)
-            if not samples:
-                print("No samples matched by names: {}".
-                      format(", ".join(args.sample_name)))
-                sys.exit(0)
-            for s in samples:
-                print(s)
-                print("\n")
-            sys.exit(0)
-        print(p)
+        inspect_project(p, args.sample_name)
+        sys.exit(0)

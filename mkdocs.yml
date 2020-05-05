@@ -11,8 +11,9 @@ nav:
     - "Tutorial: eido in Python": demo.md
     - "Tutorial: eido in a shell": cli.md
   - Reference:
-    - List of schemas: schemas.md
-    - API: autodoc_build/eido.md
+    - Schema specification: schema-specification.md
+    - Example schemas: schemas.md
+    - Eido Python API: autodoc_build/eido.md
     - Support: https://github.com/pepkit/eido/issues
     - Contributing: contributing.md
     - Changelog: changelog.md

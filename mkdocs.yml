@@ -10,9 +10,9 @@ nav:
   - How-to Guides:
     - "Tutorial: eido in Python": demo.md
     - "Tutorial: eido in a shell": cli.md
+    - Writing a schema: writing-a-schema.md
   - Reference:
-    - Schema specification: schema-specification.md
-    - Example schemas: schemas.md
+    - Example schemas: example-schemas.md
     - Eido Python API: autodoc_build/eido.md
     - Support: https://github.com/pepkit/eido/issues
     - Contributing: contributing.md

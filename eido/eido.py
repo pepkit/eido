@@ -1,10 +1,12 @@
 import sys
 import jsonschema
 import logging
+import os
 from copy import deepcopy as dpcpy
+from warnings import catch_warnings as cw
 
 from logmuse import init_logger
-from ubiquerg import VersionInHelpParser
+from ubiquerg import VersionInHelpParser, size
 from peppy import Project
 
 from yacman import load_yaml as _load_yaml
@@ -213,6 +215,45 @@ def validate_config(project, schema, exclude_case=False):
         project_dict = project.to_dict()
         _validate_object(project_dict, schema_cpy, exclude_case)
         _LOGGER.debug("Config validation successful")
+
+
+def validate_inputs(sample, schema):
+    """
+    Determine which of this Sample's required attributes/files are missing
+    and calculate sizes of the inputs.
+
+    The names of the attributes that are required and/or deemed as inputs
+    are sourced from the schema, more specifically from required_input_attrs
+    and input_attrs sections in samples section. Note, this function does
+    perform actual Sample object validation with jsonschema.
+
+    :param peppy.Sample sample: sample to investigate
+    :param dict schema: schema dict to validate against
+    :return list[str]: list of missing required file paths,
+        empty if all exist.
+    """
+    sample.all_inputs = set()
+    sample.required_inputs = set()
+    schema = schema[-1]  # use only first schema, in case there are imports
+    sample_schema_dict = schema["properties"]["samples"]["items"]
+    if ALL_INPUTS_ATTR_NAME in sample_schema_dict:
+        sample[ALL_INPUTS_ATTR_NAME] = sample_schema_dict[ALL_INPUTS_ATTR_NAME]
+        sample.all_inputs.update(
+            sample.get_attr_values(sample[ALL_INPUTS_ATTR_NAME]))
+    if REQUIRED_INPUTS_ATTR_NAME in sample_schema_dict:
+        sample[REQUIRED_INPUTS_ATTR_NAME] = \
+            sample_schema_dict[REQUIRED_INPUTS_ATTR_NAME]
+        sample.required_inputs = \
+            sample.get_attr_values(sample[REQUIRED_INPUTS_ATTR_NAME])
+        sample.all_inputs.update(sample.required_inputs)
+    with cw(record=True) as w:
+        sample.input_file_size = \
+            sum([size(f, size_str=False) or 0.0
+                 for f in sample.all_inputs if f != ""])/(1024 ** 3)
+        if w:
+            _LOGGER.warning("{} input files missing, job input size was not"
+                            " calculated accurately".format(len(w)))
+    return [i for i in sample.required_inputs if not os.path.exists(i)]
 
 
 def inspect_project(p, sample_names=None):

@@ -118,21 +118,22 @@ def read_schema(schema):
     :raise TypeError: if the schema arg is neither a Mapping nor a file path or
         if the 'imports' sections in any of the schemas is not a list
     """
-    schema_list = []
-    if isinstance(schema, str):
-        s = _load_yaml(schema)
-        if "imports" in s:
-            if isinstance(s["imports"], list):
-                for sch in s["imports"]:
-                    schema_list.extend(read_schema(sch))
+    def _recursively_read_schemas(x, lst):
+        if "imports" in x:
+            if isinstance(x["imports"], list):
+                for sch in x["imports"]:
+                    lst.extend(read_schema(sch))
             else:
                 raise TypeError("In schema the 'imports' section has "
                                 "to be a list")
-        schema_list.append(s)
-        return schema_list
+        lst.append(x)
+        return lst
+
+    schema_list = []
+    if isinstance(schema, str):
+        return _recursively_read_schemas(_load_yaml(schema), schema_list)
     elif isinstance(schema, dict):
-        schema_list.append(schema)
-        return schema_list
+        return _recursively_read_schemas(schema, schema_list)
     raise TypeError("schema has to be either a dict, path to an existing "
                     "file or URL to a remote one")
 

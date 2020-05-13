@@ -45,3 +45,7 @@ def schema_invalid_file_path(schemas_path):
 @pytest.fixture
 def schema_sample_invalid_file_path(schemas_path):
     return os.path.join(schemas_path, "test_schema_sample_invalid.yaml")
+
+@pytest.fixture
+def schema_imports_file_path(schemas_path):
+    return os.path.join(schemas_path, "test_schema_imports.yaml")

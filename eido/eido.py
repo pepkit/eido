@@ -237,15 +237,13 @@ def validate_inputs(sample, schema):
     sample.required_inputs = set()
     schema = schema[-1]  # use only first schema, in case there are imports
     sample_schema_dict = schema["properties"]["samples"]["items"]
-    if ALL_INPUTS_ATTR_NAME in sample_schema_dict:
-        sample[ALL_INPUTS_ATTR_NAME] = sample_schema_dict[ALL_INPUTS_ATTR_NAME]
-        sample.all_inputs.update(
-            sample.get_attr_values(sample[ALL_INPUTS_ATTR_NAME]))
-    if REQUIRED_INPUTS_ATTR_NAME in sample_schema_dict:
-        sample[REQUIRED_INPUTS_ATTR_NAME] = \
-            sample_schema_dict[REQUIRED_INPUTS_ATTR_NAME]
+    if FILES_KEY in sample_schema_dict:
+        sample[FILES_KEY] = sample_schema_dict[FILES_KEY]
+        sample.all_inputs.update(sample.get_attr_values(sample[FILES_KEY]))
+    if REQUIRED_FILES_KEY in sample_schema_dict:
+        sample[REQUIRED_FILES_KEY] = sample_schema_dict[REQUIRED_FILES_KEY]
         sample.required_inputs = \
-            sample.get_attr_values(sample[REQUIRED_INPUTS_ATTR_NAME])
+            sample.get_attr_values(sample[REQUIRED_FILES_KEY])
         sample.all_inputs.update(sample.required_inputs)
     with cw(record=True) as w:
         sample.input_file_size = \

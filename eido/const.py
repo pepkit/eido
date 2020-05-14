@@ -10,5 +10,5 @@ SUBPARSER_MSGS = {
     INSPECT_CMD: "Inspect a PEP."
 }
 PROP_KEY = "properties"
-REQUIRED_INPUTS_ATTR_NAME = "required_inputs_attr"
-ALL_INPUTS_ATTR_NAME = "all_inputs_attr"
+REQUIRED_FILES_KEY = "required_files"
+FILES_KEY = "files"

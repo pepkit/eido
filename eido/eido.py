@@ -62,6 +62,10 @@ def build_argparser():
         "-n", "--sample-name", required=False, nargs="+",
         help="Name of the samples to inspect.")
 
+    sps[INSPECT_CMD].add_argument(
+        "-l", "--attr-limit", required=False, type=int, default=10,
+        help="Name of the samples to inspect.")
+
     group = sps[VALIDATE_CMD].add_mutually_exclusive_group()
 
     group.add_argument(
@@ -255,7 +259,7 @@ def validate_inputs(sample, schema):
     return [i for i in sample.required_inputs if not os.path.exists(i)]
 
 
-def inspect_project(p, sample_names=None):
+def inspect_project(p, sample_names=None, max_attr=10):
     """
     Print inspection info: Project or,
     if sample_names argument is provided, matched samples
@@ -269,7 +273,7 @@ def inspect_project(p, sample_names=None):
             print("No samples matched by names: {}".format(sample_names))
             return
         for s in samples:
-            print(s)
+            print(s.__str__(max_attr=max_attr))
             print("\n")
         return
     print(p)
@@ -317,5 +321,5 @@ def main():
             validate_project(p, args.schema, args.exclude_case)
         _LOGGER.info("Validation successful")
     if args.command == INSPECT_CMD:
-        inspect_project(p, args.sample_name)
+        inspect_project(p, args.sample_name, args.attr_limit)
         sys.exit(0)

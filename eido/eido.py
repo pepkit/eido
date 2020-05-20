@@ -64,7 +64,7 @@ def build_argparser():
 
     sps[INSPECT_CMD].add_argument(
         "-l", "--attr-limit", required=False, type=int, default=10,
-        help="Name of the samples to inspect.")
+        help="Number of sample attributes to display.")
 
     group = sps[VALIDATE_CMD].add_mutually_exclusive_group()
 

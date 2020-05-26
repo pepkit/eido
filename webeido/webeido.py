@@ -35,8 +35,9 @@ async def root():
 
 
 schemas_to_test = {
-    "Generic PEP": "http://schema.databio.org/PEP/pep.yaml",
+    "Generic PEP": "http://schema.databio.org/pep/2.0.0.yaml",
     "PEPPRO": "http://schema.databio.org/pipelines/ProseqPEP.yaml",
+    "PEPATAC": "http://schema.databio.org/pipelines/pepatac.yaml",
     "bedmaker": "http://schema.databio.org/pipelines/bedmaker.yaml",
     "refgenie": "http://schema.databio.org/refgenie/refgenie_build.yaml",
     "bulker": "http://schema.databio.org/bulker/manifest.yaml"

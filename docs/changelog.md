@@ -2,6 +2,22 @@
 
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html) and [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) format. 
 
+## [0.1.0] - 2020-05-26
+### Added
+- automatic support for subsamples for sample the following property types:
+    - `string`
+    - `boolean`
+    - `numeric`
+- `eido inspect` CLI command
+- schema importing functionality (via top level `imports` key)
+- exported functions:
+    - `validate_inputs`
+    - `inspect_project`
+    - `read_schema`
+
+### Changed
+- previous CLI `eido` functionality moved to `eido validate`
+ 
 ## [0.0.6] - 2020-02-07
 ### Changed
 - CLI can accommodate URLs.

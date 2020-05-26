@@ -1,5 +1,5 @@
 ubiquerg>=0.5.2
 logmuse>=0.2.5
 jsonschema>=3.0.1
-peppy>=0.30.0-dev
+peppy>=0.30.1
 yacman>=0.6.7

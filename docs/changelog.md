@@ -2,6 +2,11 @@
 
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html) and [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) format. 
 
+## [0.1.1] - 2020-05-27
+### Changed
+- documentation updates
+- CLI behavior when no subcommand provided; [#20](https://github.com/pepkit/eido/issues/20)
+
 ## [0.1.0] - 2020-05-26
 ### Added
 - automatic support for subsamples for sample the following property types:

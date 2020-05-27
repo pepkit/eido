@@ -285,6 +285,11 @@ def main():
     """ Primary workflow """
     parser = build_argparser()
     args, remaining_args = parser.parse_known_args()
+
+    if args.command is None:
+        parser.print_help(sys.stderr)
+        sys.exit(1)
+    
     # Set the logging level.
     if args.dbg:
         # Debug mode takes precedence and will listen for all messages.

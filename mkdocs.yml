@@ -1,4 +1,5 @@
 site_name: eido
+site_logo: img/eido_dark.svg
 site_url: http://eido.databio.org/
 repo_url: http://github.com/pepkit/eido
 pypi_name: eido

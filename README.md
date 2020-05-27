@@ -1,4 +1,4 @@
-# eido
+# <img src="docs/img/eido.svg" alt="eido logo" height="70">
 
 [![Build Status](https://travis-ci.org/pepkit/eido.svg?branch=master)](https://travis-ci.org/pepkit/eido)
 [![Coverage Status](https://coveralls.io/repos/github/pepkit/eido/badge.svg?branch=master)](https://coveralls.io/github/pepkit/eido?branch=master)

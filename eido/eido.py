@@ -259,6 +259,7 @@ def validate_inputs(sample, schema):
         return list(flatten([getattr(obj, attr, "") for attr in attrlist]))
 
     all_inputs = set()
+    required_inputs = set()
     schema = schema[-1]  # use only first schema, in case there are imports
     sample_schema_dict = schema["properties"]["samples"]["items"]
     if FILES_KEY in sample_schema_dict:

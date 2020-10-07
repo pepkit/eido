@@ -1,3 +1,0 @@
-mock>=2.0.0
-pytest>=3.0.7
--e git+git://github.com/pepkit/peppy@dev#egg=peppy

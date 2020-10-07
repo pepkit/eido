@@ -4,6 +4,7 @@ import logging
 import os
 from copy import deepcopy as dpcpy
 from warnings import catch_warnings as cw
+from pandas.core.common import flatten
 
 from logmuse import init_logger
 from ubiquerg import VersionInHelpParser, size
@@ -234,29 +235,50 @@ def validate_inputs(sample, schema):
 
     :param peppy.Sample sample: sample to investigate
     :param dict schema: schema dict to validate against
-    :return list[str]: list of missing required file paths,
-        empty if all exist.
+    :return dict: dictionary with validation data, i.e missing,
+        required_inputs, all_inputs, input_file_size
     """
-    sample.all_inputs = set()
-    sample.required_inputs = set()
+    def _get_attr_values(obj, attrlist):
+        """
+        Get value corresponding to each given attribute.
+
+        :param Mapping obj: an object to get the attributes from
+        :param str | Iterable[str] attrlist: names of attributes to
+            retrieve values for
+        :return dict: value corresponding to
+            each named attribute; null if this Sample's value for the
+            attribute given by the argument to the "attrlist" parameter is
+            empty/null, or if this Sample lacks the indicated attribute
+        """
+        # If attribute is None, then value is also None.
+        if not attrlist:
+            return None
+        if not isinstance(attrlist, list):
+            attrlist = [attrlist]
+        # Strings contained here are appended later so shouldn't be null.
+        return list(flatten([getattr(obj, attr, "") for attr in attrlist]))
+
+    all_inputs = set()
+    required_inputs = set()
     schema = schema[-1]  # use only first schema, in case there are imports
     sample_schema_dict = schema["properties"]["samples"]["items"]
     if FILES_KEY in sample_schema_dict:
-        sample[FILES_KEY] = sample_schema_dict[FILES_KEY]
-        sample.all_inputs.update(sample.get_attr_values(sample[FILES_KEY]))
+        all_inputs.update(
+            _get_attr_values(sample, sample_schema_dict[FILES_KEY]))
     if REQUIRED_FILES_KEY in sample_schema_dict:
-        sample[REQUIRED_FILES_KEY] = sample_schema_dict[REQUIRED_FILES_KEY]
-        sample.required_inputs = \
-            sample.get_attr_values(sample[REQUIRED_FILES_KEY])
-        sample.all_inputs.update(sample.required_inputs)
+        required_inputs = set(_get_attr_values(
+            sample, sample_schema_dict[REQUIRED_FILES_KEY]))
+        all_inputs.update(required_inputs)
     with cw(record=True) as w:
-        sample.input_file_size = \
-            sum([size(f, size_str=False) or 0.0
-                 for f in sample.all_inputs if f != ""])/(1024 ** 3)
+        input_file_size = sum([size(f, size_str=False) or 0.0
+                               for f in all_inputs if f != ""])/(1024 ** 3)
         if w:
-            _LOGGER.warning("{} input files missing, job input size was not"
-                            " calculated accurately".format(len(w)))
-    return [i for i in sample.required_inputs if not os.path.exists(i)]
+            _LOGGER.warning(f"{len(w)} input files missing, job input size was "
+                            f"not calculated accurately")
+
+    return {MISSING_KEY: [i for i in required_inputs if not os.path.exists(i)],
+            REQUIRED_INPUTS_KEY: required_inputs, ALL_INPUTS_KEY: all_inputs,
+            INPUT_FILE_SIZE_KEY: input_file_size}
 
 
 def inspect_project(p, sample_names=None, max_attr=10):

@@ -2,6 +2,11 @@
 
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html) and [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) format. 
 
+## [0.1.3] - 2020-10-07
+### Changed
+- `validate_inputs` function now returns a dictionary with validation data, i.e missing, required_inputs, all_inputs, input_file_size rather than a list of missing files
+- `validate_inputs` function does not modify `Sample` objects
+
 ## [0.1.2] - 2020-08-06
 ### Added
 - license in the package source distribution

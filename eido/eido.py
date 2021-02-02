@@ -94,7 +94,11 @@ def _preprocess_schema(schema_dict):
     :param dict schema_dict: schema dictionary to preprocess
     :return dict: preprocessed schema
     """
-    _LOGGER.debug("schema ori: {}".format(schema_dict))
+    _LOGGER.debug(f"schema ori: {schema_dict}")
+    if "config" in schema_dict[PROP_KEY]:
+        schema_dict[PROP_KEY]["_config"] = \
+            schema_dict[PROP_KEY]["config"]
+        del schema_dict[PROP_KEY]["config"]
     if "samples" in schema_dict[PROP_KEY]:
         schema_dict[PROP_KEY]["_samples"] = \
             schema_dict[PROP_KEY]["samples"]
@@ -108,6 +112,7 @@ def _preprocess_schema(schema_dict):
             if "type" in val and val["type"] in ["string", "number", "boolean"]:
                 s_props[prop] = {}
                 s_props[prop]["anyOf"] = [val, {"type": "array", "items": val}]
+    _LOGGER.debug(f"schema processed: {schema_dict}")
     return schema_dict
 
 
@@ -208,7 +213,7 @@ def validate_config(project, schema, exclude_case=False):
     """
     schema_dicts = read_schema(schema=schema)
     for schema_dict in schema_dicts:
-        schema_cpy = dpcpy(schema_dict)
+        schema_cpy = _preprocess_schema(dpcpy(schema_dict))
         try:
             del schema_cpy[PROP_KEY]["samples"]
         except KeyError:

@@ -215,12 +215,12 @@ def validate_config(project, schema, exclude_case=False):
     for schema_dict in schema_dicts:
         schema_cpy = _preprocess_schema(dpcpy(schema_dict))
         try:
-            del schema_cpy[PROP_KEY]["samples"]
+            del schema_cpy[PROP_KEY]["_samples"]
         except KeyError:
             pass
         if "required" in schema_cpy:
             try:
-                schema_cpy["required"].remove("samples")
+                schema_cpy["required"].remove("_samples")
             except ValueError:
                 pass
         project_dict = project.to_dict()

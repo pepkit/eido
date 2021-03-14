@@ -1,23 +1,22 @@
-from fastapi import FastAPI
 from typing import List
 
 from fastapi import FastAPI, File, UploadFile
-from starlette.responses import HTMLResponse
 from starlette.requests import Request
-from starlette.templating import Jinja2Templates
+from starlette.responses import HTMLResponse
 from starlette.staticfiles import StaticFiles
-
+from starlette.templating import Jinja2Templates
 
 app = FastAPI()
-
-import eido
-from peppy import Project
-import yaml
 
 import os
 import shutil
 
 import jinja2
+import yaml
+from peppy import Project
+
+import eido
+
 TEMPLATES_PATH = "templates"
 templates = Jinja2Templates(directory=TEMPLATES_PATH)
 je = jinja2.Environment(loader=jinja2.FileSystemLoader(TEMPLATES_PATH))
@@ -31,6 +30,7 @@ app.mount("/" + "static", StaticFiles(directory="static"), name="static")
 async def root():
     return {"message": "Hello World"}
 
+
 # Removed links from template because url_for gave errors:
 
 
@@ -40,8 +40,9 @@ schemas_to_test = {
     "PEPATAC": "http://schema.databio.org/pipelines/pepatac.yaml",
     "bedmaker": "http://schema.databio.org/pipelines/bedmaker.yaml",
     "refgenie": "http://schema.databio.org/refgenie/refgenie_build.yaml",
-    "bulker": "http://schema.databio.org/bulker/manifest.yaml"
+    "bulker": "http://schema.databio.org/bulker/manifest.yaml",
 }
+
 
 @app.post("/validate/")
 async def validate_pep(request: Request, files: List[UploadFile] = File(...)):
@@ -50,7 +51,7 @@ async def validate_pep(request: Request, files: List[UploadFile] = File(...)):
     for file in files:
         print(file)
         file_object = file.file
-        uploaded = open(os.path.join(upload_folder, file.filename), 'wb+')
+        uploaded = open(os.path.join(upload_folder, file.filename), "wb+")
         shutil.copyfileobj(file_object, uploaded)
         uploaded.close()
         print(uploaded.name)
@@ -72,18 +73,18 @@ async def validate_pep(request: Request, files: List[UploadFile] = File(...)):
             print(x)
         return str(x)
 
-    vals = {"name": pconf,
-            "filenames": [file.filename for file in files],
-            "request": request,
-            'validations': []
-            }
+    vals = {
+        "name": pconf,
+        "filenames": [file.filename for file in files],
+        "request": request,
+        "validations": [],
+    }
     for name, schema in schemas_to_test.items():
-        vals['validations'].append({
-            "name": name,
-            "schema": schema,
-            "result": vwrap(p, schema)
-            })
+        vals["validations"].append(
+            {"name": name, "schema": schema, "result": vwrap(p, schema)}
+        )
     return HTMLResponse(je.get_template("validation_results.html").render(**vals))
+
 
 @app.get("/")
 async def main():

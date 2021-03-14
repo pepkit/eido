@@ -1,84 +1,17 @@
-import sys
-import jsonschema
 import logging
 import os
 from copy import deepcopy as dpcpy
 from warnings import catch_warnings as cw
+
+import jsonschema
 from pandas.core.common import flatten
-
-from logmuse import init_logger
-from ubiquerg import VersionInHelpParser, size
-from peppy import Project
-
+from ubiquerg import size
 from yacman import load_yaml as _load_yaml
 
-from . import __version__
 from .const import *
 from .exceptions import *
 
 _LOGGER = logging.getLogger(__name__)
-
-_LEVEL_BY_VERBOSITY = [logging.ERROR, logging.CRITICAL, logging.WARN,
-                       logging.INFO, logging.DEBUG]
-
-
-def build_argparser():
-    banner = "%(prog)s - Interact with PEPs"
-    additional_description = "\nhttp://eido.databio.org/"
-
-    parser = VersionInHelpParser(
-            prog=PKG_NAME,
-            description=banner,
-            epilog=additional_description,
-            version=__version__)
-
-    subparsers = parser.add_subparsers(dest="command")
-    parser.add_argument(
-            "--verbosity", dest="verbosity",
-            type=int, choices=range(len(_LEVEL_BY_VERBOSITY)),
-            help="Choose level of verbosity (default: %(default)s)")
-    parser.add_argument(
-            "--logging-level", dest="logging_level",
-            help="logging level")
-    parser.add_argument(
-            "--dbg", dest="dbg", action="store_true",
-            help="Turn on debug mode (default: %(default)s)")
-    sps = {}
-    for cmd, desc in SUBPARSER_MSGS.items():
-        sps[cmd] = subparsers.add_parser(cmd, description=desc, help=desc)
-        sps[cmd].add_argument('pep', metavar="PEP",
-                              help="Path to a PEP configuration "
-                                   "file in yaml format.")
-
-    sps[VALIDATE_CMD].add_argument("-s", "--schema", required=True,
-            help="Path to a PEP schema file in yaml format.")
-
-    sps[VALIDATE_CMD].add_argument(
-            "-e", "--exclude-case", default=False, action="store_true",
-            help="Whether to exclude the validation case from an error. "
-                 "Only the human readable message explaining the error will "
-                 "be raised. Useful when validating large PEPs.")
-
-    sps[INSPECT_CMD].add_argument(
-        "-n", "--sample-name", required=False, nargs="+",
-        help="Name of the samples to inspect.")
-
-    sps[INSPECT_CMD].add_argument(
-        "-l", "--attr-limit", required=False, type=int, default=10,
-        help="Number of sample attributes to display.")
-
-    group = sps[VALIDATE_CMD].add_mutually_exclusive_group()
-
-    group.add_argument(
-        "-n", "--sample-name", required=False,
-        help="Name or index of the sample to validate. "
-             "Only this sample will be validated.")
-
-    group.add_argument(
-        "-c", "--just-config", required=False, action="store_true",
-        default=False, help="Whether samples should be excluded from the "
-                            "validation.")
-    return parser
 
 
 def _preprocess_schema(schema_dict):
@@ -94,20 +27,24 @@ def _preprocess_schema(schema_dict):
     :param dict schema_dict: schema dictionary to preprocess
     :return dict: preprocessed schema
     """
-    _LOGGER.debug("schema ori: {}".format(schema_dict))
+    _LOGGER.debug(f"schema ori: {schema_dict}")
+    if "config" in schema_dict[PROP_KEY]:
+        schema_dict[PROP_KEY]["_config"] = schema_dict[PROP_KEY]["config"]
+        del schema_dict[PROP_KEY]["config"]
     if "samples" in schema_dict[PROP_KEY]:
-        schema_dict[PROP_KEY]["_samples"] = \
-            schema_dict[PROP_KEY]["samples"]
+        schema_dict[PROP_KEY]["_samples"] = schema_dict[PROP_KEY]["samples"]
         del schema_dict[PROP_KEY]["samples"]
-        schema_dict["required"][schema_dict["required"].index("samples")] = \
-            "_samples"
-    if "items" in schema_dict[PROP_KEY]["_samples"] \
-            and PROP_KEY in schema_dict[PROP_KEY]["_samples"]["items"]:
+        schema_dict["required"][schema_dict["required"].index("samples")] = "_samples"
+    if (
+        "items" in schema_dict[PROP_KEY]["_samples"]
+        and PROP_KEY in schema_dict[PROP_KEY]["_samples"]["items"]
+    ):
         s_props = schema_dict[PROP_KEY]["_samples"]["items"][PROP_KEY]
         for prop, val in s_props.items():
             if "type" in val and val["type"] in ["string", "number", "boolean"]:
                 s_props[prop] = {}
                 s_props[prop]["anyOf"] = [val, {"type": "array", "items": val}]
+    _LOGGER.debug(f"schema processed: {schema_dict}")
     return schema_dict
 
 
@@ -123,14 +60,14 @@ def read_schema(schema):
     :raise TypeError: if the schema arg is neither a Mapping nor a file path or
         if the 'imports' sections in any of the schemas is not a list
     """
+
     def _recursively_read_schemas(x, lst):
         if "imports" in x:
             if isinstance(x["imports"], list):
                 for sch in x["imports"]:
                     lst.extend(read_schema(sch))
             else:
-                raise TypeError("In schema the 'imports' section has "
-                                "to be a list")
+                raise TypeError("In schema the 'imports' section has " "to be a list")
         lst.append(x)
         return lst
 
@@ -139,8 +76,10 @@ def read_schema(schema):
         return _recursively_read_schemas(_load_yaml(schema), schema_list)
     elif isinstance(schema, dict):
         return _recursively_read_schemas(schema, schema_list)
-    raise TypeError("schema has to be either a dict, path to an existing "
-                    "file or URL to a remote one")
+    raise TypeError(
+        "schema has to be either a dict, path to an existing "
+        "file or URL to a remote one"
+    )
 
 
 def _validate_object(object, schema, exclude_case=False):
@@ -172,8 +111,7 @@ def validate_project(project, schema, exclude_case=False):
     schema_dicts = read_schema(schema=schema)
     for schema_dict in schema_dicts:
         project_dict = project.to_dict()
-        _validate_object(project_dict, _preprocess_schema(schema_dict),
-                         exclude_case)
+        _validate_object(project_dict, _preprocess_schema(schema_dict), exclude_case)
         _LOGGER.debug("Project validation successful")
 
 
@@ -190,8 +128,11 @@ def validate_sample(project, sample_name, schema, exclude_case=False):
     schema_dicts = read_schema(schema=schema)
     for schema_dict in schema_dicts:
         schema_dict = _preprocess_schema(schema_dict)
-        sample_dict = project.samples[sample_name] \
-            if isinstance(sample_name, int) else project.get_sample(sample_name)
+        sample_dict = (
+            project.samples[sample_name]
+            if isinstance(sample_name, int)
+            else project.get_sample(sample_name)
+        )
         sample_schema_dict = schema_dict[PROP_KEY]["_samples"]["items"]
         _validate_object(sample_dict, sample_schema_dict, exclude_case)
         _LOGGER.debug("'{}' sample validation successful".format(sample_name))
@@ -208,14 +149,14 @@ def validate_config(project, schema, exclude_case=False):
     """
     schema_dicts = read_schema(schema=schema)
     for schema_dict in schema_dicts:
-        schema_cpy = dpcpy(schema_dict)
+        schema_cpy = _preprocess_schema(dpcpy(schema_dict))
         try:
-            del schema_cpy[PROP_KEY]["samples"]
+            del schema_cpy[PROP_KEY]["_samples"]
         except KeyError:
             pass
         if "required" in schema_cpy:
             try:
-                schema_cpy["required"].remove("samples")
+                schema_cpy["required"].remove("_samples")
             except ValueError:
                 pass
         project_dict = project.to_dict()
@@ -238,6 +179,7 @@ def validate_inputs(sample, schema):
     :return dict: dictionary with validation data, i.e missing,
         required_inputs, all_inputs, input_file_size
     """
+
     def _get_attr_values(obj, attrlist):
         """
         Get value corresponding to each given attribute.
@@ -263,22 +205,28 @@ def validate_inputs(sample, schema):
     schema = schema[-1]  # use only first schema, in case there are imports
     sample_schema_dict = schema["properties"]["samples"]["items"]
     if FILES_KEY in sample_schema_dict:
-        all_inputs.update(
-            _get_attr_values(sample, sample_schema_dict[FILES_KEY]))
+        all_inputs.update(_get_attr_values(sample, sample_schema_dict[FILES_KEY]))
     if REQUIRED_FILES_KEY in sample_schema_dict:
-        required_inputs = set(_get_attr_values(
-            sample, sample_schema_dict[REQUIRED_FILES_KEY]))
+        required_inputs = set(
+            _get_attr_values(sample, sample_schema_dict[REQUIRED_FILES_KEY])
+        )
         all_inputs.update(required_inputs)
     with cw(record=True) as w:
-        input_file_size = sum([size(f, size_str=False) or 0.0
-                               for f in all_inputs if f != ""])/(1024 ** 3)
+        input_file_size = sum(
+            [size(f, size_str=False) or 0.0 for f in all_inputs if f != ""]
+        ) / (1024 ** 3)
         if w:
-            _LOGGER.warning(f"{len(w)} input files missing, job input size was "
-                            f"not calculated accurately")
+            _LOGGER.warning(
+                f"{len(w)} input files missing, job input size was "
+                f"not calculated accurately"
+            )
 
-    return {MISSING_KEY: [i for i in required_inputs if not os.path.exists(i)],
-            REQUIRED_INPUTS_KEY: required_inputs, ALL_INPUTS_KEY: all_inputs,
-            INPUT_FILE_SIZE_KEY: input_file_size}
+    return {
+        MISSING_KEY: [i for i in required_inputs if not os.path.exists(i)],
+        REQUIRED_INPUTS_KEY: required_inputs,
+        ALL_INPUTS_KEY: all_inputs,
+        INPUT_FILE_SIZE_KEY: input_file_size,
+    }
 
 
 def inspect_project(p, sample_names=None, max_attr=10):
@@ -301,53 +249,3 @@ def inspect_project(p, sample_names=None, max_attr=10):
         return
     print(p)
     return
-
-
-def main():
-    """ Primary workflow """
-    parser = build_argparser()
-    args, remaining_args = parser.parse_known_args()
-
-    if args.command is None:
-        parser.print_help(sys.stderr)
-        sys.exit(1)
-    
-    # Set the logging level.
-    if args.dbg:
-        # Debug mode takes precedence and will listen for all messages.
-        level = args.logging_level or logging.DEBUG
-    elif args.verbosity is not None:
-        # Verbosity-framed specification trumps logging_level.
-        level = _LEVEL_BY_VERBOSITY[args.verbosity]
-    else:
-        # Normally, we're not in debug mode, and there's not verbosity.
-        level = LOGGING_LEVEL
-
-    logger_kwargs = {"level": level, "devmode": args.dbg}
-    init_logger(name="peppy", **logger_kwargs)
-    global _LOGGER
-    _LOGGER = init_logger(name=PKG_NAME, **logger_kwargs)
-    _LOGGER.debug("Creating a Project object from: {}".format(args.pep))
-    p = Project(args.pep)
-    if args.command == VALIDATE_CMD:
-        if args.sample_name:
-            try:
-                args.sample_name = int(args.sample_name)
-            except ValueError:
-                pass
-            _LOGGER.debug("Comparing Sample ('{}') in the Project ('{}') "
-                          "against a schema: {}.".
-                          format(args.sample_name, args.pep, args.schema))
-            validate_sample(p, args.sample_name, args.schema, args.exclude_case)
-        elif args.just_config:
-            _LOGGER.debug("Comparing config ('{}') against a schema: {}.".
-                          format(args.pep, args.schema))
-            validate_config(p, args.schema, args.exclude_case)
-        else:
-            _LOGGER.debug("Comparing Project ('{}') against a schema: {}.".
-                          format(args.pep, args.schema))
-            validate_project(p, args.schema, args.exclude_case)
-        _LOGGER.info("Validation successful")
-    if args.command == INSPECT_CMD:
-        inspect_project(p, args.sample_name, args.attr_limit)
-        sys.exit(0)

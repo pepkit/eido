@@ -1,6 +1,6 @@
 <img src="img/eido.svg" alt="eido" width="200"/>
-[![Build Status](https://travis-ci.org/pepkit/eido.svg?branch=master)](https://travis-ci.org/pepkit/eido)
-[![Coverage Status](https://coveralls.io/repos/github/pepkit/eido/badge.svg?branch=master)](https://coveralls.io/github/pepkit/eido?branch=master)
+![Run pytests](https://github.com/pepkit/eido/workflows/Run%20pytests/badge.svg)
+[![codecov](https://codecov.io/gh/pepkit/eido/branch/master/graph/badge.svg)](https://codecov.io/gh/pepkit/eido)
 [![PEP compatible](http://pepkit.github.io/img/PEP-compatible-green.svg)](http://pepkit.github.io)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 

@@ -1,5 +1,6 @@
-import pytest
 import os
+
+import pytest
 from peppy import Project
 
 
@@ -42,9 +43,11 @@ def schema_samples_file_path(schemas_path):
 def schema_invalid_file_path(schemas_path):
     return os.path.join(schemas_path, "test_schema_invalid.yaml")
 
+
 @pytest.fixture
 def schema_sample_invalid_file_path(schemas_path):
     return os.path.join(schemas_path, "test_schema_sample_invalid.yaml")
+
 
 @pytest.fixture
 def schema_imports_file_path(schemas_path):

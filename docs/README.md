@@ -2,6 +2,7 @@
 [![Build Status](https://travis-ci.org/pepkit/eido.svg?branch=master)](https://travis-ci.org/pepkit/eido)
 [![Coverage Status](https://coveralls.io/repos/github/pepkit/eido/badge.svg?branch=master)](https://coveralls.io/github/pepkit/eido?branch=master)
 [![PEP compatible](http://pepkit.github.io/img/PEP-compatible-green.svg)](http://pepkit.github.io)
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
 ## Introduction
 

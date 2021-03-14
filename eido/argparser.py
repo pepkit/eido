@@ -1,14 +1,16 @@
+from logging import CRITICAL, DEBUG, ERROR, INFO, WARN
+
 from ubiquerg import VersionInHelpParser
 
 from . import __version__
 from .const import *
 
 LEVEL_BY_VERBOSITY = [
-    logging.ERROR,
-    logging.CRITICAL,
-    logging.WARN,
-    logging.INFO,
-    logging.DEBUG,
+    ERROR,
+    CRITICAL,
+    WARN,
+    INFO,
+    DEBUG,
 ]
 
 
@@ -52,6 +54,7 @@ def build_argparser():
         "--schema",
         required=True,
         help="Path to a PEP schema file in yaml format.",
+        metavar="S",
     )
 
     sps[VALIDATE_CMD].add_argument(
@@ -70,6 +73,7 @@ def build_argparser():
         required=False,
         nargs="+",
         help="Name of the samples to inspect.",
+        metavar="SN",
     )
 
     sps[INSPECT_CMD].add_argument(
@@ -89,6 +93,7 @@ def build_argparser():
         required=False,
         help="Name or index of the sample to validate. "
         "Only this sample will be validated.",
+        metavar="S",
     )
 
     group.add_argument(

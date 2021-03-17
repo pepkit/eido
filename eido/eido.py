@@ -5,8 +5,8 @@ from warnings import catch_warnings as cw
 
 import jsonschema
 from pandas.core.common import flatten
+from peppy.utils import load_yaml
 from ubiquerg import size
-from yacman import load_yaml as _load_yaml
 
 from .const import *
 from .exceptions import *

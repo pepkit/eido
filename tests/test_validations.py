@@ -3,7 +3,7 @@ from jsonschema.exceptions import ValidationError
 from yaml import safe_load
 
 from eido import *
-from eido.eido import _load_yaml
+from eido.eido import load_yaml
 
 
 class TestProjectValidation:
@@ -32,7 +32,7 @@ class TestProjectValidation:
         validate_project(project=project_object, schema=schema_samples_file_path)
 
     def test_validate_works_with_dict_schema(self, project_object, schema_file_path):
-        validate_project(project=project_object, schema=_load_yaml(schema_file_path))
+        validate_project(project=project_object, schema=load_yaml(schema_file_path))
 
     @pytest.mark.parametrize("schema_arg", [1, None, [1, 2, 3]])
     def test_validate_raises_error_for_incorrect_schema_type(

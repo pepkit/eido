@@ -6,8 +6,7 @@ from peppy import Project
 
 from .argparser import LEVEL_BY_VERBOSITY, build_argparser
 from .const import *
-from .eido import (inspect_project, validate_config, validate_project,
-                   validate_sample)
+from .eido import inspect_project, validate_config, validate_project, validate_sample
 
 
 def main():

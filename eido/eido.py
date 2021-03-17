@@ -73,7 +73,7 @@ def read_schema(schema):
 
     schema_list = []
     if isinstance(schema, str):
-        return _recursively_read_schemas(_load_yaml(schema), schema_list)
+        return _recursively_read_schemas(load_yaml(schema), schema_list)
     elif isinstance(schema, dict):
         return _recursively_read_schemas(schema, schema_list)
     raise TypeError(

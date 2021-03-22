@@ -18,7 +18,7 @@ A PEP consists of metadata describing a set of items called *samples*. The metad
 
 An eido schema is written using the JSON Schema vocabulary, plus a few additional features:
 
-1. **required input files**. Eido adds `requied_files`, which allows a schema author to specify which attributes must point to files that exist.
+1. **required input files**. Eido adds `required_files`, which allows a schema author to specify which attributes must point to files that exist.
 2. **optional input files**. `files` specifies which attributes point to files that may or may not exist.
 3. **project and sample validation**. Eido validates project attributes separately from sample attributes.
 4. **schema imports**. Eido adds an `imports` section for schemas that should be validated prior to this schema

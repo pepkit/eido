@@ -2,6 +2,10 @@
 
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html) and [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) format. 
 
+## [0.1.5] - unreleased
+### Changed
+- in `validate_inputs` function sample attributes are first validated for existence before their values' existence is checked 
+
 ## [0.1.4] - 2021-03-14
 ### Changed
 - update schema preprocessing

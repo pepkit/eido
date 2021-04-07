@@ -67,7 +67,7 @@ def read_schema(schema):
                 for sch in x["imports"]:
                     lst.extend(read_schema(sch))
             else:
-                raise TypeError("In schema the 'imports' section has " "to be a list")
+                raise TypeError("In schema the 'imports' section has to be a list")
         lst.append(x)
         return lst
 
@@ -77,8 +77,8 @@ def read_schema(schema):
     elif isinstance(schema, dict):
         return _recursively_read_schemas(schema, schema_list)
     raise TypeError(
-        "schema has to be either a dict, path to an existing "
-        "file or URL to a remote one"
+        f"schema has to be a dict, path to an existing file or URL to a remote one. "
+        f"Got: {type(schema)}"
     )
 
 
@@ -138,6 +138,43 @@ def validate_sample(project, sample_name, schema, exclude_case=False):
         _LOGGER.debug("'{}' sample validation successful".format(sample_name))
 
 
+def _validate_sample_object(sample, schemas, exclude_case=False):
+    """
+    Internal function that allows to validate a peppy.Sample object without
+    requiring a reference to peppy.Project.
+
+    :param peppy.Sample sample: a sample object to validate
+    :param list[dict] schemas: list of schemas to validate against or a path to one
+    :param bool exclude_case: whether to exclude validated objects
+        from the error. Useful when used ith large projects
+    """
+    for schema_dict in schemas:
+        schema_dict = _preprocess_schema(schema_dict)
+        sample_schema_dict = schema_dict[PROP_KEY]["_samples"]["items"]
+        _validate_object(sample, sample_schema_dict, exclude_case)
+        _LOGGER.debug("'{}' sample validation successful".format(sample.sample_name))
+
+
+def validate_sample(project, sample_name, schema, exclude_case=False):
+    """
+    Validate the selected sample object against a schema
+
+    :param peppy.Project project: a project object to validate
+    :param str | int sample_name: name or index of the sample to validate
+    :param str | dict schema: schema dict to validate against or a path to one
+    :param bool exclude_case: whether to exclude validated objects
+        from the error. Useful when used ith large projects
+    """
+    sample = (
+        project.samples[sample_name]
+        if isinstance(sample_name, int)
+        else project.get_sample(sample_name)
+    )
+    _validate_sample_object(
+        sample=sample, schemas=read_schema(schema=schema), exclude_case=exclude_case
+    )
+
+
 def validate_config(project, schema, exclude_case=False):
     """
     Validate the config part of the Project object against a schema
@@ -164,7 +201,7 @@ def validate_config(project, schema, exclude_case=False):
         _LOGGER.debug("Config validation successful")
 
 
-def validate_inputs(sample, schema):
+def validate_inputs(sample, schema, exclude_case=False):
     """
     Determine which of this Sample's required attributes/files are missing
     and calculate sizes of the inputs.
@@ -175,9 +212,10 @@ def validate_inputs(sample, schema):
     perform actual Sample object validation with jsonschema.
 
     :param peppy.Sample sample: sample to investigate
-    :param dict schema: schema dict to validate against
+    :param list[dict] schema: schema dict to validate against
     :return dict: dictionary with validation data, i.e missing,
         required_inputs, all_inputs, input_file_size
+    :raise ValidationError: if any required sample attribute is missing
     """
 
     def _get_attr_values(obj, attrlist):
@@ -199,6 +237,9 @@ def validate_inputs(sample, schema):
             attrlist = [attrlist]
         # Strings contained here are appended later so shouldn't be null.
         return list(flatten([getattr(obj, attr, "") for attr in attrlist]))
+
+    # validate attrs existence first
+    _validate_sample_object(schemas=schema, sample=sample, exclude_case=exclude_case)
 
     all_inputs = set()
     required_inputs = set()

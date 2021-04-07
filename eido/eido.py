@@ -115,29 +115,6 @@ def validate_project(project, schema, exclude_case=False):
         _LOGGER.debug("Project validation successful")
 
 
-def validate_sample(project, sample_name, schema, exclude_case=False):
-    """
-    Validate the selected sample object against a schema
-
-    :param peppy.Project project: a project object to validate
-    :param str | int sample_name: name or index of the sample to validate
-    :param str | dict schema: schema dict to validate against or a path to one
-    :param bool exclude_case: whether to exclude validated objects
-        from the error. Useful when used ith large projects
-    """
-    schema_dicts = read_schema(schema=schema)
-    for schema_dict in schema_dicts:
-        schema_dict = _preprocess_schema(schema_dict)
-        sample_dict = (
-            project.samples[sample_name]
-            if isinstance(sample_name, int)
-            else project.get_sample(sample_name)
-        )
-        sample_schema_dict = schema_dict[PROP_KEY]["_samples"]["items"]
-        _validate_object(sample_dict, sample_schema_dict, exclude_case)
-        _LOGGER.debug("'{}' sample validation successful".format(sample_name))
-
-
 def _validate_sample_object(sample, schemas, exclude_case=False):
     """
     Internal function that allows to validate a peppy.Sample object without

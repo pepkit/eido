@@ -1,9 +1,9 @@
 import pytest
 from jsonschema.exceptions import ValidationError
+from peppy.utils import load_yaml
 from yaml import safe_load
 
 from eido import *
-from eido.eido import load_yaml
 
 
 class TestProjectValidation:

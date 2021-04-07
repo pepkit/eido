@@ -43,11 +43,12 @@ def build_argparser():
     sps = {}
     for cmd, desc in SUBPARSER_MSGS.items():
         sps[cmd] = subparsers.add_parser(cmd, description=desc, help=desc)
-        sps[cmd].add_argument(
-            "pep",
-            metavar="PEP",
-            help="Path to a PEP configuration " "file in yaml format.",
-        )
+        if cmd != FILTERS_CMD:
+            sps[cmd].add_argument(
+                "pep",
+                metavar="PEP",
+                help="Path to a PEP configuration file in yaml format.",
+            )
 
     sps[VALIDATE_CMD].add_argument(
         "-s",
@@ -102,6 +103,23 @@ def build_argparser():
         required=False,
         action="store_true",
         default=False,
-        help="Whether samples should be excluded from the " "validation.",
+        help="Whether samples should be excluded from the validation.",
     )
+
+    sps[CONVERT_CMD].add_argument(
+        "-f",
+        "--format",
+        required=True,
+        default="yaml",
+        help="Path to a PEP schema file in yaml format.",
+    )
+
+    sps[CONVERT_CMD].add_argument(
+        "-n",
+        "--sample-name",
+        required=False,
+        nargs="+",
+        help="Name of the samples to inspect.",
+    )
+
     return parser

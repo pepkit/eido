@@ -75,6 +75,12 @@ setup(
     license="BSD2",
     entry_points={
         "console_scripts": ["eido = eido.__main__:main"],
+        "pep.filters": [
+            "basic=eido.conversion:my_basic_plugin",
+            "yaml=eido.conversion:complete_yaml",
+            "csv=eido.conversion:csv",
+            "yaml-samples=eido.conversion:yaml_samples",
+        ],
     },
     scripts=scripts,
     include_package_data=True,

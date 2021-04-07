@@ -6,7 +6,9 @@ from peppy import Project
 
 from .argparser import LEVEL_BY_VERBOSITY, build_argparser
 from .const import *
-from .eido import inspect_project, validate_config, validate_project, validate_sample
+from .conversion import convert_project, list_formats
+from .inspection import inspect_project
+from .validation import validate_config, validate_project, validate_sample
 
 
 def main():
@@ -33,7 +35,12 @@ def main():
     init_logger(name="peppy", **logger_kwargs)
     global _LOGGER
     _LOGGER = init_logger(name=PKG_NAME, **logger_kwargs)
-    _LOGGER.debug("Creating a Project object from: {}".format(args.pep))
+
+    if args.command == FILTERS_CMD:
+        list_formats()
+        sys.exit(0)
+
+    _LOGGER.debug(f"Creating a Project object from: {args.pep}")
     p = Project(args.pep)
     if args.command == VALIDATE_CMD:
         if args.sample_name:
@@ -42,25 +49,27 @@ def main():
             except ValueError:
                 pass
             _LOGGER.debug(
-                "Comparing Sample ('{}') in the Project ('{}') "
-                "against a schema: {}.".format(args.sample_name, args.pep, args.schema)
+                f"Comparing Sample ('{args.pep}') in Project ('{args.pep}') "
+                f"against a schema: {args.schema}"
             )
             validate_sample(p, args.sample_name, args.schema, args.exclude_case)
         elif args.just_config:
             _LOGGER.debug(
-                "Comparing config ('{}') against a schema: {}.".format(
-                    args.pep, args.schema
-                )
+                f"Comparing Project ('{args.pep}') against a schema: {args.schema}"
             )
             validate_config(p, args.schema, args.exclude_case)
         else:
             _LOGGER.debug(
-                "Comparing Project ('{}') against a schema: {}.".format(
-                    args.pep, args.schema
-                )
+                f"Comparing Project ('{args.pep}') against a schema: {args.schema}"
             )
             validate_project(p, args.schema, args.exclude_case)
         _LOGGER.info("Validation successful")
     if args.command == INSPECT_CMD:
         inspect_project(p, args.sample_name, args.attr_limit)
+        sys.exit(0)
+
+    if args.command == CONVERT_CMD:
+        p = Project(args.pep)
+        convert_project(p, args.format)
+        _LOGGER.info("Conversion successful")
         sys.exit(0)

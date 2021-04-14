@@ -21,8 +21,14 @@ def plugins():
     return {ep.name: ep.load() for ep in iter_entry_points("pep.filters")}
 
 
-def convert_project(prj, format):
-    run_filter(prj, format)
+def convert_project(prj, target_format):
+    """
+    Convert a peppy.Project to a selected format
+
+    :param peppy.Project: a Project object to convert
+    :param str target_format: the format to convert the Project object to
+    """
+    run_filter(prj, target_format)
     sys.exit(0)
 
 
@@ -57,11 +63,10 @@ def run_filter(prj, filter_name):
             func(prj)
 
 
-def list_formats():
-    myplugins = plugins()
-    if len(myplugins) > 0:
-        _LOGGER.info("Available filters:")
-        for name, func in myplugins.items():
-            _LOGGER.info(f" - {name}")
-    else:
-        _LOGGER.info("No available filters")
+def get_available_formats():
+    """
+    Get a list of available target formats
+
+    :return List[str]: a list of available formats
+    """
+    return list(plugins().keys())

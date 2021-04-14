@@ -11,6 +11,8 @@ nav:
   - How-to Guides:
     - "Tutorial: eido in Python": demo.md
     - "Tutorial: eido in a shell": cli.md
+    - Eido filters: filters.md
+    - Writing a custom filter: writing-a-filter.md
     - Writing a schema: writing-a-schema.md
   - Reference:
     - Example schemas: example-schemas.md

@@ -6,7 +6,7 @@ from peppy import Project
 
 from .argparser import LEVEL_BY_VERBOSITY, build_argparser
 from .const import *
-from .conversion import convert_project, get_available_formats
+from .conversion import convert_project, get_available_pep_filters
 from .inspection import inspect_project
 from .validation import validate_config, validate_project, validate_sample
 
@@ -37,7 +37,7 @@ def main():
     _LOGGER = init_logger(name=PKG_NAME, **logger_kwargs)
 
     if args.command == FILTERS_CMD:
-        filters = get_available_formats()
+        filters = get_available_pep_filters()
         if len(filters) < 1:
             _LOGGER.info("No available filters")
             sys.exit(0)

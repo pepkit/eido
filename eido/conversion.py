@@ -6,11 +6,10 @@ from yaml import safe_dump
 
 _LOGGER = getLogger(__name__)
 
-# TODO: document
 # TODO: add to jupyter notebooks
 
 
-def plugins():
+def pep_conversion_plugins():
     """
     Plugins registered by entry points in the current Python env
 
@@ -23,20 +22,62 @@ def plugins():
 
 def convert_project(prj, target_format):
     """
-    Convert a peppy.Project to a selected format
+    Convert a `peppy.Project` object to a selected format
 
-    :param peppy.Project: a Project object to convert
+    :param peppy.Project prj: a Project object to convert
     :param str target_format: the format to convert the Project object to
     """
     run_filter(prj, target_format)
     sys.exit(0)
 
 
-def my_basic_plugin(p):
+def run_filter(prj, filter_name):
+    """
+    Run a selected filter on a peppy.Project object
+
+    :param peppy.Project prj: a Project to run filter on
+    :param str filter_name: name of the filter to run
+    :raise ValueError: if the requested filter is not defined
+    """
+    installed_plugins = pep_conversion_plugins()
+    installed_plugin_names = list(installed_plugins.keys())
+    if filter_name not in installed_plugin_names:
+        raise ValueError(
+            f"Requested filter ({filter_name}) not found. "
+            f"Available: {', '.join(installed_plugin_names)}"
+        )
+    _LOGGER.info(f"Running plugin {filter_name}")
+    func = installed_plugins[filter_name]
+    func(prj)
+
+
+def get_available_pep_filters():
+    """
+    Get a list of available target formats
+
+    :return List[str]: a list of available formats
+    """
+    return list(pep_conversion_plugins().keys())
+
+
+# built-in PEP filters defined below
+
+
+def basic_pep_filter(p):
+    """
+    Basic PEP filter, that does not convert the Project object
+
+    :param peppy.Project p: a Project to run filter on
+    """
     print(p)
 
 
-def yaml_samples(p):
+def yaml_samples_pep_filter(p):
+    """
+    YAML samples PEP filter, that returns only Sample object representations
+
+    :param peppy.Project p: a Project to run filter on
+    """
     import re
 
     for s in p.samples:
@@ -45,28 +86,20 @@ def yaml_samples(p):
         sys.stdout.write(out + "\n")
 
 
-def complete_yaml(p):
+def yaml_pep_filter(p):
+    """
+    YAML PEP filter, that returns Project object representation
+
+    :param peppy.Project p: a Project to run filter on
+    """
     print(p.to_yaml())
 
 
-def csv(p):
+def csv_pep_filter(p):
+    """
+    CSV PEP filter, that returns Sample object representations
+
+    :param peppy.Project p: a Project to run filter on
+    """
     sys.stdout.write(p._sample_df.to_csv())
     sys.stdout.write(p._subsample_df[0].to_csv())
-
-
-def run_filter(prj, filter_name):
-    myplugins = plugins()
-
-    for name, func in myplugins.items():
-        if name == filter_name:
-            _LOGGER.info(f"running plugin {name}")
-            func(prj)
-
-
-def get_available_formats():
-    """
-    Get a list of available target formats
-
-    :return List[str]: a list of available formats
-    """
-    return list(plugins().keys())

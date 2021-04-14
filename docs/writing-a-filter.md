@@ -12,7 +12,7 @@ The package contain one or more functions. The filter function **must take a pep
 
 ```python
 import peppy
-  
+
 def my_custom_filter(p):
     import re
     for s in p.samples:
@@ -29,11 +29,13 @@ The [setup.py](setup.py) file uses `entry_points` to specify a mapping of eido h
 
 ```python
     entry_points={
-        "pep.filters": ["basic=pepconvert:my_basic_plugin",
-                        "yaml=pepconvert:complete_yaml",
-                        "csv=pepconvert:csv",
-                        "yaml-samples=pepconvert:yaml_samples"]
-        }
+        "pep.filters": [
+            "basic=eido.conversion:basic_pep_filter",
+            "yaml=eido.conversion:yaml_pep_filter",
+            "csv=eido.conversion:csv_pep_filter",
+            "yaml-samples=eido.conversion:yaml_samples_pep_filter",
+        ],
+    },
 ```
 
 The format is: `'pep.filters': 'FILTER_NAME=PLUGIN_PACKAGE_NAME:FUNCTION_NAME'`.
@@ -41,4 +43,3 @@ The format is: `'pep.filters': 'FILTER_NAME=PLUGIN_PACKAGE_NAME:FUNCTION_NAME'`.
 - "FILTER_NAME" can be any unique identifier for your plugin
 - "PLUGIN_PACKAGE_NAME" must be the name of python package the holds your plugin.
 - "FUNCTION_NAME" must match the name of the function in your package
-

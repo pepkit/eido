@@ -16,4 +16,6 @@ __all__ = [
     "validate_config",
     "read_schema",
     "inspect_project",
+    "get_available_pep_filters",
+    "convert_project",
 ]

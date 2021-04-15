@@ -28,6 +28,5 @@ plugins:
   - databio:
       autodoc_build: "docs/autodoc_build"
       autodoc_package: "eido"
-      blacklist: "basic_pep_filter,yaml_pep_filter,csv_pep_filter,yaml_samples_pep_filter"
       no_top_level: true
   - search

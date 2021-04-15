@@ -13,7 +13,7 @@ from .validation import validate_config, validate_project, validate_sample
 
 def _parse_filter_args_str(input):
     """
-    Parse user input specification. Used in build for specific parents and input parsing
+    Parse user input specification.
 
     :param Iterable[Iterable[str]] input: user command line input,
         formatted as follows: [[arg=txt, arg1=txt]]

@@ -154,7 +154,7 @@ def validate_inputs(sample, schema, exclude_case=False):
     all_inputs = set()
     required_inputs = set()
     schema = schema[-1]  # use only first schema, in case there are imports
-    sample_schema_dict = schema["properties"]["samples"]["items"]
+    sample_schema_dict = schema["properties"]["_samples"]["items"]
     if FILES_KEY in sample_schema_dict:
         all_inputs.update(_get_attr_values(sample, sample_schema_dict[FILES_KEY]))
     if REQUIRED_FILES_KEY in sample_schema_dict:

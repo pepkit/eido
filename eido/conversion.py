@@ -38,6 +38,7 @@ def convert_project(prj, target_format, plugin_kwargs=None):
     :param peppy.Project prj: a Project object to convert
     :param dict plugin_kwargs: kwargs to pass to the plugin function
     :param str target_format: the format to convert the Project object to
+    :raise EidoFilterError: if the requested filter is not defined
     """
     run_filter(prj, target_format, plugin_kwargs or dict())
     sys.exit(0)

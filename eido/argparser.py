@@ -122,4 +122,14 @@ def build_argparser():
         help="Name of the samples to inspect.",
     )
 
+    sps[CONVERT_CMD].add_argument(
+        "-a",
+        "--args",
+        nargs="+",
+        action="append",
+        required=False,
+        default=None,
+        help="Provide arguments to the filter function (e.g. arg1=val1 arg2=val2).",
+    )
+
     return parser

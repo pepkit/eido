@@ -11,6 +11,24 @@ from .inspection import inspect_project
 from .validation import validate_config, validate_project, validate_sample
 
 
+def _parse_filter_args_str(input):
+    """
+    Parse user input specification. Used in build for specific parents and input parsing
+
+    :param Iterable[Iterable[str]] input: user command line input,
+        formatted as follows: [[arg=txt, arg1=txt]]
+    :return dict: mapping of keys, which are input names and values
+    """
+    lst = []
+    for i in input or []:
+        lst.extend(i)
+    return (
+        {x.split("=")[0]: x.split("=")[1] for x in lst if "=" in x}
+        if lst is not None
+        else lst
+    )
+
+
 def main():
     """ Primary workflow """
     parser = build_argparser()
@@ -76,6 +94,7 @@ def main():
 
     if args.command == CONVERT_CMD:
         p = Project(args.pep)
-        convert_project(p, args.format)
+        plugin_kwargs = _parse_filter_args_str(args.args)
+        convert_project(p, args.format, plugin_kwargs)
         _LOGGER.info("Conversion successful")
         sys.exit(0)

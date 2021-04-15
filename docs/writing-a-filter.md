@@ -4,22 +4,24 @@ One of `eido`'s tasks is to provide a CLI to convert a PEP into alternative form
 
 ## Custom filters
 
-To write a custom filter, start by writing a Python package. You will need to write a function that takes a `peppy.Project` object as input, and prints out the custom file format.
+To write a custom filter, start by writing a Python package. You will need to write a function that takes a `peppy.Project` object as input, and prints out the custom file format. The filter functions also can require additional keyword arguments.
 
 ### 1. Write functions to call
 
-The package contain one or more functions. The filter function **must take a peppy.Project object as sole parameter**. Example:
+The package contain one or more functions. The filter function **must take a peppy.Project object and `**kwargs` as parameters**. Example:
 
 ```python
 import peppy
 
-def my_custom_filter(p):
+def my_custom_filter(p, **kwargs):
     import re
     for s in p.samples:
         sys.stdout.write("- ")
         out = re.sub('\n', '\n  ', yaml.safe_dump(s.to_dict(), default_flow_style=False))
         sys.stdout.write(out + "\n")
 ```
+
+Importantly, if the function *requires* any arguments (always provided via `**kwargs`), the creator of the function should take care of handling missing/faulty input.
 
 Then, we need to link that function in to the `eido` filter plugin system.
 

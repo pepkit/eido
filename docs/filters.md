@@ -43,3 +43,11 @@ eido convert config.yaml -f yaml
 ```
 
 This will output your samples in yaml format.
+
+### Parametrizing PEP conversions
+
+The filter functions are parameterizable, so depending on the desired filter function design and required arguments you might need to provide them like this:
+
+```console
+eido convert config.yaml -f yaml -a argument1=value1 argument2=value2
+```

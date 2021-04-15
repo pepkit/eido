@@ -20,23 +20,25 @@ def pep_conversion_plugins():
     return {ep.name: ep.load() for ep in iter_entry_points("pep.filters")}
 
 
-def convert_project(prj, target_format):
+def convert_project(prj, target_format, plugin_kwargs=None):
     """
     Convert a `peppy.Project` object to a selected format
 
     :param peppy.Project prj: a Project object to convert
+    :param dict plugin_kwargs: kwargs to pass to the plugin function
     :param str target_format: the format to convert the Project object to
     """
-    run_filter(prj, target_format)
+    run_filter(prj, target_format, plugin_kwargs or dict())
     sys.exit(0)
 
 
-def run_filter(prj, filter_name):
+def run_filter(prj, filter_name, plugin_kwargs=None):
     """
     Run a selected filter on a peppy.Project object
 
     :param peppy.Project prj: a Project to run filter on
     :param str filter_name: name of the filter to run
+    :param dict plugin_kwargs: kwargs to pass to the plugin function
     :raise ValueError: if the requested filter is not defined
     """
     installed_plugins = pep_conversion_plugins()
@@ -48,7 +50,8 @@ def run_filter(prj, filter_name):
         )
     _LOGGER.info(f"Running plugin {filter_name}")
     func = installed_plugins[filter_name]
-    func(prj)
+    plugin_kwargs = plugin_kwargs or dict()
+    func(prj, **plugin_kwargs)
 
 
 def get_available_pep_filters():
@@ -63,7 +66,7 @@ def get_available_pep_filters():
 # built-in PEP filters defined below
 
 
-def basic_pep_filter(p):
+def basic_pep_filter(p, **kwargs):
     """
     Basic PEP filter, that does not convert the Project object
 
@@ -72,7 +75,7 @@ def basic_pep_filter(p):
     print(p)
 
 
-def yaml_samples_pep_filter(p):
+def yaml_samples_pep_filter(p, **kwargs):
     """
     YAML samples PEP filter, that returns only Sample object representations
 
@@ -86,7 +89,7 @@ def yaml_samples_pep_filter(p):
         sys.stdout.write(out + "\n")
 
 
-def yaml_pep_filter(p):
+def yaml_pep_filter(p, **kwargs):
     """
     YAML PEP filter, that returns Project object representation
 
@@ -95,7 +98,7 @@ def yaml_pep_filter(p):
     print(p.to_yaml())
 
 
-def csv_pep_filter(p):
+def csv_pep_filter(p, **kwargs):
     """
     CSV PEP filter, that returns Sample object representations
 

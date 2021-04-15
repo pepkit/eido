@@ -80,7 +80,9 @@ def get_available_pep_filters():
 
 def basic_pep_filter(p, **kwargs):
     """
-    Basic PEP filter, that does not convert the Project object
+    Basic PEP filter, that does not convert the Project object.
+
+    This filter can save the PEP representation to file, if kwargs include `path`.
 
     :param peppy.Project p: a Project to run filter on
     """
@@ -94,7 +96,9 @@ def basic_pep_filter(p, **kwargs):
 
 def yaml_samples_pep_filter(p, **kwargs):
     """
-    YAML samples PEP filter, that returns only Sample object representations
+    YAML samples PEP filter, that returns only Sample object representations.
+
+    This filter can save the YAML to file, if kwargs include `path`.
 
     :param peppy.Project p: a Project to run filter on
     """
@@ -118,7 +122,9 @@ def yaml_samples_pep_filter(p, **kwargs):
 
 def yaml_pep_filter(p, **kwargs):
     """
-    YAML PEP filter, that returns Project object representation
+    YAML PEP filter, that returns Project object representation.
+
+    This filter can save the YAML to file, if kwargs include `path`.
 
     :param peppy.Project p: a Project to run filter on
     """
@@ -138,7 +144,7 @@ def csv_pep_filter(p, **kwargs):
     """
     CSV PEP filter, that returns Sample object representations
 
-    This filter can save the CSV files to files, if kwargs include
+    This filter can save the CSVs to files, if kwargs include
     `sample_table_path` and/or `subsample_table_path`.
 
     :param peppy.Project p: a Project to run filter on

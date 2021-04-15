@@ -1,7 +1,6 @@
 import pytest
 from jsonschema.exceptions import ValidationError
 from peppy.utils import load_yaml
-from yaml import safe_load
 
 from eido import *
 
@@ -96,16 +95,3 @@ class TestRemoteValidation:
 class TestImportsValidation:
     def test_validate(self, project_object, schema_file_path):
         validate_project(project=project_object, schema=schema_file_path)
-
-
-class TestSchemaReading:
-    def test_imports_file_schema(self, schema_imports_file_path):
-        s = read_schema(schema_imports_file_path)
-        assert isinstance(s, list)
-        assert len(s) == 2
-
-    def test_imports_dict_schema(self, schema_imports_file_path):
-        with open(schema_imports_file_path, "r") as f:
-            s = read_schema(safe_load(f))
-        assert isinstance(s, list)
-        assert len(s) == 2

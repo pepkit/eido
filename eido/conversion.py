@@ -9,8 +9,6 @@ from .exceptions import *
 
 _LOGGER = getLogger(__name__)
 
-# TODO: add to jupyter notebooks
-
 
 def pep_conversion_plugins():
     """
@@ -19,6 +17,7 @@ def pep_conversion_plugins():
     :return dict[dict[function(peppy.Project)]]: dict which keys
         are names of all possible hooks and values are dicts mapping
         registered functions names to their values
+    :raise EidoFilterError: if any of the filters has an invalid signature.
     """
     plugins = {}
     for ep in iter_entry_points("pep.filters"):
@@ -51,7 +50,7 @@ def run_filter(prj, filter_name, plugin_kwargs=None):
     :param peppy.Project prj: a Project to run filter on
     :param str filter_name: name of the filter to run
     :param dict plugin_kwargs: kwargs to pass to the plugin function
-    :raise ValueError: if the requested filter is not defined
+    :raise EidoFilterError: if the requested filter is not defined
     """
     installed_plugins = pep_conversion_plugins()
     installed_plugin_names = list(installed_plugins.keys())
@@ -116,5 +115,6 @@ def csv_pep_filter(p, **kwargs):
 
     :param peppy.Project p: a Project to run filter on
     """
-    sys.stdout.write(p._sample_df.to_csv())
-    sys.stdout.write(p._subsample_df[0].to_csv())
+    sys.stdout.write(p.sample_table.to_csv())
+    if p.subsample_table is not None:
+        sys.stdout.write(p.subsample_table.to_csv())

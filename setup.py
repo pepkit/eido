@@ -76,10 +76,10 @@ setup(
     entry_points={
         "console_scripts": ["eido = eido.__main__:main"],
         "pep.filters": [
-            "basic=eido.conversion:basic_pep_filter",
-            "yaml=eido.conversion:yaml_pep_filter",
-            "csv=eido.conversion:csv_pep_filter",
-            "yaml-samples=eido.conversion:yaml_samples_pep_filter",
+            "basic=eido.conversion_plugins:basic_pep_filter",
+            "yaml=eido.conversion_plugins:yaml_pep_filter",
+            "csv=eido.conversion_plugins:csv_pep_filter",
+            "yaml-samples=eido.conversion_plugins:yaml_samples_pep_filter",
         ],
     },
     scripts=scripts,

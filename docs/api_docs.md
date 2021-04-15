@@ -138,6 +138,11 @@ Convert a `peppy.Project` object to a selected format
 - `target_format` (`str`):  the format to convert the Project object to
 
 
+#### Raises:
+
+- `EidoFilterError`:  if the requested filter is not defined
+
+
 
 
 

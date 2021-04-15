@@ -123,7 +123,7 @@ Get a list of available target formats
 
 
 ```python
-def convert_project(prj, target_format)
+def convert_project(prj, target_format, plugin_kwargs={})
 ```
 
 Convert a `peppy.Project` object to a selected format

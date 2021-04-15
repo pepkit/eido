@@ -1,8 +1,11 @@
+import inspect
 import sys
 from logging import getLogger
 
 from pkg_resources import iter_entry_points
 from yaml import safe_dump
+
+from .exceptions import *
 
 _LOGGER = getLogger(__name__)
 
@@ -17,7 +20,16 @@ def pep_conversion_plugins():
         are names of all possible hooks and values are dicts mapping
         registered functions names to their values
     """
-    return {ep.name: ep.load() for ep in iter_entry_points("pep.filters")}
+    plugins = {}
+    for ep in iter_entry_points("pep.filters"):
+        plugin_fun = ep.load()
+        if len(list(inspect.signature(plugin_fun).parameters)) != 2:
+            raise EidoFilterError(
+                f"Invalid filter plugin signature: {ep.name}. "
+                f"Filter functions must take 2 arguments: peppy.Project and **kwargs"
+            )
+        plugins[ep.name] = plugin_fun
+    return plugins
 
 
 def convert_project(prj, target_format, plugin_kwargs=None):
@@ -44,7 +56,7 @@ def run_filter(prj, filter_name, plugin_kwargs=None):
     installed_plugins = pep_conversion_plugins()
     installed_plugin_names = list(installed_plugins.keys())
     if filter_name not in installed_plugin_names:
-        raise ValueError(
+        raise EidoFilterError(
             f"Requested filter ({filter_name}) not found. "
             f"Available: {', '.join(installed_plugin_names)}"
         )
@@ -66,7 +78,7 @@ def get_available_pep_filters():
 # built-in PEP filters defined below
 
 
-def basic_pep_filter(p, **kwargs):
+def basic_pep_filter(p):
     """
     Basic PEP filter, that does not convert the Project object
 

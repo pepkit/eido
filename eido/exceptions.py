@@ -2,7 +2,7 @@
 
 from abc import ABCMeta
 
-_all__ = ["PathAttrNotFoundError", "EidoSchemaInvalidError"]
+_all__ = ["PathAttrNotFoundError", "EidoSchemaInvalidError", "EidoFilterError"]
 
 
 class EidoException(Exception):
@@ -23,3 +23,10 @@ class EidoSchemaInvalidError(EidoException):
 
     def __init__(self, key):
         super(EidoSchemaInvalidError, self).__init__(key)
+
+
+class EidoFilterError(EidoException):
+    """ Issue with the PEP filter. """
+
+    def __init__(self, key):
+        super(EidoFilterError, self).__init__(key)

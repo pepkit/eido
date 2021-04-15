@@ -1,3 +1,5 @@
+**The plugins are an experimental feature and may change in feature versions of `eido`**
+
 # How to write a custom eido filter
 
 One of `eido`'s tasks is to provide a CLI to convert a PEP into alternative formats. These include some built-in formats, `like csv` (which spits out a processed `csv` file, with project/sample modified), `yaml`, and a few others. It also provides a plugin system so that you can write your own Python functions to provide custom output formats.

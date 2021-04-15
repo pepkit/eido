@@ -1,3 +1,5 @@
+**The plugins are an experimental feature and may change in feature versions of `eido`**
+
 Final targets: basic_pep_filter, csv_pep_filter, yaml_pep_filter, yaml_samples_pep_filter
 <script>
 document.addEventListener('DOMContentLoaded', (event) => {

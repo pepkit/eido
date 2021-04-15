@@ -4,6 +4,9 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [0.1.5] - 2021-04-15
 ### Added
+
+** The plugins are an experimental feature and may change in feature versions of `eido`**
+
 - `eido convert` command that converts the provided PEP to a specified format
 - `eido filter` command that lists available filters in current environment
 - built-in plugins:

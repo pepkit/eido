@@ -1,4 +1,4 @@
-**The plugins are an experimental feature and may change in feature versions of `eido`**
+**The PEP filters are an experimental feature and may change in feature versions of `eido`**
 
 # Eido filters
 

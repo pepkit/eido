@@ -78,7 +78,7 @@ def get_available_pep_filters():
 # built-in PEP filters defined below
 
 
-def basic_pep_filter(p):
+def basic_pep_filter(p, **kwargs):
     """
     Basic PEP filter, that does not convert the Project object
 

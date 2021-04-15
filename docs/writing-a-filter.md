@@ -15,11 +15,15 @@ import peppy
 
 def my_custom_filter(p, **kwargs):
     import re
+    import sys
+    import yaml
+
     for s in p.samples:
         sys.stdout.write("- ")
         out = re.sub('\n', '\n  ', yaml.safe_dump(s.to_dict(), default_flow_style=False))
         sys.stdout.write(out + "\n")
 ```
+For reference you can check the signatures of the functions in [Built-in `eido` Plugins Documentation](plugin_api_docs.md).
 
 Importantly, if the function *requires* any arguments (always provided via `**kwargs`), the creator of the function should take care of handling missing/faulty input.
 
@@ -27,17 +31,17 @@ Then, we need to link that function in to the `eido` filter plugin system.
 
 ### 2. Add entry_points to setup.py
 
-The [setup.py](setup.py) file uses `entry_points` to specify a mapping of eido hooks to functions to call.
+The `setup.py` file uses `entry_points` to specify a mapping of eido hooks to functions to call.
 
 ```python
-    entry_points={
-        "pep.filters": [
-            "basic=eido.conversion:basic_pep_filter",
-            "yaml=eido.conversion:yaml_pep_filter",
-            "csv=eido.conversion:csv_pep_filter",
-            "yaml-samples=eido.conversion:yaml_samples_pep_filter",
-        ],
-    },
+entry_points={
+    "pep.filters": [
+        "basic=eido.conversion_plugins:basic_pep_filter",
+        "yaml=eido.conversion_plugins:yaml_pep_filter",
+        "csv=eido.conversion_plugins:csv_pep_filter",
+        "yaml-samples=eido.conversion_plugins:yaml_samples_pep_filter",
+    ],
+},
 ```
 
 The format is: `'pep.filters': 'FILTER_NAME=PLUGIN_PACKAGE_NAME:FUNCTION_NAME'`.

@@ -1,3 +1,4 @@
+Final targets: convert_project, get_available_pep_filters, inspect_project, read_schema, validate_config, validate_project, validate_sample
 <script>
 document.addEventListener('DOMContentLoaded', (event) => {
   document.querySelectorAll('h3 code').forEach((block) => {
@@ -28,6 +29,9 @@ h4 .content {
 
 
 # Package `eido` Documentation
+
+
+Project configuration
 
 ```python
 def validate_project(project, schema, exclude_case=False)
@@ -137,63 +141,6 @@ Convert a `peppy.Project` object to a selected format
 #### Raises:
 
 - `EidoFilterError`:  if the requested filter is not defined
-
-
-
-
-```python
-def basic_pep_filter(p, **kwargs)
-```
-
-Basic PEP filter, that does not convert the Project object.
-
-This filter can save the PEP representation to file, if kwargs include `path`.
-#### Parameters:
-
-- `p` (`peppy.Project`):  a Project to run filter on
-
-
-
-
-```python
-def yaml_pep_filter(p, **kwargs)
-```
-
-YAML PEP filter, that returns Project object representation.
-
-This filter can save the YAML to file, if kwargs include `path`.
-#### Parameters:
-
-- `p` (`peppy.Project`):  a Project to run filter on
-
-
-
-
-```python
-def csv_pep_filter(p, **kwargs)
-```
-
-CSV PEP filter, that returns Sample object representations
-
-This filter can save the CSVs to files, if kwargs include
-`sample_table_path` and/or `subsample_table_path`.
-#### Parameters:
-
-- `p` (`peppy.Project`):  a Project to run filter on
-
-
-
-
-```python
-def yaml_samples_pep_filter(p, **kwargs)
-```
-
-YAML samples PEP filter, that returns only Sample object representations.
-
-This filter can save the YAML to file, if kwargs include `path`.
-#### Parameters:
-
-- `p` (`peppy.Project`):  a Project to run filter on
 
 
 

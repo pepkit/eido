@@ -1,9 +1,8 @@
 import pytest
 from jsonschema.exceptions import ValidationError
-from yaml import safe_load
+from peppy.utils import load_yaml
 
 from eido import *
-from eido.eido import _load_yaml
 
 
 class TestProjectValidation:
@@ -32,7 +31,7 @@ class TestProjectValidation:
         validate_project(project=project_object, schema=schema_samples_file_path)
 
     def test_validate_works_with_dict_schema(self, project_object, schema_file_path):
-        validate_project(project=project_object, schema=_load_yaml(schema_file_path))
+        validate_project(project=project_object, schema=load_yaml(schema_file_path))
 
     @pytest.mark.parametrize("schema_arg", [1, None, [1, 2, 3]])
     def test_validate_raises_error_for_incorrect_schema_type(
@@ -96,16 +95,3 @@ class TestRemoteValidation:
 class TestImportsValidation:
     def test_validate(self, project_object, schema_file_path):
         validate_project(project=project_object, schema=schema_file_path)
-
-
-class TestSchemaReading:
-    def test_imports_file_schema(self, schema_imports_file_path):
-        s = read_schema(schema_imports_file_path)
-        assert isinstance(s, list)
-        assert len(s) == 2
-
-    def test_imports_dict_schema(self, schema_imports_file_path):
-        with open(schema_imports_file_path, "r") as f:
-            s = read_schema(safe_load(f))
-        assert isinstance(s, list)
-        assert len(s) == 2

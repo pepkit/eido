@@ -5,16 +5,19 @@ repo_url: http://github.com/pepkit/eido
 pypi_name: eido
 
 nav:
-  - Getting Started: 
+  - Getting Started:
     - Introduction: README.md
     - Install and configure: install.md
   - How-to Guides:
     - "Tutorial: eido in Python": demo.md
     - "Tutorial: eido in a shell": cli.md
+    - Eido filters: filters.md
+    - Writing a custom filter: writing-a-filter.md
     - Writing a schema: writing-a-schema.md
   - Reference:
     - Example schemas: example-schemas.md
     - Eido Python API: autodoc_build/eido.md
+    - Built-in filters API: plugin_api_docs.md
     - Support: https://github.com/pepkit/eido/issues
     - Contributing: contributing.md
     - Changelog: changelog.md

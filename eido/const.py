@@ -6,9 +6,13 @@ LOGGING_LEVEL = "INFO"
 PKG_NAME = "eido"
 INSPECT_CMD = "inspect"
 VALIDATE_CMD = "validate"
+CONVERT_CMD = "convert"
+FILTERS_CMD = "filters"
 SUBPARSER_MSGS = {
     VALIDATE_CMD: "Validate the PEP or its components.",
     INSPECT_CMD: "Inspect a PEP.",
+    CONVERT_CMD: "Convert a PEP using an available filter",
+    FILTERS_CMD: "List available filters",
 }
 PROP_KEY = "properties"
 REQUIRED_FILES_KEY = "required_files"
@@ -22,7 +26,15 @@ ALL_INPUTS_KEY = "all_inputs"
 INPUT_FILE_SIZE_KEY = "input_file_size"
 
 # groups of constants
-GENERAL = ["LOGGING_LEVEL", "PKG_NAME", "INSPECT_CMD", "VALIDATE_CMD", "SUBPARSER_MSGS"]
+GENERAL = [
+    "LOGGING_LEVEL",
+    "PKG_NAME",
+    "INSPECT_CMD",
+    "VALIDATE_CMD",
+    "CONVERT_CMD",
+    "FILTERS_CMD",
+    "SUBPARSER_MSGS",
+]
 SCHEMA_SECTIONS = ["PROP_KEY", "REQUIRED_FILES_KEY", "FILES_KEY"]
 SCHEMA_VALIDAION_KEYS = [
     "MISSING_KEY",

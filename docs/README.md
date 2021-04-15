@@ -6,7 +6,7 @@
 
 ## Introduction
 
-Eido is a validation tool for [PEPs](http://pepkit.github.io) based on [JSON Schema](https://github.com/Julian/jsonschema). The PEP specification defines a formal structure for organizing project and sample metadata, and eido provides a way to validate if data complies with that specification. Eido extends the JSON Schema vocabulary with PEP-specific features, like required input files.
+Eido is a validation and format conversion tool for [PEPs](http://pepkit.github.io). It provides validation based on [JSON Schema](https://github.com/Julian/jsonschema). The PEP specification defines a formal structure for organizing project and sample metadata, and eido provides a way to validate if data complies with that specification. Eido extends the JSON Schema vocabulary with PEP-specific features, like required input files. Eido also provides a command-line interface to convert a PEP input into a variety of outputs using [eido filters](filters.md), and includes ability to write [custom filters](writing-a-filter.md).
 
 ## Why do we need eido?
 
@@ -34,6 +34,6 @@ An eido schema is written using the JSON Schema vocabulary, plus a few additiona
 
 ## What does 'eido' mean?
 
-*Eidos* is a Greek term meaning *form*, *essence*, or *type* (see Plato's [Theory of Forms](https://en.wikipedia.org/wiki/Theory_of_forms)). Schemas are analogous to *forms*, and eido tests claims that an instance is of a particular form.
+*Eidos* is a Greek term meaning *form*, *essence*, or *type* (see Plato's [Theory of Forms](https://en.wikipedia.org/wiki/Theory_of_forms)). Schemas are analogous to *forms*, and eido tests claims that an instance is of a particular form. Eido also helps *change* forms using filters.
 
 

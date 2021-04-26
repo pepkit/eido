@@ -5,11 +5,9 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 ## [0.1.5] - 2021-04-15
 ### Added
 
-** The PEP filters are an experimental feature and may change in feature versions of `eido`**
-
-- `eido convert` command that converts the provided PEP to a specified format
-- `eido filter` command that lists available filters in current environment
-- built-in plugins:
+- `eido convert` converts the provided PEP to a specified format (EXPERIMENTAL! may change in future versions)
+- `eido filter` lists available filters in current environment (EXPERIMENTAL! may change in future versions)
+- built-in plugins (EXPERIMENTAL! may change in future versions):
   - `basic_pep_filter`
   - `yaml_pep_filter`
   - `csv_pep_filter`

@@ -2,9 +2,10 @@
 
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html) and [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) format.
 
+## [0.1.6] - unreleased
+
 ## [0.1.5] - 2021-04-15
 ### Added
-
 - `eido convert` converts the provided PEP to a specified format (EXPERIMENTAL! may change in future versions)
 - `eido filter` lists available filters in current environment (EXPERIMENTAL! may change in future versions)
 - built-in plugins (EXPERIMENTAL! may change in future versions):

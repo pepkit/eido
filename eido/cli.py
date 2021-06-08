@@ -30,7 +30,7 @@ def _parse_filter_args_str(input):
 
 
 def main():
-    """ Primary workflow """
+    """Primary workflow"""
     parser = build_argparser()
     args, remaining_args = parser.parse_known_args()
 
@@ -65,8 +65,8 @@ def main():
         sys.exit(0)
 
     _LOGGER.debug(f"Creating a Project object from: {args.pep}")
-    p = Project(args.pep)
     if args.command == VALIDATE_CMD:
+        p = Project(cfg=args.pep, sample_table_index=args.st_index)
         if args.sample_name:
             try:
                 args.sample_name = int(args.sample_name)
@@ -89,11 +89,12 @@ def main():
             validate_project(p, args.schema, args.exclude_case)
         _LOGGER.info("Validation successful")
     if args.command == INSPECT_CMD:
+        p = Project(cfg=args.pep, sample_table_index=args.st_index)
         inspect_project(p, args.sample_name, args.attr_limit)
         sys.exit(0)
 
     if args.command == CONVERT_CMD:
-        p = Project(args.pep)
+        p = Project(args.pep, sample_table_index=args.st_index)
         plugin_kwargs = _parse_filter_args_str(args.args)
         convert_project(p, args.format, plugin_kwargs)
         _LOGGER.info("Conversion successful")

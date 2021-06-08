@@ -4,6 +4,9 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [0.1.6] - unreleased
 
+### Added
+- a possibility to set a custom sample table index with `-s/--st-index` option
+
 ## [0.1.5] - 2021-04-15
 ### Added
 - `eido convert` converts the provided PEP to a specified format (EXPERIMENTAL! may change in future versions)

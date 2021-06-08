@@ -1,5 +1,6 @@
 from logging import CRITICAL, DEBUG, ERROR, INFO, WARN
 
+from peppy.const import SAMPLE_NAME_ATTR
 from ubiquerg import VersionInHelpParser
 
 from . import __version__
@@ -43,6 +44,12 @@ def build_argparser():
     sps = {}
     for cmd, desc in SUBPARSER_MSGS.items():
         sps[cmd] = subparsers.add_parser(cmd, description=desc, help=desc)
+        sps[cmd].add_argument(
+            "--st-index",
+            required=False,
+            type=str,
+            help=f"Sample table index to use, samples are identified by '{SAMPLE_NAME_ATTR}' by default.",
+        )
         if cmd != FILTERS_CMD:
             sps[cmd].add_argument(
                 "pep",

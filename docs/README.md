@@ -35,5 +35,3 @@ An eido schema is written using the JSON Schema vocabulary, plus a few additiona
 ## What does 'eido' mean?
 
 *Eidos* is a Greek term meaning *form*, *essence*, or *type* (see Plato's [Theory of Forms](https://en.wikipedia.org/wiki/Theory_of_forms)). Schemas are analogous to *forms*, and eido tests claims that an instance is of a particular form. Eido also helps *change* forms using filters.
-
-

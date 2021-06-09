@@ -6,7 +6,12 @@ from peppy import Project
 
 from .argparser import LEVEL_BY_VERBOSITY, build_argparser
 from .const import *
-from .conversion import convert_project, get_available_pep_filters
+from .conversion import (
+    convert_project,
+    get_available_pep_filters,
+    pep_conversion_plugins,
+)
+from .exceptions import EidoFilterError
 from .inspection import inspect_project
 from .validation import validate_config, validate_project, validate_sample
 
@@ -58,6 +63,14 @@ def main():
         filters = get_available_pep_filters()
         if len(filters) < 1:
             _LOGGER.info("No available filters")
+            sys.exit(0)
+        if args.filter is not None:
+            if args.filter not in filters:
+                raise EidoFilterError(
+                    f"'{args.filter}' filter not found. Available filters: {', '.join(filters)}"
+                )
+            filter_functions_by_name = pep_conversion_plugins()
+            print(filter_functions_by_name[args.filter].__doc__)
             sys.exit(0)
         _LOGGER.info("Available filters:")
         for filter_name in filters:

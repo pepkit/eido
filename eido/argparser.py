@@ -55,7 +55,14 @@ def build_argparser():
                 "pep",
                 metavar="PEP",
                 help="Path to a PEP configuration file in yaml format.",
+                default=None,
             )
+
+    sps[FILTERS_CMD].add_argument(
+        "filter",
+        metavar="FILTER",
+        help="A filter name to display description for",
+    )
 
     sps[VALIDATE_CMD].add_argument(
         "-s",

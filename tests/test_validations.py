@@ -15,7 +15,7 @@ def _check_remote_file_accessible(url):
         pytest.skip(f"Remote file not found: {url}")
     else:
         if code != 200:
-            pytest.skip(f"Return code {code=}. Remote file not found: {url}")
+            pytest.skip(f"Return code: {code}. Remote file not found: {url}")
 
 
 class TestProjectValidation:

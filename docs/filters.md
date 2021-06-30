@@ -66,4 +66,4 @@ eido filters -f yaml-samples
     :param peppy.Project p: a Project to run filter on
 ```
 
-Based on what the filter author of _yaml-samples_ filter specified, `path` argument can be passed to `eido convert`.
+Based on what the author of _yaml-samples_ filter specified, `path` argument can be passed to `eido convert`.

@@ -40,7 +40,6 @@ def convert_project(prj, target_format, plugin_kwargs=None):
     :raise EidoFilterError: if the requested filter is not defined
     """
     run_filter(prj, target_format, plugin_kwargs or dict())
-    sys.exit(0)
 
 
 def run_filter(prj, filter_name, plugin_kwargs=None):

@@ -6,6 +6,7 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ### Added
 - a possibility to set a custom sample table index with `-s/--st-index` option
+- an option to see filters docs via CLI: `eido filters <filter_name>`
 
 ## [0.1.5] - 2021-04-15
 ### Added

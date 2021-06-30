@@ -59,8 +59,8 @@ def build_argparser():
             )
 
     sps[FILTERS_CMD].add_argument(
-        "filter",
-        metavar="FILTER",
+        "-f",
+        "--filter",
         help="A filter name to display description for",
     )
 

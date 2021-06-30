@@ -53,3 +53,17 @@ The filter functions are parameterizable, so depending on the desired filter fun
 ```console
 eido convert config.yaml -f yaml -a argument1=value1 argument2=value2
 ```
+
+To learn more about the parameters filters require, you can issue a `eido filter -c <filter_name> command, which will display the plugin documentation. For example:
+
+```console
+eido filters -f yaml-samples
+
+    YAML samples PEP filter, that returns only Sample object representations.
+
+    This filter can save the YAML to file, if kwargs include `path`.
+
+    :param peppy.Project p: a Project to run filter on
+```
+
+Based on what the filter author of `yaml-samples` filter specified, `path` argument can be passed to `eido convert`.

@@ -12,9 +12,13 @@ Eido is used to 1) validate or 2) convert format of sample metadata. Sample meta
 
 Data-intensive bioinformatics projects often include metadata describing a set of samples. When it comes to handling such sample metadata, there are two common challenges that eido solves:
 
-1. **Validation**. Tool authors may be interested in specifying and describing what the tool requires in terms of sample attributes. The tool author provides a schema, and then eido validates the sample metadata. Eido uses [JSON Schema](https://json-schema.org/), which allows you to annotate and validate JSON documents. JSON schema alone is great for validating JSON documents, but bioinformatics sample metadata is more complicated, so eido provides additional capability and features tailored to bioinformatics projects listed below.
+<img src="img/validation.svg" style="float:right; width:220px; margin-left:50px">
 
-2. **Format conversion**. Pipelines or other use cases may require the sample metadata in a particular format. Eido provides built-in and custom *filters*, which allow you to take a metadata in standard PEP format and easily convert it to any desired output format. This helps you keep a single sample metadata source that can be used for multiple downstream analyses.
+- **Validation**. Tool authors use eido to specify and describe required input sample attributes. Input sample attributes are described with a schema, and eido validates the sample metadata to ensure it satisfies the tool's needs. Eido uses [JSON Schema](https://json-schema.org/), which annotates and validates JSON. JSON schema alone is great for validating JSON, but bioinformatics sample metadata is more complicated, so eido provides additional capability and features tailored to bioinformatics projects listed below. 
+
+<img src="img/conversion.svg" style="float:right; width:220px; margin-left:50px">
+
+- **Format conversion**. Tools often require sample metadata in a specific format. Eido filters take a metadata in standard PEP format and convert it to any desired output format. Filters can be either built-in or custom. This allows a single sample metadata source to be used for multiple downstream analyses.
 
 ## Eido validation features
 
@@ -34,6 +38,6 @@ An eido schema is written using the JSON Schema vocabulary, plus a few additiona
 
 ---
 
-## Why is called 'eido'?
+## Why the name 'eido'?
 
 *Eidos* is a Greek term meaning *form*, *essence*, or *type* (see Plato's [Theory of Forms](https://en.wikipedia.org/wiki/Theory_of_forms)). Schemas are analogous to *forms*, and eido tests claims that an instance is of a particular form. Eido also helps *change* forms using filters.

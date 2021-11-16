@@ -9,10 +9,9 @@ VALIDATE_CMD = "validate"
 CONVERT_CMD = "convert"
 FILTERS_CMD = "filters"
 SUBPARSER_MSGS = {
-    VALIDATE_CMD: "Validate the PEP or its components.",
-    INSPECT_CMD: "Inspect a PEP.",
-    CONVERT_CMD: "Convert a PEP using an available filter",
-    FILTERS_CMD: "List available filters",
+    VALIDATE_CMD: "Validate a PEP or its components",
+    INSPECT_CMD: "Inspect a PEP",
+    CONVERT_CMD: "Convert PEP format using filters"
 }
 PROP_KEY = "properties"
 REQUIRED_FILES_KEY = "required_files"

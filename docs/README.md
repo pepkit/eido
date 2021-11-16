@@ -6,15 +6,17 @@
 
 ## Introduction
 
-Eido is a validation and format conversion tool for [PEPs](http://pepkit.github.io). It provides validation based on [JSON Schema](https://github.com/Julian/jsonschema). The PEP specification defines a formal structure for organizing project and sample metadata, and eido provides a way to validate if data complies with that specification. Eido extends the JSON Schema vocabulary with PEP-specific features, like required input files. Eido also provides a command-line interface to convert a PEP input into a variety of outputs using [eido filters](filters.md), and includes ability to write [custom filters](writing-a-filter.md).
+Eido is used to 1) validate or 2) convert format of sample metadata. Sample metadata is stored according to the standard [PEP specification](https://pep.databio.org). For validation, eido is based on [JSON Schema](https://json-schema.org) and extends it with new features, like required input files. You can [write your own schema](writing-a-schema.md) for your pipeline and use eido to validate sample metadata. For conversion, [eido filters](filters.md) convert sample metadata input into any output format, including [custom filters](writing-a-filter.md).
 
 ## Why do we need eido?
 
-A PEP consists of metadata describing a set of items called *samples*. The metadata is divided into two-components: 1) sample-specific attributes; and 2) project attributes, which apply to all samples. A PEP follows a [formal specification](http://pep.databio.org) for formatting and organizing this data. Projects that follow the PEP specification can be read by a variety of PEP-compatible tools, which may require specific sample or project attributes. Eido is used to validate these specific required attributes.
+Data-intensive bioinformatics projects often include metadata describing a set of samples. When it comes to handling such sample metadata, there are two common challenges that eido solves:
 
-[JSON Schema](https://json-schema.org/) is a vocabulary that allows you to annotate and validate JSON documents. It's great for validating JSON documents, but alone it cannot validate a PEP, which has powerful portability features that go beyond a simple JSON document, so we require additional capability to validate it. Eido extends JSON Schema to add this capability, along with other features for validating sample metadata listed below.
+1. **Validation**. Tool authors may be interested in specifying and describing what the tool requires in terms of sample attributes. The tool author provides a schema, and then eido validates the sample metadata. Eido uses [JSON Schema](https://json-schema.org/), which allows you to annotate and validate JSON documents. JSON schema alone is great for validating JSON documents, but bioinformatics sample metadata is more complicated, so eido provides additional capability and features tailored to bioinformatics projects listed below.
 
-## PEP-specific validation features
+2. **Format conversion**. Pipelines or other use cases may require the sample metadata in a particular format. Eido provides built-in and custom *filters*, which allow you to take a metadata in standard PEP format and easily convert it to any desired output format. This helps you keep a single sample metadata source that can be used for multiple downstream analyses.
+
+## Eido validation features
 
 An eido schema is written using the JSON Schema vocabulary, plus a few additional features:
 
@@ -32,6 +34,6 @@ An eido schema is written using the JSON Schema vocabulary, plus a few additiona
 
 ---
 
-## What does 'eido' mean?
+## Why is called 'eido'?
 
 *Eidos* is a Greek term meaning *form*, *essence*, or *type* (see Plato's [Theory of Forms](https://en.wikipedia.org/wiki/Theory_of_forms)). Schemas are analogous to *forms*, and eido tests claims that an instance is of a particular form. Eido also helps *change* forms using filters.

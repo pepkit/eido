@@ -3,6 +3,7 @@ site_logo: img/eido_dark.svg
 site_url: http://eido.databio.org/
 repo_url: http://github.com/pepkit/eido
 pypi_name: eido
+paper_link: https://doi.org/10.1101/2020.10.08.331322
 
 nav:
   - Getting Started:

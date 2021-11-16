@@ -61,7 +61,7 @@ def build_argparser():
             sps[cmd].add_argument(
                 "pep",
                 metavar="PEP",
-                nargs='?',
+                nargs="?",
                 help="Path to a PEP configuration file in yaml format.",
                 default=None,
             )

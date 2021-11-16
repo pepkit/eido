@@ -11,7 +11,7 @@ FILTERS_CMD = "filters"
 SUBPARSER_MSGS = {
     VALIDATE_CMD: "Validate a PEP or its components",
     INSPECT_CMD: "Inspect a PEP",
-    CONVERT_CMD: "Convert PEP format using filters"
+    CONVERT_CMD: "Convert PEP format using filters",
 }
 PROP_KEY = "properties"
 REQUIRED_FILES_KEY = "required_files"

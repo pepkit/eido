@@ -64,7 +64,7 @@ def main():
         if args.list:
             _LOGGER.info("Available filters:")
             if len(filters) < 1:
-                _LOGGER.info("No available filters")            
+                _LOGGER.info("No available filters")
             for filter_name in filters:
                 _LOGGER.info(f" - {filter_name}")
             sys.exit(0)
@@ -79,7 +79,7 @@ def main():
                 )
             filter_functions_by_name = pep_conversion_plugins()
             print(filter_functions_by_name[args.format].__doc__)
-            sys.exit(0) 
+            sys.exit(0)
         if args.pep is None:
             sps[CONVERT_CMD].print_help(sys.stderr)
             _LOGGER.info("The following arguments are required: PEP")

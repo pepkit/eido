@@ -1,15 +1,15 @@
-**The PEP filters are an experimental feature and may change in feature versions of `eido`**
+**Filters are an experimental feature and may change in future versions of `eido`.**
 
-# Eido filters
+# Using eido filters
 
-Eido provides a CLI to convert a PEP into different output formats. These include some built-in formats, like _csv_ (which takes your spits out a processed csv file, with project/sample modified), _yaml_, and a few others. It also provides a plugin system so that you can write your own Python functions to provide custom output formats.
+Eido provides a CLI to convert a PEP into different output formats. These include some built-in formats, like _csv_ (which produces a processed csv file, with project/sample already modified), _yaml_, and a few others. It also provides a plugin system so that you can write your own Python functions to provide custom output formats. You access filters through the `eido convert` command.
 
 ## View available filters
 
-Run this command to see what filters are available:
+To list available filters:
 
 ```console
-eido filters
+eido convert --list
 ```
 
 You'll see some output like this. There are a few built-in filters available:
@@ -23,7 +23,7 @@ Available filters:
  - yaml-samples
 ```
 
-You can also [write a custom filters](writing-a-filter.md), which will write your PEP into whatever format you need.
+You can add to this list by [writing a custom filter](writing-a-filter.md), which will write your PEP into whatever format you need.
 
 ## Convert a PEP into an alternative format with a filter
 
@@ -46,18 +46,12 @@ eido convert config.yaml -f yaml
 
 This will output your samples in yaml format.
 
-### Parametrizing PEP conversions
+### Parametrizing filters
 
-The filter functions are parameterizable, so depending on the desired filter function design and required arguments you might need to provide them like this:
-
-```console
-eido convert config.yaml -f yaml -a argument1=value1 argument2=value2
-```
-
-To learn more about the parameters filters require, you can issue a `eido filter -c <filter_name>` command, which will display the plugin documentation. For example:
+Filter functions are parameterizable. Some filters may request or require parameters. To learn more about a filter's parameters, use `-d` or `--describe`: `eido convert -f <filter_name> -d`, which displays the plugin documentation. For example:
 
 ```console
-eido filters -f yaml-samples
+eido convert -f yaml-samples -d
 
     YAML samples PEP filter, that returns only Sample object representations.
 
@@ -66,4 +60,16 @@ eido filters -f yaml-samples
     :param peppy.Project p: a Project to run filter on
 ```
 
-Based on what the author of _yaml-samples_ filter specified, `path` argument can be passed to `eido convert`.
+In this case, the argument `path` can be provided as an output file. Like this: 
+
+```console
+eido convert config.yaml -f yaml-samples -a path=output.yaml
+```
+
+More generally, the form to provide parameters is like this
+
+```console
+eido convert config.yaml -f <filter_name> -a argument1=value1 argument2=value2
+```
+
+

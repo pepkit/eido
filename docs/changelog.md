@@ -8,6 +8,13 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - a possibility to set a custom sample table index with `-s/--st-index` option
 - an option to see filters docs via CLI: `eido filters -f <filter_name>`
 
+### Fixed
+- Some error messages with incorrectly defined schemas.
+- 'required' attribute is no longer required in schema
+
+### Changed
+- Moved all `eido filter` functionality into the `eido convert` command for simplicity. This way, a single top-level command namespace holds all related functionality. Filters are still EXPERIMENTAL.
+
 ## [0.1.5] - 2021-04-15
 ### Added
 - `eido convert` converts the provided PEP to a specified format (EXPERIMENTAL! may change in future versions)

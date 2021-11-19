@@ -1,11 +1,13 @@
 import os
 from copy import deepcopy as dpcpy
-from logging import getLogger
+from logging import getLogger, warn
 from warnings import catch_warnings as cw
 
 import jsonschema
 from pandas.core.common import flatten
 from ubiquerg import size
+
+from eido.exceptions import PathAttrNotFoundError
 
 from .const import (
     ALL_INPUTS_KEY,
@@ -68,7 +70,9 @@ def _validate_sample_object(sample, schemas, exclude_case=False):
         schema_dict = preprocess_schema(schema_dict)
         sample_schema_dict = schema_dict[PROP_KEY]["_samples"]["items"]
         _validate_object(sample, sample_schema_dict, exclude_case)
-        _LOGGER.debug("'{}' sample validation successful".format(sample.sample_name))
+        _LOGGER.debug(
+            f"{getattr(sample, 'sample_name', '')} sample validation successful"
+        )
 
 
 def validate_sample(project, sample_name, schema, exclude_case=False):

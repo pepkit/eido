@@ -1,13 +1,11 @@
 import os
 from copy import deepcopy as dpcpy
-from logging import getLogger, warn
+from logging import getLogger
 from warnings import catch_warnings as cw
 
 import jsonschema
 from pandas.core.common import flatten
 from ubiquerg import size
-
-from eido.exceptions import PathAttrNotFoundError
 
 from .const import (
     ALL_INPUTS_KEY,

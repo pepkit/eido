@@ -271,7 +271,7 @@ def validate_inputs(project, schema, sample_name=None, exclude_case=False):
         missing_inputs = [i for i in all_inputs if not os.path.exists(i)]
         if missing_inputs:
             warn(
-                f"For sample '{getattr(sample, project.sample_table_index)}'. " 
+                f"For sample '{getattr(sample, project.sample_table_index)}'. "
                 f"Optional inputs not found: {missing_inputs}"
             )
         if missing_required_inputs:

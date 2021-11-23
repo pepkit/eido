@@ -1,6 +1,7 @@
 from logging import CRITICAL, DEBUG, ERROR, INFO, WARN
 
 from peppy.const import SAMPLE_NAME_ATTR
+from peppy import __version__ as peppy_version
 from ubiquerg import VersionInHelpParser
 
 from . import __version__
@@ -14,6 +15,7 @@ LEVEL_BY_VERBOSITY = [
     DEBUG,
 ]
 
+version_combined = f"{__version__} (peppy {peppy_version})"
 
 def build_argparser():
     banner = "%(prog)s - Interact with PEPs"
@@ -23,7 +25,7 @@ def build_argparser():
         prog=PKG_NAME,
         description=banner,
         epilog=additional_description,
-        version=__version__,
+        version=version_combined,
     )
 
     subparsers = parser.add_subparsers(dest="command")

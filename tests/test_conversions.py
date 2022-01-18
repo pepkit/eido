@@ -1,5 +1,3 @@
-import pytest
-
 from eido.conversion import *
 
 

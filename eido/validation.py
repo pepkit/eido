@@ -7,7 +7,15 @@ import jsonschema
 from pandas.core.common import flatten
 from ubiquerg import size
 
-from .const import *
+from .const import (
+    ALL_INPUTS_KEY,
+    FILES_KEY,
+    INPUT_FILE_SIZE_KEY,
+    MISSING_KEY,
+    PROP_KEY,
+    REQUIRED_FILES_KEY,
+    REQUIRED_INPUTS_KEY,
+)
 from .schema import preprocess_schema, read_schema
 
 _LOGGER = getLogger(__name__)
@@ -60,7 +68,9 @@ def _validate_sample_object(sample, schemas, exclude_case=False):
         schema_dict = preprocess_schema(schema_dict)
         sample_schema_dict = schema_dict[PROP_KEY]["_samples"]["items"]
         _validate_object(sample, sample_schema_dict, exclude_case)
-        _LOGGER.debug("'{}' sample validation successful".format(sample.sample_name))
+        _LOGGER.debug(
+            f"{getattr(sample, 'sample_name', '')} sample validation successful"
+        )
 
 
 def validate_sample(project, sample_name, schema, exclude_case=False):
@@ -120,7 +130,7 @@ def validate_inputs(sample, schema, exclude_case=False):
     perform actual Sample object validation with jsonschema.
 
     :param peppy.Sample sample: sample to investigate
-    :param list[dict] schema: schema dict to validate against
+    :param list[dict] | str schema: schema dict to validate against or a path to one
     :return dict: dictionary with validation data, i.e missing,
         required_inputs, all_inputs, input_file_size
     :param bool exclude_case: whether to exclude validated objects
@@ -147,6 +157,9 @@ def validate_inputs(sample, schema, exclude_case=False):
             attrlist = [attrlist]
         # Strings contained here are appended later so shouldn't be null.
         return list(flatten([getattr(obj, attr, "") for attr in attrlist]))
+
+    if isinstance(schema, str):
+        schema = read_schema(schema)
 
     # validate attrs existence first
     _validate_sample_object(schemas=schema, sample=sample, exclude_case=exclude_case)

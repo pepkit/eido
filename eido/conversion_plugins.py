@@ -62,7 +62,10 @@ def yaml_pep_filter(p, **kwargs):
         with open(path, "w") as outfile:
             dump(data, outfile, default_flow_style=False)
     else:
-        data = p.config.to_yaml()
+        try:
+            data = p.config.to_yaml()
+        except KeyError:
+            data = "Can't convert a Project with no config"
         print(data)
 
 

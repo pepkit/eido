@@ -1,5 +1,6 @@
 from logging import CRITICAL, DEBUG, ERROR, INFO, WARN
 
+from peppy.const import SAMPLE_NAME_ATTR
 from ubiquerg import VersionInHelpParser
 
 from . import __version__
@@ -43,11 +44,26 @@ def build_argparser():
     sps = {}
     for cmd, desc in SUBPARSER_MSGS.items():
         sps[cmd] = subparsers.add_parser(cmd, description=desc, help=desc)
-        if cmd != FILTERS_CMD:
+        sps[cmd].add_argument(
+            "--st-index",
+            required=False,
+            type=str,
+            help=f"Sample table index to use, samples are identified by '{SAMPLE_NAME_ATTR}' by default.",
+        )
+        if cmd != CONVERT_CMD:
             sps[cmd].add_argument(
                 "pep",
                 metavar="PEP",
                 help="Path to a PEP configuration file in yaml format.",
+                default=None,
+            )
+        else:
+            sps[cmd].add_argument(
+                "pep",
+                metavar="PEP",
+                nargs="?",
+                help="Path to a PEP configuration file in yaml format.",
+                default=None,
             )
 
     sps[VALIDATE_CMD].add_argument(
@@ -109,9 +125,9 @@ def build_argparser():
     sps[CONVERT_CMD].add_argument(
         "-f",
         "--format",
-        required=True,
+        required=False,
         default="yaml",
-        help="Path to a PEP schema file in yaml format.",
+        help="Output format (name of filter; use -l to see available).",
     )
 
     sps[CONVERT_CMD].add_argument(
@@ -132,4 +148,21 @@ def build_argparser():
         help="Provide arguments to the filter function (e.g. arg1=val1 arg2=val2).",
     )
 
-    return parser
+    sps[CONVERT_CMD].add_argument(
+        "-l",
+        "--list",
+        required=False,
+        default=False,
+        action="store_true",
+        help="List available filters.",
+    )
+
+    sps[CONVERT_CMD].add_argument(
+        "-d",
+        "--describe",
+        required=False,
+        default=False,
+        action="store_true",
+        help="Show description for a given filter.",
+    )
+    return parser, sps

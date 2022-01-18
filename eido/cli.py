@@ -6,7 +6,12 @@ from peppy import Project
 
 from .argparser import LEVEL_BY_VERBOSITY, build_argparser
 from .const import *
-from .conversion import convert_project, get_available_pep_filters
+from .conversion import (
+    convert_project,
+    get_available_pep_filters,
+    pep_conversion_plugins,
+)
+from .exceptions import EidoFilterError
 from .inspection import inspect_project
 from .validation import validate_config, validate_project, validate_sample
 
@@ -30,8 +35,8 @@ def _parse_filter_args_str(input):
 
 
 def main():
-    """ Primary workflow """
-    parser = build_argparser()
+    """Primary workflow"""
+    parser, sps = build_argparser()
     args, remaining_args = parser.parse_known_args()
 
     if args.command is None:
@@ -54,19 +59,41 @@ def main():
     global _LOGGER
     _LOGGER = init_logger(name=PKG_NAME, **logger_kwargs)
 
-    if args.command == FILTERS_CMD:
+    if args.command == CONVERT_CMD:
         filters = get_available_pep_filters()
-        if len(filters) < 1:
-            _LOGGER.info("No available filters")
+        if args.list:
+            _LOGGER.info("Available filters:")
+            if len(filters) < 1:
+                _LOGGER.info("No available filters")
+            for filter_name in filters:
+                _LOGGER.info(f" - {filter_name}")
             sys.exit(0)
-        _LOGGER.info("Available filters:")
-        for filter_name in filters:
-            _LOGGER.info(f" - {filter_name}")
+        if not "format" in args:
+            _LOGGER.info("The following arguments are required: --format")
+            sps[CONVERT_CMD].print_help(sys.stderr)
+            sys.exit(1)
+        if args.describe:
+            if args.format not in filters:
+                raise EidoFilterError(
+                    f"'{args.format}' filter not found. Available filters: {', '.join(filters)}"
+                )
+            filter_functions_by_name = pep_conversion_plugins()
+            print(filter_functions_by_name[args.format].__doc__)
+            sys.exit(0)
+        if args.pep is None:
+            sps[CONVERT_CMD].print_help(sys.stderr)
+            _LOGGER.info("The following arguments are required: PEP")
+            sys.exit(1)
+
+        p = Project(args.pep, sample_table_index=args.st_index)
+        plugin_kwargs = _parse_filter_args_str(args.args)
+        convert_project(p, args.format, plugin_kwargs)
+        _LOGGER.info("Conversion successful")
         sys.exit(0)
 
     _LOGGER.debug(f"Creating a Project object from: {args.pep}")
-    p = Project(args.pep)
     if args.command == VALIDATE_CMD:
+        p = Project(cfg=args.pep, sample_table_index=args.st_index)
         if args.sample_name:
             try:
                 args.sample_name = int(args.sample_name)
@@ -88,13 +115,8 @@ def main():
             )
             validate_project(p, args.schema, args.exclude_case)
         _LOGGER.info("Validation successful")
-    if args.command == INSPECT_CMD:
-        inspect_project(p, args.sample_name, args.attr_limit)
-        sys.exit(0)
 
-    if args.command == CONVERT_CMD:
-        p = Project(args.pep)
-        plugin_kwargs = _parse_filter_args_str(args.args)
-        convert_project(p, args.format, plugin_kwargs)
-        _LOGGER.info("Conversion successful")
+    if args.command == INSPECT_CMD:
+        p = Project(cfg=args.pep, sample_table_index=args.st_index)
+        inspect_project(p, args.sample_name, args.attr_limit)
         sys.exit(0)

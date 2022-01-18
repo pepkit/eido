@@ -39,8 +39,7 @@ def convert_project(prj, target_format, plugin_kwargs=None):
     :param str target_format: the format to convert the Project object to
     :raise EidoFilterError: if the requested filter is not defined
     """
-    run_filter(prj, target_format, plugin_kwargs or dict())
-    sys.exit(0)
+    return run_filter(prj, target_format, plugin_kwargs or dict())
 
 
 def run_filter(prj, filter_name, plugin_kwargs=None):
@@ -62,7 +61,7 @@ def run_filter(prj, filter_name, plugin_kwargs=None):
     _LOGGER.info(f"Running plugin {filter_name}")
     func = installed_plugins[filter_name]
     plugin_kwargs = plugin_kwargs or dict()
-    func(prj, **plugin_kwargs)
+    return func(prj, **plugin_kwargs)
 
 
 def get_available_pep_filters():

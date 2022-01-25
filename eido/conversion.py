@@ -71,7 +71,7 @@ def run_filter(prj, filter_name, plugin_kwargs=None):
             f.write(conv_result)
     else:
         sys.stdout.write(conv_result)
-    
+
     return conv_result
 
 

@@ -26,7 +26,7 @@ def yaml_samples_pep_filter(p) -> str:
     samples_yaml = []
     for s in p.samples:
         samples_yaml.append(s.to_dict())
-    
+
     return dump(samples_yaml, default_flow_style=False)
 
 
@@ -66,5 +66,5 @@ def csv_pep_filter(p, **kwargs) -> str:
         )
         if subsample_table_repr is not None:
             s += subsample_table_repr
-    
+
     return s

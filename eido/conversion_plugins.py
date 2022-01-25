@@ -2,7 +2,7 @@
 import sys
 
 
-def basic_pep_filter(p) -> str:
+def basic_pep_filter(p, **kwargs) -> str:
     """
     Basic PEP filter, that does not convert the Project object.
 
@@ -13,7 +13,7 @@ def basic_pep_filter(p) -> str:
     return str(p)
 
 
-def yaml_samples_pep_filter(p) -> str:
+def yaml_samples_pep_filter(p, **kwargs) -> str:
     """
     YAML samples PEP filter, that returns only Sample object representations.
 
@@ -30,7 +30,7 @@ def yaml_samples_pep_filter(p) -> str:
     return dump(samples_yaml, default_flow_style=False)
 
 
-def yaml_pep_filter(p) -> str:
+def yaml_pep_filter(p, **kwargs) -> str:
     """
     YAML PEP filter, that returns Project object representation.
 

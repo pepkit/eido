@@ -2,7 +2,7 @@
 import sys
 
 
-def basic_pep_filter(p, **kwargs):
+def basic_pep_filter(p) -> str:
     """
     Basic PEP filter, that does not convert the Project object.
 
@@ -10,15 +10,10 @@ def basic_pep_filter(p, **kwargs):
 
     :param peppy.Project p: a Project to run filter on
     """
-    path = kwargs.get("path")
-    if path is not None:
-        with open(path, "w") as text_file:
-            text_file.write(p.__str__)
-    else:
-        print(p)
+    return str(p)
 
 
-def yaml_samples_pep_filter(p, **kwargs):
+def yaml_samples_pep_filter(p) -> str:
     """
     YAML samples PEP filter, that returns only Sample object representations.
 
@@ -26,27 +21,16 @@ def yaml_samples_pep_filter(p, **kwargs):
 
     :param peppy.Project p: a Project to run filter on
     """
-    path = kwargs.get("path")
-    if path is not None:
-        from yaml import dump
+    from yaml import dump
 
-        samples_yaml = []
-        for s in p.samples:
-            samples_yaml.append(s.to_dict())
-        with open(path, "w") as outfile:
-            dump(samples_yaml, outfile, default_flow_style=False)
-    else:
-        import re
-
-        from yaml import safe_dump
-
-        for s in p.samples:
-            sys.stdout.write("- ")
-            out = re.sub("\n", "\n  ", safe_dump(s.to_dict(), default_flow_style=False))
-            sys.stdout.write(out + "\n")
+    samples_yaml = []
+    for s in p.samples:
+        samples_yaml.append(s.to_dict())
+    
+    return dump(samples_yaml, default_flow_style=False)
 
 
-def yaml_pep_filter(p, **kwargs):
+def yaml_pep_filter(p) -> str:
     """
     YAML PEP filter, that returns Project object representation.
 
@@ -56,20 +40,11 @@ def yaml_pep_filter(p, **kwargs):
     """
     from yaml import dump
 
-    path = kwargs.get("path")
-    if path is not None:
-        data = p.config.to_dict()
-        with open(path, "w") as outfile:
-            dump(data, outfile, default_flow_style=False)
-    else:
-        try:
-            data = p.config.to_yaml()
-        except KeyError:
-            data = "Can't convert a Project with no config"
-        print(data)
+    data = p.config.to_dict()
+    return dump(data, default_flow_style=False)
 
 
-def csv_pep_filter(p, **kwargs):
+def csv_pep_filter(p, **kwargs) -> str:
     """
     CSV PEP filter, that returns Sample object representations
 
@@ -81,11 +56,15 @@ def csv_pep_filter(p, **kwargs):
     sample_table_path = kwargs.get("sample_table_path")
     subsample_table_path = kwargs.get("subsample_table_path")
     sample_table_repr = p.sample_table.to_csv(path_or_buf=sample_table_path)
+
+    s = ""
     if sample_table_repr is not None:
-        sys.stdout.write(sample_table_repr)
+        s += sample_table_repr
     if p.subsample_table is not None:
         subsample_table_repr = p.subsample_table.to_csv(
             path_or_buf=subsample_table_path
         )
         if subsample_table_repr is not None:
-            sys.stdout.write(subsample_table_repr)
+            s += subsample_table_repr
+    
+    return s

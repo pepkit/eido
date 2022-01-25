@@ -53,6 +53,8 @@ def run_filter(prj, filter_name, plugin_kwargs=None):
     """
     installed_plugins = pep_conversion_plugins()
     installed_plugin_names = list(installed_plugins.keys())
+    path = plugin_kwargs.get("path")
+
     if filter_name not in installed_plugin_names:
         raise EidoFilterError(
             f"Requested filter ({filter_name}) not found. "
@@ -61,7 +63,16 @@ def run_filter(prj, filter_name, plugin_kwargs=None):
     _LOGGER.info(f"Running plugin {filter_name}")
     func = installed_plugins[filter_name]
     plugin_kwargs = plugin_kwargs or dict()
-    return func(prj, **plugin_kwargs)
+
+    conv_result = func(prj, **plugin_kwargs)
+
+    if path is not None:
+        with open(path, "w+") as f:
+            f.write(conv_result)
+    else:
+        sys.stdout.write(conv_result)
+    
+    return conv_result
 
 
 def get_available_pep_filters():

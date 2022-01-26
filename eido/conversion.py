@@ -51,6 +51,9 @@ def run_filter(prj, filter_name, plugin_kwargs=None):
     :param dict plugin_kwargs: kwargs to pass to the plugin function
     :raise EidoFilterError: if the requested filter is not defined
     """
+    # convert to empty dictionary if no plugin_kwargs are passed
+    plugin_kwargs = plugin_kwargs or dict()
+
     installed_plugins = pep_conversion_plugins()
     installed_plugin_names = list(installed_plugins.keys())
     path = plugin_kwargs.get("path")
@@ -62,12 +65,11 @@ def run_filter(prj, filter_name, plugin_kwargs=None):
         )
     _LOGGER.info(f"Running plugin {filter_name}")
     func = installed_plugins[filter_name]
-    plugin_kwargs = plugin_kwargs or dict()
 
     conv_result = func(prj, **plugin_kwargs)
 
     if path is not None:
-        with open(path, "w+") as f:
+        with open(path, "w") as f:
             f.write(conv_result)
     else:
         sys.stdout.write(conv_result)

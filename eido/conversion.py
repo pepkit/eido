@@ -1,5 +1,6 @@
 import inspect
 import sys
+import os
 from logging import getLogger
 
 from pkg_resources import iter_entry_points
@@ -69,10 +70,21 @@ def run_filter(prj, filter_name, plugin_kwargs=None):
     conv_result = func(prj, **plugin_kwargs)
 
     if path is not None:
-        with open(path, "w") as f:
-            f.write(conv_result)
+        # make out dir if it doesn't
+        # already exist
+        if not os.path.exists(path):
+            os.makedirs(path)
+
+        # loop through and write necessary
+        # files to disk
+        for out_file in conv_result:
+            with open(f"{path}/{out_file}", "w") as f:
+                f.write(conv_result[out_file])
     else:
-        sys.stdout.write(conv_result)
+        # loop through and print to
+        # standard out
+        for out_file in conv_result:
+            sys.stdout.write(conv_result[out_file])
 
     return conv_result
 

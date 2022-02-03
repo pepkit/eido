@@ -1,8 +1,8 @@
 """ built-in PEP filters """
-import sys
+from typing import Dict
 
 
-def basic_pep_filter(p, **kwargs) -> str:
+def basic_pep_filter(p, **kwargs) -> Dict[str, str]:
     """
     Basic PEP filter, that does not convert the Project object.
 
@@ -10,10 +10,12 @@ def basic_pep_filter(p, **kwargs) -> str:
 
     :param peppy.Project p: a Project to run filter on
     """
-    return str(p)
+    return {
+        "pep_conversion.txt": str(p)
+    }
 
 
-def yaml_samples_pep_filter(p, **kwargs) -> str:
+def yaml_samples_pep_filter(p, **kwargs) -> Dict[str, str]:
     """
     YAML samples PEP filter, that returns only Sample object representations.
 
@@ -27,10 +29,12 @@ def yaml_samples_pep_filter(p, **kwargs) -> str:
     for s in p.samples:
         samples_yaml.append(s.to_dict())
 
-    return dump(samples_yaml, default_flow_style=False)
+    return {
+        "samples_conversion.yml": dump(samples_yaml, default_flow_style=False)
+    }
 
 
-def yaml_pep_filter(p, **kwargs) -> str:
+def yaml_pep_filter(p, **kwargs) -> Dict[str, str]:
     """
     YAML PEP filter, that returns Project object representation.
 
@@ -41,10 +45,12 @@ def yaml_pep_filter(p, **kwargs) -> str:
     from yaml import dump
 
     data = p.config.to_dict()
-    return dump(data, default_flow_style=False)
+    return {
+        "pep_conversion.yml": dump(data, default_flow_style=False)
+    }
 
 
-def csv_pep_filter(p, **kwargs) -> str:
+def csv_pep_filter(p, **kwargs) -> Dict[str, str]:
     """
     CSV PEP filter, that returns Sample object representations
 
@@ -67,4 +73,6 @@ def csv_pep_filter(p, **kwargs) -> str:
         if subsample_table_repr is not None:
             s += subsample_table_repr
 
-    return s
+    return {
+        "samples.csv": s
+    }

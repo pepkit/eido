@@ -43,7 +43,7 @@ def convert_project(prj, target_format, plugin_kwargs=None):
     return run_filter(prj, target_format, plugin_kwargs or dict())
 
 
-def run_filter(prj, filter_name, plugin_kwargs=None):
+def run_filter(prj, filter_name, verbose=True, plugin_kwargs=None):
     """
     Run a selected filter on a peppy.Project object
 
@@ -80,11 +80,13 @@ def run_filter(prj, filter_name, plugin_kwargs=None):
         for out_file in conv_result:
             with open(f"{path}/{out_file}", "w") as f:
                 f.write(conv_result[out_file])
-    else:
+    elif verbose:
         # loop through and print to
         # standard out
         for out_file in conv_result:
             sys.stdout.write(conv_result[out_file])
+    else:
+        pass
 
     return conv_result
 

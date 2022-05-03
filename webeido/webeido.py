@@ -39,6 +39,7 @@ print(load_yaml("schemas.yaml"))
 
 schemas_to_test = load_yaml("schemas.yaml")
 
+
 @app.get("/status")
 async def status(request: Request):
     return JSONResponse({"status": "OK"})
@@ -48,21 +49,32 @@ async def status(request: Request):
 async def status(request: Request):
     return JSONResponse(schemas_to_test)
 
+
 # This endpoint validates for one specific schema
 # when the schema is known to the server by registry path
 @app.post("/validate/{namespace}/{schemaid}")
-async def validate_specific_schema(namespace, schemaid, request: Request, files: List[UploadFile] = File(...)):
+async def validate_specific_schema(
+    namespace, schemaid, request: Request, files: List[UploadFile] = File(...)
+):
     # print(schemas_to_test)
     registry_path = "/".join([namespace, schemaid])
     print(schemas_to_test[registry_path])
-    return await validate_pep(request, files, {registry_path: schemas_to_test[registry_path]})
+    return await validate_pep(
+        request, files, {registry_path: schemas_to_test[registry_path]}
+    )
     # return validate_pep(request, files, schemas_to_test[schemaid])
+
 
 # Provide an external schema
 @app.post("/validate_one")
-async def validate_one(request: Request, files: List[UploadFile] = File(...), schemas_to_test = schemas_to_test):
-	#TODO implement this
-	return False
+async def validate_one(
+    request: Request,
+    files: List[UploadFile] = File(...),
+    schemas_to_test=schemas_to_test,
+):
+    # TODO implement this
+    return False
+
 
 def vwrap(p, schema):
     x = None
@@ -73,9 +85,13 @@ def vwrap(p, schema):
         print(x)
     return x
 
+
 # Provide a registry path
 @app.get("/validate_fromhub/{namespace}/{project}")
-async def validate_fromhub(namespace: str, pep_id: str,):
+async def validate_fromhub(
+    namespace: str,
+    pep_id: str,
+):
     proj = peppy.Project(PEP_STORES[namespace][pep_id])
     vals = {}
     for schema_id, schema_data in schemas_to_test.items():
@@ -91,9 +107,12 @@ async def validate_fromhub(namespace: str, pep_id: str,):
     return JSONResponse(content=vals)
 
 
-
 @app.post("/validate")
-async def validate_pep(request: Request, files: List[UploadFile] = File(...), schemas_to_test = schemas_to_test):
+async def validate_pep(
+    request: Request,
+    files: List[UploadFile] = File(...),
+    schemas_to_test=schemas_to_test,
+):
     ufiles = []
     upload_folder = "uploads"
     for file in files:

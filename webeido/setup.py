@@ -10,7 +10,7 @@ extra = {}
 
 # Ordinary dependencies
 DEPENDENCIES = []
-with open("requirements/requirements-all.txt", 'r') as reqs_file:
+with open("requirements/requirements-all.txt", "r") as reqs_file:
     for line in reqs_file:
         print(line)
         if not line.strip():
@@ -18,15 +18,15 @@ with open("requirements/requirements-all.txt", 'r') as reqs_file:
         DEPENDENCIES.append(line)
 
 # 2to3
-if sys.version_info >= (3, ):
+if sys.version_info >= (3,):
     extra["use_2to3"] = True
 extra["install_requires"] = DEPENDENCIES
 
 
-with open("{}/_version.py".format(PACKAGE), 'r') as versionfile:
+with open("{}/_version.py".format(PACKAGE), "r") as versionfile:
     version = versionfile.readline().split()[-1].strip("\"'\n")
 
-with open('README.md') as f:
+with open("README.md") as f:
     long_description = f.read()
 
 setup(
@@ -43,11 +43,11 @@ setup(
         "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
-        "Topic :: Scientific/Engineering :: Bio-Informatics"
+        "Topic :: Scientific/Engineering :: Bio-Informatics",
     ],
     keywords="bioinformatics, sequencing, ngs, metadata, reproducibility",
     url="https://eido.databio.org/",
-    author=u"Nathan Sheffield",
+    author="Nathan Sheffield",
     license="BSD2",
     entry_points={
         "console_scripts": [

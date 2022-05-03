@@ -1,10 +1,32 @@
 # Changelog
 
-This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html) and [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) format. 
+This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html) and [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) format.
 
-## [0.1.5] - unreleased
+## [0.1.6] - unreleased
+
+### Added
+- a possibility to set a custom sample table index with `-s/--st-index` option
+- an option to see filters docs via CLI: `eido filters -f <filter_name>`
+
+### Fixed
+- Some error messages with incorrectly defined schemas.
+- 'required' attribute is no longer required in schema
+
 ### Changed
-- in `validate_inputs` function sample attributes are first validated for existence before their values' existence is checked 
+- Moved all `eido filter` functionality into the `eido convert` command for simplicity. This way, a single top-level command namespace holds all related functionality. Filters are still EXPERIMENTAL.
+
+## [0.1.5] - 2021-04-15
+### Added
+- `eido convert` converts the provided PEP to a specified format (EXPERIMENTAL! may change in future versions)
+- `eido filter` lists available filters in current environment (EXPERIMENTAL! may change in future versions)
+- built-in plugins (EXPERIMENTAL! may change in future versions):
+  - `basic_pep_filter`
+  - `yaml_pep_filter`
+  - `csv_pep_filter`
+  - `yaml_samples_pep_filter`
+
+### Changed
+- in `validate_inputs` function sample attributes are first validated for existence before their values' existence is checked
 
 ## [0.1.4] - 2021-03-14
 ### Changed
@@ -39,13 +61,13 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ### Changed
 - previous CLI `eido` functionality moved to `eido validate`
- 
+
 ## [0.0.6] - 2020-02-07
 ### Changed
 - CLI can accommodate URLs.
 
 ## [0.0.5] - 2020-02-04
-### Added 
+### Added
 - [documentation website](http://eido.databio.org/en/latest/)
 - include version in the CLI help
 
@@ -54,7 +76,7 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - `validate_sample` function for sample level validation
 - sample validation CLI support (via `-n`/`--sample-name` argument)
 - `validate_config` to facilitate samples exclusion in validation
-- config validation CLI support (via `-c`/`--just-config` argument)  
+- config validation CLI support (via `-c`/`--just-config` argument)
 
 ## [0.0.3] - 2020-01-30
 ### Added

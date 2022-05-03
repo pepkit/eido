@@ -9,11 +9,11 @@ One of the features added by `eido` is the `imports` attribute. This allows you 
 
 ```yaml
 description: A example schema for a pipeline.
-imports: 
+imports:
   - http://schema.databio.org/pep/2.0.0.yaml
 ```
 
-You can also use the `imports` to build other schemas that subclass your own schemas. 
+You can also use the `imports` to build other schemas that subclass your own schemas.
 
 ## Project and sample sections
 
@@ -22,7 +22,7 @@ Like the PEP itself, the schema is divided into two sections, one for the projec
 
 ```yaml
 description: A example schema for a pipeline.
-imports: 
+imports:
   - http://schema.databio.org/pep/2.0.0.yaml
 properties:
   config:
@@ -41,7 +41,7 @@ Let's say you're writing a PEP-compatible tool that requires 3 arguments: `read1
 
 ```yaml
 description: A example schema for a pipeline.
-imports: 
+imports:
   - http://schema.databio.org/pep/2.0.0.yaml
 properties:
   samples:
@@ -57,7 +57,7 @@ properties:
           description: "Fastq file for read 2"
         genome:
           type: string
-          description: "Refgenie genome registry identifier"          
+          description: "Refgenie genome registry identifier"
         read_length:
           type: integer
           description: "Length of the Unique Molecular Identifier, if any"
@@ -73,7 +73,7 @@ This document defines the required an optional sample attributes for this pipeli
 
 ## Required input files
 
-In the above example, we listed `read1` and `read2` attributes as *required*. This will enforce that these attributes must be defined on the samples, but for this example, this is not enough -- these also must *point to files that exist*. Checking for files is outside the scope of JSON Schema, which only validates JSON documents, so eido extends JSON Schema with the ability to specify which attributes should point to files. 
+In the above example, we listed `read1` and `read2` attributes as *required*. This will enforce that these attributes must be defined on the samples, but for this example, this is not enough -- these also must *point to files that exist*. Checking for files is outside the scope of JSON Schema, which only validates JSON documents, so eido extends JSON Schema with the ability to specify which attributes should point to files.
 
 Eido provides two ways to do it: `files` and `required_files`. The basic `files` is simply used to specify which attributes point to files, which are not required to exist. This is useful for tools that want to calculate the total size of any provided inputs, for example. The `required_files` list specifies that the attributes point to files that *must exist*, otherwise the PEP doesn't validate. Here's an example of specifying an optional and required input attribute:
 
@@ -87,13 +87,13 @@ properties:
     items:
       type: object
       properties:
-        sample_name: 
+        sample_name:
           type: string
           description: "Name of the sample"
-        organism: 
+        organism:
           type: string
           description: "Organism"
-        protocol: 
+        protocol:
           type: string
           description: "Must be an ATAC-seq or DNAse-seq sample"
         genome:

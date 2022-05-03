@@ -17,6 +17,7 @@ LEVEL_BY_VERBOSITY = [
 
 version_combined = f"{__version__} (peppy {peppy_version})"
 
+
 def build_argparser():
     banner = "%(prog)s - Interact with PEPs"
     additional_description = "\nhttp://eido.databio.org/"

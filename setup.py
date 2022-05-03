@@ -62,7 +62,7 @@ setup(
     ],
     keywords="project, metadata, bioinformatics, sequencing, ngs, workflow",
     url="https://github.com/pepkit/eido/",
-    author=u"Michal Stolarczyk, Nathan Sheffield",
+    author="Michal Stolarczyk, Nathan Sheffield",
     license="BSD2",
     entry_points={
         "console_scripts": ["eido = eido.__main__:main"],

@@ -21,9 +21,11 @@ from _version import __version__ as webeido_version
 from __init__ import build_parser
 from eido._version import __version__ as eido_version
 
-ALL_VERSIONS = {"webeido_version": webeido_version,
+ALL_VERSIONS = {
+    "webeido_version": webeido_version,
     "eido_version": eido_version,
-    "python_version": python_version()}
+    "python_version": python_version(),
+}
 
 TEMPLATES_PATH = "templates"
 templates = Jinja2Templates(directory=TEMPLATES_PATH)
@@ -41,17 +43,20 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 async def hello():
     return {"message": "Hello World"}
 
+
 @app.get("/")
 async def root(request: Request):
-    return templates.TemplateResponse("input.html", dict({"request": request}, **ALL_VERSIONS))
+    return templates.TemplateResponse(
+        "input.html", dict({"request": request}, **ALL_VERSIONS)
+    )
+
 
 @app.get("/index")
 async def index(request: Request):
     """
     Returns a landing page HTML with the server resources ready do download. No inputs required.
     """
-    templ_vars = {"request": request, 
-                  "openapi_version": app.openapi()["openapi"]}
+    templ_vars = {"request": request, "openapi_version": app.openapi()["openapi"]}
     _LOGGER.debug("merged vars: {}".format(dict(templ_vars, **ALL_VERSIONS)))
     return templates.TemplateResponse("index.html", dict(templ_vars, **ALL_VERSIONS))
 
@@ -64,15 +69,16 @@ schemas_to_test = {
     "PEPATAC": "http://schema.databio.org/pipelines/pepatac.yaml",
     "bedmaker": "http://schema.databio.org/pipelines/bedmaker.yaml",
     "refgenie": "http://schema.databio.org/refgenie/refgenie_build.yaml",
-    "bulker": "http://schema.databio.org/bulker/manifest.yaml"
+    "bulker": "http://schema.databio.org/bulker/manifest.yaml",
 }
+
 
 @app.post("/upload/")
 async def upload(request: Request, file: UploadFile = File(...)):
     upload_folder = "uploads"
     print(file)
     file_object = file.file
-    uploaded = open(os.path.join(upload_folder, file.filename), 'wb+')
+    uploaded = open(os.path.join(upload_folder, file.filename), "wb+")
     shutil.copyfileobj(file_object, uploaded)
     uploaded.close()
     print(uploaded.name)
@@ -90,7 +96,7 @@ async def validate_pep(request: Request, files: List[UploadFile] = File(...)):
     for file in files:
         print(file)
         file_object = file.file
-        uploaded = open(os.path.join(upload_folder, file.filename), 'wb+')
+        uploaded = open(os.path.join(upload_folder, file.filename), "wb+")
         shutil.copyfileobj(file_object, uploaded)
         uploaded.close()
         print(uploaded.name)
@@ -112,18 +118,18 @@ async def validate_pep(request: Request, files: List[UploadFile] = File(...)):
             print(x)
         return str(x)
 
-    vals = {"name": pconf,
-            "filenames": [file.filename for file in files],
-            "request": request,
-            'validations': []
-            }
+    vals = {
+        "name": pconf,
+        "filenames": [file.filename for file in files],
+        "request": request,
+        "validations": [],
+    }
     for name, schema in schemas_to_test.items():
-        vals['validations'].append({
-            "name": name,
-            "schema": schema,
-            "result": vwrap(p, schema)
-            })
+        vals["validations"].append(
+            {"name": name, "schema": schema, "result": vwrap(p, schema)}
+        )
     return HTMLResponse(je.get_template("validation_results.html").render(**vals))
+
 
 def main():
     global _LOGGER

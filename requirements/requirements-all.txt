@@ -1,5 +1,5 @@
 jsonschema>=3.0.1
 logmuse>=0.2.5
 pandas
-peppy>=0.31.2
+peppy>=0.32.0
 ubiquerg>=0.5.2

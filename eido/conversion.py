@@ -86,6 +86,9 @@ def run_filter(prj, filter_name, verbose=True, plugin_kwargs=None):
         for out_file in conv_result:
             sys.stdout.write(conv_result[out_file])
     else:
+        # if no path is provided and the verbose flag is not set,
+        # then most likely eido is being uesd programmatically and
+        # nothing needs to be done.
         pass
 
     return conv_result

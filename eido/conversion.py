@@ -86,9 +86,8 @@ def run_filter(prj, filter_name, verbose=True, plugin_kwargs=None):
             result_path = paths.get(result_key)
             if result_path is None:
                 _LOGGER.warning(
-                    f"Conversion plugin returned key that doesn't exist in specified paths: '{result_key}'. Printing to stdout."
+                    f"Conversion plugin returned key that doesn't exist in specified paths: '{result_key}'."
                 )
-                sys.stdout.write(conv_result[result_key])
             else:
                 # create path if it doesn't exist
                 if not os.path.exists(result_path):

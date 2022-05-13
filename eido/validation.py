@@ -178,7 +178,7 @@ def validate_inputs(sample, schema, exclude_case=False):
     with cw(record=True) as w:
         input_file_size = sum(
             [size(f, size_str=False) or 0.0 for f in all_inputs if f != ""]
-        ) / (1024**3)
+        ) / (1024 ** 3)
         if w:
             _LOGGER.warning(
                 f"{len(w)} input files missing, job input size was "

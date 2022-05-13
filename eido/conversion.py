@@ -58,8 +58,8 @@ def run_filter(prj, filter_name, verbose=True, plugin_kwargs=None):
     # get necessary objects
     installed_plugins = pep_conversion_plugins()
     installed_plugin_names = list(installed_plugins.keys())
-    paths = plugin_kwargs.get('paths')
-    env = plugin_kwargs.get('env')
+    paths = plugin_kwargs.get("paths")
+    env = plugin_kwargs.get("env")
 
     # set environment
     if env is not None:
@@ -86,17 +86,17 @@ def run_filter(prj, filter_name, verbose=True, plugin_kwargs=None):
                 os.makedirs(path)
 
         # extract potential results
-        cfg_result = conv_results.get('cfg')
-        samples_result = conv_results.get('samples')
+        project_result = conv_results.get("project")
+        samples_result = conv_results.get("samples")
 
         # write config conversion result
-        if cfg_result is not None:
-            with open(paths['cfg'], 'w') as f:
-                f.write(cfg_result)
-        
+        if project_result is not None:
+            with open(paths["cfg"], "w") as f:
+                f.write(project_result)
+
         # write samples conversion result
         if samples_result is not None:
-            with open(paths['samples'], 'w') as f:
+            with open(paths["samples"], "w") as f:
                 f.write(samples_result)
 
     if verbose:

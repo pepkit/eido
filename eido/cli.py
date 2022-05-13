@@ -93,8 +93,8 @@ def main():
         plugin_kwargs = _parse_filter_args_str(args.args)
 
         # append paths
-        plugin_kwargs['paths'] = paths
-        
+        plugin_kwargs["paths"] = paths
+
         convert_project(p, args.format, plugin_kwargs)
         _LOGGER.info("Conversion successful")
         sys.exit(0)

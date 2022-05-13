@@ -25,7 +25,7 @@ class TestConversionInfrastructure:
             project_object,
             "basic",
             verbose=False,
-            plugin_kwargs={"paths": {"cfg": "out/basic_prj.txt"}},
+            plugin_kwargs={"paths": {"project": "out/basic_prj.txt"}},
         )
         # the basic filter just converts to a string
         assert conv_result["project"] == str(project_object)

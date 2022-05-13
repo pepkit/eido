@@ -85,7 +85,7 @@ def run_filter(prj, filter_name, verbose=True, plugin_kwargs=None):
         for result_key in conv_result:
             result_path = paths.get(result_key)
             if result_path is None:
-                _LOGGER.warn(
+                _LOGGER.warning(
                     f"Conversion plugin returned key that doesn't exist in specified paths: '{result_key}'. Printing to stdout."
                 )
                 sys.stdout.write(conv_result[result_key])

@@ -1,3 +1,0 @@
-Project 'test' (/Users/nathanleroy/Documents/uva/lab/code/eido/tests/data/peps/test_cfg.yaml)
-2 samples: GSM1558746, GSM1480327
-Sections: name, pep_version, sample_table, sample_modifiers

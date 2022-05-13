@@ -76,41 +76,36 @@ def run_filter(prj, filter_name, verbose=True, plugin_kwargs=None):
     func = installed_plugins[filter_name]
 
     # run filter
-    conv_results = func(prj, **plugin_kwargs)
+    conv_result = func(prj, **plugin_kwargs)
 
     # if paths supplied, write to disk
     if paths is not None:
-        # make out dirs if they don't already exist
-        for path in paths:
-            if not os.path.exists(paths[path]):
-                os.makedirs(os.path.dirname(paths[path]), exist_ok=True)
-
-        # extract potential results
-        project_result = conv_results.get("project")
-        samples_result = conv_results.get("samples")
-
-        # write config conversion result
-        if project_result is not None:
-            with open(paths["cfg"], "w") as f:
-                f.write(project_result)
-
-        # write samples conversion result
-        if samples_result is not None:
-            with open(paths["samples"], "w") as f:
-                f.write(samples_result)
+        # map conversion result to the
+        # specified path
+        for result_key in conv_result:
+            result_path = paths.get(result_key)
+            if result_path is None:
+                _LOGGER.warn(
+                    f"Conversion plugin returned key that doesn't exist in specified paths: '{result_key}'. Printing to stdout."
+                )
+                sys.stdout.write(conv_result[result_key])
+            else:
+                # create path if it doesn't exist
+                if not os.path.exists(result_path):
+                    os.makedirs(os.path.dirname(result_path), exist_ok=True)
+                # write to path
+                with open(result_path, "w") as f:
+                    f.write(conv_result[result_key])
 
     if verbose:
-        # loop through and print to
-        # standard out
-        for res in conv_results:
-            sys.stdout.write(conv_results[res])
+        for result_key in conv_result:
+            sys.stdout.write(conv_result[result_key])
     else:
-        # if no path is provided and the verbose flag is not set,
-        # then most likely eido is being uesd programmatically and
-        # nothing needs to be done.
+        # simply return from the function with
+        # conversion results
         pass
 
-    return conv_results
+    return conv_result
 
 
 def get_available_pep_filters():

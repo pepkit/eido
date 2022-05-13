@@ -84,9 +84,17 @@ def main():
             sps[CONVERT_CMD].print_help(sys.stderr)
             _LOGGER.info("The following arguments are required: PEP")
             sys.exit(1)
+        if args.paths:
+            paths = {y[0]: y[1] for y in [x.split("=") for x in args.paths]}
+        else:
+            paths = None
 
         p = Project(args.pep, sample_table_index=args.st_index)
         plugin_kwargs = _parse_filter_args_str(args.args)
+
+        # append paths
+        plugin_kwargs['paths'] = paths
+        
         convert_project(p, args.format, plugin_kwargs)
         _LOGGER.info("Conversion successful")
         sys.exit(0)

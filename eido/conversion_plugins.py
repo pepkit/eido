@@ -69,6 +69,7 @@ def csv_pep_filter(p, **kwargs) -> Dict[str, str]:
 
     return {"samples": s}
 
+
 def processed_pep_filter(p, **kwargs) -> Dict[str, str]:
     """
     Processed PEP filter, that returns the converted sample and subsample tables.
@@ -91,5 +92,5 @@ def processed_pep_filter(p, **kwargs) -> Dict[str, str]:
     return {
         "project": str(prj_repr),
         "samples": str(sample_repr),
-        "subsamples": str(subsample_repr)
+        "subsamples": str(subsample_repr),
     }

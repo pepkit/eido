@@ -75,22 +75,17 @@ def processed_pep_filter(p, **kwargs) -> Dict[str, str]:
     Processed PEP filter, that returns the converted sample and subsample tables.
     This filter can return the tables as a table or a document.
     :param peppy.Project p: a Project to run filter on
-    :param bool samples_as_table: Flag to write as a table
+    :param bool samples_as_objects: Flag to write as a table
+    :param bool subsamples_as_objects: Flag to write as a table
     """
     # get params
-    samples_as_table = kwargs.get("samples_as_table")
+    samples_as_objects = kwargs.get("samples_as_objects")
+    subsamples_as_objects = kwargs.get("subsamples_as_objects")
 
     prj_repr = p.config.to_dict()
 
-    if samples_as_table:
-        sample_repr = p.sample_table.to_csv()
-        subsample_repr = p.subsample_table.to_csv()
-    else:
-        sample_repr = p.sample_table
-        subsample_repr = p.subsample_table
-
     return {
         "project": str(prj_repr),
-        "samples": str(sample_repr),
-        "subsamples": str(subsample_repr),
+        "samples": str(p.samples) if samples_as_objects else str(p.sample_table.to_csv()),
+        "subsamples": str(p.subsamples) if subsamples_as_objects else str(p.subsample_table.to_csv()) 
     }

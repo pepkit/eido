@@ -55,10 +55,18 @@ def run_filter(prj, filter_name, verbose=True, plugin_kwargs=None):
     # convert to empty dictionary if no plugin_kwargs are passed
     plugin_kwargs = plugin_kwargs or dict()
 
+    # get necessary objects
     installed_plugins = pep_conversion_plugins()
     installed_plugin_names = list(installed_plugins.keys())
-    path = plugin_kwargs.get("path")
+    paths = plugin_kwargs.get('paths')
+    env = plugin_kwargs.get('env')
 
+    # set environment
+    if env is not None:
+        for var in env:
+            os.environ[var] = env[var]
+
+    # check for valid filter
     if filter_name not in installed_plugin_names:
         raise EidoFilterError(
             f"Requested filter ({filter_name}) not found. "
@@ -67,31 +75,42 @@ def run_filter(prj, filter_name, verbose=True, plugin_kwargs=None):
     _LOGGER.info(f"Running plugin {filter_name}")
     func = installed_plugins[filter_name]
 
-    conv_result = func(prj, **plugin_kwargs)
+    # run filter
+    conv_results = func(prj, **plugin_kwargs)
 
-    if path is not None:
-        # make out dir if it doesn't
-        # already exist
-        if not os.path.exists(path):
-            os.makedirs(path)
+    # if paths supplied, write to disk
+    if paths is not None:
+        # make out dirs if they don't already exist
+        for path in paths:
+            if not os.path.exists(path):
+                os.makedirs(path)
 
-        # loop through and write necessary
-        # files to disk
-        for out_file in conv_result:
-            with open(f"{path}/{out_file}", "w") as f:
-                f.write(conv_result[out_file])
-    elif verbose:
+        # extract potential results
+        cfg_result = conv_results.get('cfg')
+        samples_result = conv_results.get('samples')
+
+        # write config conversion result
+        if cfg_result is not None:
+            with open(paths['cfg'], 'w') as f:
+                f.write(cfg_result)
+        
+        # write samples conversion result
+        if samples_result is not None:
+            with open(paths['samples'], 'w') as f:
+                f.write(samples_result)
+
+    if verbose:
         # loop through and print to
         # standard out
-        for out_file in conv_result:
-            sys.stdout.write(conv_result[out_file])
+        for res in conv_results:
+            sys.stdout.write(conv_results[res])
     else:
         # if no path is provided and the verbose flag is not set,
         # then most likely eido is being uesd programmatically and
         # nothing needs to be done.
         pass
 
-    return conv_result
+    return conv_results
 
 
 def get_available_pep_filters():

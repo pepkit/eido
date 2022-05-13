@@ -10,7 +10,9 @@ def basic_pep_filter(p, **kwargs) -> Dict[str, str]:
 
     :param peppy.Project p: a Project to run filter on
     """
-    return {"pep_conversion.txt": str(p)}
+    return {
+        "cfg": str(p)
+    }
 
 
 def yaml_samples_pep_filter(p, **kwargs) -> Dict[str, str]:
@@ -27,7 +29,9 @@ def yaml_samples_pep_filter(p, **kwargs) -> Dict[str, str]:
     for s in p.samples:
         samples_yaml.append(s.to_dict())
 
-    return {"samples_conversion.yml": dump(samples_yaml, default_flow_style=False)}
+    return {
+        "samples": dump(samples_yaml, default_flow_style=False)
+    }
 
 
 def yaml_pep_filter(p, **kwargs) -> Dict[str, str]:
@@ -41,7 +45,9 @@ def yaml_pep_filter(p, **kwargs) -> Dict[str, str]:
     from yaml import dump
 
     data = p.config.to_dict()
-    return {"pep_conversion.yml": dump(data, default_flow_style=False)}
+    return {
+        "cfg": dump(data, default_flow_style=False)
+    }
 
 
 def csv_pep_filter(p, **kwargs) -> Dict[str, str]:
@@ -67,4 +73,6 @@ def csv_pep_filter(p, **kwargs) -> Dict[str, str]:
         if subsample_table_repr is not None:
             s += subsample_table_repr
 
-    return {"samples.csv": s}
+    return {
+        "samples": s
+    }

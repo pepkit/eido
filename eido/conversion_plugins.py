@@ -10,7 +10,7 @@ def basic_pep_filter(p, **kwargs) -> Dict[str, str]:
 
     :param peppy.Project p: a Project to run filter on
     """
-    return {"prj": str(p)}
+    return {"project": str(p)}
 
 
 def yaml_samples_pep_filter(p, **kwargs) -> Dict[str, str]:
@@ -41,7 +41,7 @@ def yaml_pep_filter(p, **kwargs) -> Dict[str, str]:
     from yaml import dump
 
     data = p.config.to_dict()
-    return {"prj": dump(data, default_flow_style=False)}
+    return {"project": dump(data, default_flow_style=False)}
 
 
 def csv_pep_filter(p, **kwargs) -> Dict[str, str]:

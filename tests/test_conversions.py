@@ -19,15 +19,13 @@ class TestConversionInfrastructure:
         assert all(
             [callable(plugin_fun) for plugin_name, plugin_fun in avail_plugins.items()]
         )
-    
+
     def test_basic_filter(self, project_object):
         conv_result = run_filter(
             project_object,
             "basic",
             verbose=False,
-            plugin_kwargs={
-                'paths': {
-                    'cfg': None
-                }
-            }
+            plugin_kwargs={"paths": {"cfg": "out/basic_prj.txt"}},
         )
+        # the basic filter just converts to a string
+        assert conv_result["project"] == str(project_object)

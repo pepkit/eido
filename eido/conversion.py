@@ -82,8 +82,8 @@ def run_filter(prj, filter_name, verbose=True, plugin_kwargs=None):
     if paths is not None:
         # make out dirs if they don't already exist
         for path in paths:
-            if not os.path.exists(path):
-                os.makedirs(path)
+            if not os.path.exists(paths[path]):
+                os.makedirs(os.path.dirname(paths[path]), exist_ok=True)
 
         # extract potential results
         project_result = conv_results.get("project")

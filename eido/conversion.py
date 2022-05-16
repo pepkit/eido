@@ -1,5 +1,6 @@
 import inspect
 import sys
+import os
 from logging import getLogger
 
 from pkg_resources import iter_entry_points
@@ -39,10 +40,10 @@ def convert_project(prj, target_format, plugin_kwargs=None):
     :param str target_format: the format to convert the Project object to
     :raise EidoFilterError: if the requested filter is not defined
     """
-    run_filter(prj, target_format, plugin_kwargs or dict())
+    return run_filter(prj, target_format, plugin_kwargs or dict())
 
 
-def run_filter(prj, filter_name, plugin_kwargs=None):
+def run_filter(prj, filter_name, verbose=True, plugin_kwargs=None):
     """
     Run a selected filter on a peppy.Project object
 
@@ -51,8 +52,21 @@ def run_filter(prj, filter_name, plugin_kwargs=None):
     :param dict plugin_kwargs: kwargs to pass to the plugin function
     :raise EidoFilterError: if the requested filter is not defined
     """
+    # convert to empty dictionary if no plugin_kwargs are passed
+    plugin_kwargs = plugin_kwargs or dict()
+
+    # get necessary objects
     installed_plugins = pep_conversion_plugins()
     installed_plugin_names = list(installed_plugins.keys())
+    paths = plugin_kwargs.get("paths")
+    env = plugin_kwargs.get("env")
+
+    # set environment
+    if env is not None:
+        for var in env:
+            os.environ[var] = env[var]
+
+    # check for valid filter
     if filter_name not in installed_plugin_names:
         raise EidoFilterError(
             f"Requested filter ({filter_name}) not found. "
@@ -60,8 +74,37 @@ def run_filter(prj, filter_name, plugin_kwargs=None):
         )
     _LOGGER.info(f"Running plugin {filter_name}")
     func = installed_plugins[filter_name]
-    plugin_kwargs = plugin_kwargs or dict()
-    func(prj, **plugin_kwargs)
+
+    # run filter
+    conv_result = func(prj, **plugin_kwargs)
+
+    # if paths supplied, write to disk
+    if paths is not None:
+        # map conversion result to the
+        # specified path
+        for result_key in conv_result:
+            result_path = paths.get(result_key)
+            if result_path is None:
+                _LOGGER.warning(
+                    f"Conversion plugin returned key that doesn't exist in specified paths: '{result_key}'."
+                )
+            else:
+                # create path if it doesn't exist
+                if not os.path.exists(result_path):
+                    os.makedirs(os.path.dirname(result_path), exist_ok=True)
+                # write to path
+                with open(result_path, "w") as f:
+                    f.write(conv_result[result_key])
+
+    if verbose:
+        for result_key in conv_result:
+            sys.stdout.write(conv_result[result_key])
+    else:
+        # simply return from the function with
+        # conversion results
+        pass
+
+    return conv_result
 
 
 def get_available_pep_filters():

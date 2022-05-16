@@ -85,3 +85,8 @@ site
 
 
 webeido/webeido/uploads
+
+# virtual env's
+.env
+env
+venv

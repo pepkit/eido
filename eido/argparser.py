@@ -168,4 +168,11 @@ def build_argparser():
         action="store_true",
         help="Show description for a given filter.",
     )
+
+    sps[CONVERT_CMD].add_argument(
+        "-p",
+        "--paths",
+        nargs="+",
+        help="Paths to dump conversion result as key=value pairs.",
+    )
     return parser, sps

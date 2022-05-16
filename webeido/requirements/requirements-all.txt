@@ -1,0 +1,9 @@
+aiofiles
+eido
+fastapi
+jinja2
+logmuse>=0.2
+peppy
+python-multipart
+uvicorn>=0.7.1
+ubiquerg>=0.6.1

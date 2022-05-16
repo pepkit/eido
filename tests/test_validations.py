@@ -1,8 +1,21 @@
+import urllib
+
 import pytest
 from jsonschema.exceptions import ValidationError
+from peppy import Project
 from peppy.utils import load_yaml
 
 from eido import *
+
+
+def _check_remote_file_accessible(url):
+    try:
+        code = urllib.request.urlopen(url).getcode()
+    except:
+        pytest.skip(f"Remote file not found: {url}")
+    else:
+        if code != 200:
+            pytest.skip(f"Return code: {code}. Remote file not found: {url}")
 
 
 class TestProjectValidation:
@@ -87,6 +100,7 @@ class TestRemoteValidation:
         "schema_url", ["https://schema.databio.org/pep/2.0.0.yaml"]
     )
     def test_validate_works_with_remote_schemas(self, project_object, schema_url):
+        _check_remote_file_accessible(schema_url)
         validate_project(project=project_object, schema=schema_url)
         validate_config(project=project_object, schema=schema_url)
         validate_sample(project=project_object, schema=schema_url, sample_name=0)
@@ -95,3 +109,34 @@ class TestRemoteValidation:
 class TestImportsValidation:
     def test_validate(self, project_object, schema_file_path):
         validate_project(project=project_object, schema=schema_file_path)
+
+
+class TestProjectWithoutConfigValidation:
+    @pytest.mark.parametrize(
+        "remote_pep_cfg",
+        [
+            "https://raw.githubusercontent.com/pepkit/example_peps/master/example_basic/sample_table.csv"
+        ],
+    )
+    def test_validate_works(self, schema_file_path, remote_pep_cfg):
+        _check_remote_file_accessible(remote_pep_cfg)
+        validate_project(
+            project=Project(
+                remote_pep_cfg
+            ),  # create Project object from a remote sample table
+            schema=schema_file_path,
+        )
+
+    @pytest.mark.parametrize(
+        "remote_pep_cfg",
+        [
+            "https://raw.githubusercontent.com/pepkit/example_peps/master/example_basic/sample_table.csv"
+        ],
+    )
+    def test_validate_detects_invalid(self, schema_invalid_file_path, remote_pep_cfg):
+        _check_remote_file_accessible(remote_pep_cfg)
+        with pytest.raises(ValidationError):
+            validate_project(
+                project=Project(remote_pep_cfg),
+                schema=schema_invalid_file_path,
+            )

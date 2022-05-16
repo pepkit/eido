@@ -15,7 +15,7 @@
    viewBox="0 0 66.525213 24.766375"
    id="svg6"
    sodipodi:docname="eido.svg"
-   inkscape:version="0.92.4 (5da689c313, 2019-01-14)"
+   inkscape:version="0.92.5 (2060ec1f9f, 2020-04-08)"
    style="fill:#000000">
   <metadata
      id="metadata12">
@@ -25,7 +25,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -40,22 +40,29 @@
      guidetolerance="10"
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
-     inkscape:window-width="1920"
-     inkscape:window-height="1139"
+     inkscape:window-width="2488"
+     inkscape:window-height="1343"
      id="namedview8"
      showgrid="false"
      inkscape:zoom="5.9962655"
-     inkscape:cx="49.397377"
-     inkscape:cy="-1.8650012"
+     inkscape:cx="18.461455"
+     inkscape:cy="-2.5320831"
      inkscape:current-layer="svg6"
      fit-margin-top="2"
      fit-margin-left="2"
      fit-margin-right="2"
      fit-margin-bottom="2"
      inkscape:snap-global="false"
-     inkscape:window-x="0"
-     inkscape:window-y="0"
+     inkscape:window-x="1272"
+     inkscape:window-y="231"
      inkscape:window-maximized="1" />
+  <rect
+     style="opacity:1;vector-effect:none;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:2;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:10;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;marker:none;paint-order:fill markers stroke"
+     id="rect829"
+     width="68.876205"
+     height="27.350357"
+     x="-0.50031137"
+     y="-0.41596597" />
   <g
      id="g1336"
      style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10.66666698px;line-height:1;font-family:Arial;-inkscape-font-specification:Arial;font-variant-ligatures:normal;font-variant-position:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-alternates:normal;font-feature-settings:normal;text-indent:0;text-align:center;text-decoration:none;text-decoration-line:none;text-decoration-style:solid;text-decoration-color:#000000;letter-spacing:0px;word-spacing:0px;text-transform:none;writing-mode:lr-tb;direction:ltr;text-orientation:mixed;dominant-baseline:auto;baseline-shift:baseline;text-anchor:middle;white-space:normal;shape-padding:0;opacity:1;vector-effect:none;fill:#000001;fill-opacity:1;stroke:none;stroke-width:1.06699991;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;marker:none"

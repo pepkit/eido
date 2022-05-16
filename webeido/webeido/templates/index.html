@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Index{% endblock %}
+{% block head %}
+    {{ super() }}
+    <script>
+        $(document).ready(function(){
+          $('[data-toggle="tooltip"]').tooltip();
+        });
+    </script>
+{% endblock %}
+{% block content %}
+{% macro safe_show_asset_attr(x) %}
+    {% if x is none or not x|length %}
+        NA
+    {% else %}
+        {{ x }}
+    {% endif %}
+{% endmacro %}
+
+
+{% endblock %}

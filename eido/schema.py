@@ -24,19 +24,26 @@ def preprocess_schema(schema_dict):
     if "config" in schema_dict[PROP_KEY]:
         schema_dict[PROP_KEY]["_config"] = schema_dict[PROP_KEY]["config"]
         del schema_dict[PROP_KEY]["config"]
+    else:
+        _LOGGER.debug("No config section found in schema")
     if "samples" in schema_dict[PROP_KEY]:
         schema_dict[PROP_KEY]["_samples"] = schema_dict[PROP_KEY]["samples"]
         del schema_dict[PROP_KEY]["samples"]
-        schema_dict["required"][schema_dict["required"].index("samples")] = "_samples"
-    if (
-        "items" in schema_dict[PROP_KEY]["_samples"]
-        and PROP_KEY in schema_dict[PROP_KEY]["_samples"]["items"]
-    ):
-        s_props = schema_dict[PROP_KEY]["_samples"]["items"][PROP_KEY]
-        for prop, val in s_props.items():
-            if "type" in val and val["type"] in ["string", "number", "boolean"]:
-                s_props[prop] = {}
-                s_props[prop]["anyOf"] = [val, {"type": "array", "items": val}]
+        if "required" in schema_dict:
+            schema_dict["required"][
+                schema_dict["required"].index("samples")
+            ] = "_samples"
+        if (
+            "items" in schema_dict[PROP_KEY]["_samples"]
+            and PROP_KEY in schema_dict[PROP_KEY]["_samples"]["items"]
+        ):
+            s_props = schema_dict[PROP_KEY]["_samples"]["items"][PROP_KEY]
+            for prop, val in s_props.items():
+                if "type" in val and val["type"] in ["string", "number", "boolean"]:
+                    s_props[prop] = {}
+                    s_props[prop]["anyOf"] = [val, {"type": "array", "items": val}]
+    else:
+        _LOGGER.debug("No samples section found in schema")
     _LOGGER.debug(f"schema processed: {schema_dict}")
     return schema_dict
 

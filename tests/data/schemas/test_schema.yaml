@@ -11,9 +11,9 @@ properties:
     items:
       type: object
       properties:
-        sample_name: 
+        sample_name:
           type: string
-        protocol: 
+        protocol:
           type: string
         genome:
           type: string

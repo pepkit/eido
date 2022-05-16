@@ -1,5 +1,7 @@
 from logging import CRITICAL, DEBUG, ERROR, INFO, WARN
 
+from peppy.const import SAMPLE_NAME_ATTR
+from peppy import __version__ as peppy_version
 from ubiquerg import VersionInHelpParser
 
 from . import __version__
@@ -13,6 +15,8 @@ LEVEL_BY_VERBOSITY = [
     DEBUG,
 ]
 
+version_combined = f"{__version__} (peppy {peppy_version})"
+
 
 def build_argparser():
     banner = "%(prog)s - Interact with PEPs"
@@ -22,7 +26,7 @@ def build_argparser():
         prog=PKG_NAME,
         description=banner,
         epilog=additional_description,
-        version=__version__,
+        version=version_combined,
     )
 
     subparsers = parser.add_subparsers(dest="command")
@@ -43,11 +47,26 @@ def build_argparser():
     sps = {}
     for cmd, desc in SUBPARSER_MSGS.items():
         sps[cmd] = subparsers.add_parser(cmd, description=desc, help=desc)
-        if cmd != FILTERS_CMD:
+        sps[cmd].add_argument(
+            "--st-index",
+            required=False,
+            type=str,
+            help=f"Sample table index to use, samples are identified by '{SAMPLE_NAME_ATTR}' by default.",
+        )
+        if cmd != CONVERT_CMD:
             sps[cmd].add_argument(
                 "pep",
                 metavar="PEP",
                 help="Path to a PEP configuration file in yaml format.",
+                default=None,
+            )
+        else:
+            sps[cmd].add_argument(
+                "pep",
+                metavar="PEP",
+                nargs="?",
+                help="Path to a PEP configuration file in yaml format.",
+                default=None,
             )
 
     sps[VALIDATE_CMD].add_argument(
@@ -109,9 +128,9 @@ def build_argparser():
     sps[CONVERT_CMD].add_argument(
         "-f",
         "--format",
-        required=True,
+        required=False,
         default="yaml",
-        help="Path to a PEP schema file in yaml format.",
+        help="Output format (name of filter; use -l to see available).",
     )
 
     sps[CONVERT_CMD].add_argument(
@@ -132,4 +151,28 @@ def build_argparser():
         help="Provide arguments to the filter function (e.g. arg1=val1 arg2=val2).",
     )
 
-    return parser
+    sps[CONVERT_CMD].add_argument(
+        "-l",
+        "--list",
+        required=False,
+        default=False,
+        action="store_true",
+        help="List available filters.",
+    )
+
+    sps[CONVERT_CMD].add_argument(
+        "-d",
+        "--describe",
+        required=False,
+        default=False,
+        action="store_true",
+        help="Show description for a given filter.",
+    )
+
+    sps[CONVERT_CMD].add_argument(
+        "-p",
+        "--paths",
+        nargs="+",
+        help="Paths to dump conversion result as key=value pairs.",
+    )
+    return parser, sps

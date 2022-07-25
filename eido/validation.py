@@ -2,10 +2,12 @@ import os
 from copy import deepcopy as dpcpy
 from logging import getLogger
 from warnings import catch_warnings as cw
+from .exceptions import EidoValidationError
 
-import jsonschema
 from pandas.core.common import flatten
 from ubiquerg import size
+
+from jsonschema import Draft7Validator, exceptions
 
 from .const import (
     ALL_INPUTS_KEY,
@@ -30,12 +32,15 @@ def _validate_object(object, schema, exclude_case=False):
     :param bool exclude_case: whether to exclude validated objects
         from the error. Useful when used ith large projects
     """
-    try:
-        jsonschema.validate(object, schema)
-    except jsonschema.exceptions.ValidationError as e:
-        if not exclude_case:
-            raise
-        raise jsonschema.exceptions.ValidationError(e.message)
+
+    validator = Draft7Validator(schema)
+    if validator.is_valid(object):
+        pass
+    else:
+        errors = sorted(validator.iter_errors(object), key=lambda e: e.path)
+        raise EidoValidationError(
+            f"Validation unsuccessful. {len(errors)} errors found.", errors
+        )
 
 
 def validate_project(project, schema, exclude_case=False):
@@ -178,7 +183,7 @@ def validate_inputs(sample, schema, exclude_case=False):
     with cw(record=True) as w:
         input_file_size = sum(
             [size(f, size_str=False) or 0.0 for f in all_inputs if f != ""]
-        ) / (1024**3)
+        ) / (1024 ** 3)
         if w:
             _LOGGER.warning(
                 f"{len(w)} input files missing, job input size was "

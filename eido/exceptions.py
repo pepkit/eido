@@ -30,3 +30,11 @@ class EidoFilterError(EidoException):
 
     def __init__(self, key):
         super(EidoFilterError, self).__init__(key)
+
+
+class EidoValidationError(EidoException):
+    """Object was not validated successfully according to schema."""
+
+    def __init__(self, message, errors):
+        super().__init__(message)
+        self.errors = errors

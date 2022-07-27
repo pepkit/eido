@@ -6,6 +6,7 @@ from peppy import Project
 from peppy.utils import load_yaml
 
 from eido import *
+from eido.exceptions import EidoValidationError
 
 
 def _check_remote_file_accessible(url):
@@ -23,7 +24,7 @@ class TestProjectValidation:
         validate_project(project=project_object, schema=schema_file_path)
 
     def test_validate_detects_invalid(self, project_object, schema_invalid_file_path):
-        with pytest.raises(ValidationError):
+        with pytest.raises(EidoValidationError):
             validate_project(project=project_object, schema=schema_invalid_file_path)
 
     def test_validate_detects_invalid_imports(
@@ -80,7 +81,7 @@ class TestSampleValidation:
     def test_validate_detects_invalid(
         self, project_object, sample_name, schema_sample_invalid_file_path
     ):
-        with pytest.raises(ValidationError):
+        with pytest.raises(EidoValidationError):
             validate_sample(
                 project=project_object,
                 sample_name=sample_name,

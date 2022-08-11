@@ -34,9 +34,7 @@ def _validate_object(object, schema, exclude_case=False):
     """
 
     validator = Draft7Validator(schema)
-    if validator.is_valid(object):
-        pass
-    else:
+    if not validator.is_valid(object):
         errors = sorted(validator.iter_errors(object), key=lambda e: e.path)
         raise EidoValidationError(
             f"Validation unsuccessful. {len(errors)} errors found.", errors

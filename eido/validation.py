@@ -7,7 +7,7 @@ from .exceptions import EidoValidationError
 from pandas.core.common import flatten
 from ubiquerg import size
 
-from jsonschema import Draft7Validator, exceptions
+from jsonschema import Draft7Validator
 
 from .const import (
     ALL_INPUTS_KEY,

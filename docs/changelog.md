@@ -2,6 +2,10 @@
 
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html) and [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) format.
 
+## [0.1.7] - 2022-08-11
+### Changed
+- When a validation fails, `eido` will now return all errors instead of just the first one it finds.
+
 ## [0.1.6] - 2022-05-16
 ### Added
 - a possibility to set a custom sample table index with `-s/--st-index` option

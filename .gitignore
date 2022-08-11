@@ -92,3 +92,5 @@ env
 venv
 .venv
 
+# tests
+out/

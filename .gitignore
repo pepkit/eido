@@ -90,3 +90,7 @@ webeido/webeido/uploads
 .env
 env
 venv
+.venv
+
+# tests
+out/

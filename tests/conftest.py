@@ -1,5 +1,6 @@
 import os
 
+import pandas as pd
 import pytest
 from peppy import Project
 
@@ -21,7 +22,7 @@ def peps_path(data_path):
 
 @pytest.fixture
 def project_file_path(peps_path):
-    return os.path.join(peps_path, "test_cfg.yaml")
+    return os.path.join(peps_path, "test_pep", "test_cfg.yaml")
 
 
 @pytest.fixture
@@ -52,3 +53,30 @@ def schema_sample_invalid_file_path(schemas_path):
 @pytest.fixture
 def schema_imports_file_path(schemas_path):
     return os.path.join(schemas_path, "test_schema_imports.yaml")
+
+
+@pytest.fixture
+def taxprofiler_project_path(peps_path):
+    return os.path.join(peps_path, "taxprofiler_pep", "config.yaml")
+
+
+@pytest.fixture
+def taxprofiler_project(taxprofiler_project_path):
+    return Project(taxprofiler_project_path)
+
+
+@pytest.fixture
+def path_to_taxprofiler_csv_multiline_output(peps_path):
+    return os.path.join(peps_path, "taxprofiler_pep", "multiline_output.csv")
+
+
+@pytest.fixture
+def taxprofiler_csv_multiline_output(path_to_taxprofiler_csv_multiline_output):
+    return pd.read_csv(path_to_taxprofiler_csv_multiline_output).to_csv(
+        path_or_buf=None, index=None
+    )
+
+
+@pytest.fixture
+def save_result_mock(mocker):
+    return mocker.patch("eido.conversion.save_result")

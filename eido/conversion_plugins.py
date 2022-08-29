@@ -1,5 +1,6 @@
 """ built-in PEP filters """
 from typing import Dict
+from .output_formatters import MultilineOutputFormatter
 
 
 def basic_pep_filter(p, **kwargs) -> Dict[str, str]:
@@ -53,21 +54,7 @@ def csv_pep_filter(p, **kwargs) -> Dict[str, str]:
 
     :param peppy.Project p: a Project to run filter on
     """
-    sample_table_path = kwargs.get("sample_table_path")
-    subsample_table_path = kwargs.get("subsample_table_path")
-    sample_table_repr = p.sample_table.to_csv(path_or_buf=sample_table_path)
-
-    s = ""
-    if sample_table_repr is not None:
-        s += sample_table_repr
-    if p.subsample_table is not None:
-        subsample_table_repr = p.subsample_table.to_csv(
-            path_or_buf=subsample_table_path
-        )
-        if subsample_table_repr is not None:
-            s += subsample_table_repr
-
-    return {"samples": s}
+    return {"samples": MultilineOutputFormatter.format(p.samples)}
 
 
 def processed_pep_filter(p, **kwargs) -> Dict[str, str]:

@@ -6,6 +6,7 @@ from logging import getLogger
 from pkg_resources import iter_entry_points
 
 from .exceptions import *
+from typing import NoReturn
 
 _LOGGER = getLogger(__name__)
 
@@ -40,7 +41,7 @@ def convert_project(prj, target_format, plugin_kwargs=None):
     :param str target_format: the format to convert the Project object to
     :raise EidoFilterError: if the requested filter is not defined
     """
-    return run_filter(prj, target_format, plugin_kwargs or dict())
+    return run_filter(prj, target_format, plugin_kwargs=plugin_kwargs or dict())
 
 
 def run_filter(prj, filter_name, verbose=True, plugin_kwargs=None):
@@ -90,21 +91,22 @@ def run_filter(prj, filter_name, verbose=True, plugin_kwargs=None):
                 )
             else:
                 # create path if it doesn't exist
-                if not os.path.exists(result_path):
+                if not os.path.exists(result_path) and os.path.isdir(
+                    os.path.dirname(result_path)
+                ):
                     os.makedirs(os.path.dirname(result_path), exist_ok=True)
-                # write to path
-                with open(result_path, "w") as f:
-                    f.write(conv_result[result_key])
+                save_result(result_path, conv_result[result_key])
 
     if verbose:
         for result_key in conv_result:
             sys.stdout.write(conv_result[result_key])
-    else:
-        # simply return from the function with
-        # conversion results
-        pass
 
     return conv_result
+
+
+def save_result(result_path: str, content: str) -> NoReturn:
+    with open(result_path, "w") as f:
+        f.write(content)
 
 
 def get_available_pep_filters():

@@ -2,6 +2,18 @@
 
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html) and [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) format.
 
+## [0.1.8] - 2022-08-29
+### Changed
+- the way of merging tables for multiline output format from eido convert
+### Added
+- better architecture for output formatters that goes well with **open-closed principle**
+- using mock in some testcases
+- test data in the format that was causing the errors previously
+### Fixed
+- passing plugin keyword arguments to `run_filter` function
+- saving output file will now work for path like `file.txt`, no need to pass full path
+
+
 ## [0.1.7] - 2022-08-11
 ### Changed
 - When a validation fails, `eido` will now return all errors instead of just the first one it finds.

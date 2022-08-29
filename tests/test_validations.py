@@ -136,6 +136,5 @@ class TestProjectWithoutConfigValidation:
         _check_remote_file_accessible(remote_pep_cfg)
         with pytest.raises(EidoValidationError):
             validate_project(
-                project=Project(remote_pep_cfg),
-                schema=schema_invalid_file_path,
+                project=Project(remote_pep_cfg), schema=schema_invalid_file_path
             )

@@ -103,15 +103,16 @@ class MultilineOutputFormatter(BaseOutputFormatter):
             Representation of sample as a CSV row.
         """
         sample_row = []
-
         for attribute in sample_attributes:
 
-            if MultilineOutputFormatter._sample_attribute_is_list(sample, attribute):
+            if MultilineOutputFormatter._sample_attribute_is_list(
+                sample, attribute
+            ) and getattr(sample, attribute):
                 value = getattr(sample, attribute)[sample_index]
             else:
                 value = getattr(sample, attribute, "")
 
-            sample_row.append(value)
+            sample_row.append(value or "")
 
         return ",".join(sample_row)
 

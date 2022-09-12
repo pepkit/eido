@@ -1,7 +1,11 @@
 # Changelog
 
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html) and [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) format.
-
+## [0.1.9] - 2022-09-12
+### Fixed
+- CSV filter bug
+### Added
+- New test cases
 ## [0.1.8] - 2022-08-29
 ### Changed
 - the way of merging tables for multiline output format from eido convert

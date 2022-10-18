@@ -7,13 +7,7 @@ from ubiquerg import VersionInHelpParser
 from . import __version__
 from .const import *
 
-LEVEL_BY_VERBOSITY = [
-    ERROR,
-    CRITICAL,
-    WARN,
-    INFO,
-    DEBUG,
-]
+LEVEL_BY_VERBOSITY = [ERROR, CRITICAL, WARN, INFO, DEBUG]
 
 version_combined = f"{__version__} (peppy {peppy_version})"
 

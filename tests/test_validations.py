@@ -57,9 +57,7 @@ class TestProjectValidation:
 
 class TestSampleValidation:
     @pytest.mark.parametrize("sample_name", [0, 1, "GSM1558746"])
-    def test_validate_works(
-        self, project_object, sample_name, schema_samples_file_path
-    ):
+    def test_validate_works(self, project_object, sample_name, schema_samples_file_path):
         validate_sample(
             project=project_object,
             sample_name=sample_name,

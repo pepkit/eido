@@ -37,7 +37,10 @@ def _validate_object(object, schema, exclude_case=False):
     if not validator.is_valid(object):
         errors = sorted(validator.iter_errors(object), key=lambda e: e.path)
         for error in errors:
-            print(error.message, f'''in the following location "{".".join(error.absolute_schema_path)}"''')
+            print(
+                error.message,
+                f'''in the following location "{".".join(error.absolute_schema_path)}"''',
+            )
         raise EidoValidationError(
             f"Validation unsuccessful. {len(errors)} error(s) found.", errors
         )
@@ -183,7 +186,7 @@ def validate_inputs(sample, schema, exclude_case=False):
     with cw(record=True) as w:
         input_file_size = sum(
             [size(f, size_str=False) or 0.0 for f in all_inputs if f != ""]
-        ) / (1024**3)
+        ) / (1024 ** 3)
         if w:
             _LOGGER.warning(
                 f"{len(w)} input files missing, job input size was "

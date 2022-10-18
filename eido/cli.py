@@ -6,11 +6,7 @@ from peppy import Project
 
 from .argparser import LEVEL_BY_VERBOSITY, build_argparser
 from .const import *
-from .conversion import (
-    convert_project,
-    get_available_pep_filters,
-    pep_conversion_plugins,
-)
+from .conversion import convert_project, get_available_pep_filters, pep_conversion_plugins
 from .exceptions import EidoFilterError
 from .inspection import inspect_project
 from .validation import validate_config, validate_project, validate_sample

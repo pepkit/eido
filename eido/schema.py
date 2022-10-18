@@ -30,9 +30,7 @@ def preprocess_schema(schema_dict):
         schema_dict[PROP_KEY]["_samples"] = schema_dict[PROP_KEY]["samples"]
         del schema_dict[PROP_KEY]["samples"]
         if "required" in schema_dict:
-            schema_dict["required"][
-                schema_dict["required"].index("samples")
-            ] = "_samples"
+            schema_dict["required"][schema_dict["required"].index("samples")] = "_samples"
         if (
             "items" in schema_dict[PROP_KEY]["_samples"]
             and PROP_KEY in schema_dict[PROP_KEY]["_samples"]["items"]

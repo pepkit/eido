@@ -68,9 +68,7 @@ async def validate_specific_schema(
 # Provide an external schema
 @app.post("/validate_one")
 async def validate_one(
-    request: Request,
-    files: List[UploadFile] = File(...),
-    schemas_to_test=schemas_to_test,
+    request: Request, files: List[UploadFile] = File(...), schemas_to_test=schemas_to_test
 ):
     # TODO implement this
     return False
@@ -88,10 +86,7 @@ def vwrap(p, schema):
 
 # Provide a registry path
 @app.get("/validate_fromhub/{namespace}/{project}")
-async def validate_fromhub(
-    namespace: str,
-    pep_id: str,
-):
+async def validate_fromhub(namespace: str, pep_id: str):
     proj = peppy.Project(PEP_STORES[namespace][pep_id])
     vals = {}
     for schema_id, schema_data in schemas_to_test.items():
@@ -109,9 +104,7 @@ async def validate_fromhub(
 
 @app.post("/validate")
 async def validate_pep(
-    request: Request,
-    files: List[UploadFile] = File(...),
-    schemas_to_test=schemas_to_test,
+    request: Request, files: List[UploadFile] = File(...), schemas_to_test=schemas_to_test
 ):
     ufiles = []
     upload_folder = "uploads"

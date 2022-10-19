@@ -7,7 +7,7 @@ from peppy import Project
 from .argparser import LEVEL_BY_VERBOSITY, build_argparser
 from .const import *
 from .conversion import convert_project, get_available_pep_filters, pep_conversion_plugins
-from .exceptions import EidoFilterError
+from .exceptions import EidoFilterError, EidoValidationError
 from .inspection import inspect_project
 from .validation import validate_config, validate_project, validate_sample
 
@@ -107,17 +107,29 @@ def main():
                 f"Comparing Sample ('{args.pep}') in Project ('{args.pep}') "
                 f"against a schema: {args.schema}"
             )
-            validate_sample(p, args.sample_name, args.schema, args.exclude_case)
+            try:
+                validate_sample(p, args.sample_name, args.schema, args.exclude_case)
+            except EidoValidationError as e:
+                print(e)
+                return False
         elif args.just_config:
             _LOGGER.debug(
                 f"Comparing Project ('{args.pep}') against a schema: {args.schema}"
             )
-            validate_config(p, args.schema, args.exclude_case)
+            try:
+                validate_config(p, args.schema, args.exclude_case)
+            except EidoValidationError as e:
+                print(e)
+                return False    
         else:
             _LOGGER.debug(
                 f"Comparing Project ('{args.pep}') against a schema: {args.schema}"
             )
-            validate_project(p, args.schema, args.exclude_case)
+            try:
+                validate_project(p, args.schema, args.exclude_case)
+            except EidoValidationError as e:
+                print(e)
+                return False      
         _LOGGER.info("Validation successful")
 
     if args.command == INSPECT_CMD:

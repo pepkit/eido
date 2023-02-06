@@ -40,28 +40,30 @@ def build_argparser():
     )
     sps = {}
     for cmd, desc in SUBPARSER_MSGS.items():
-        sps[cmd] = subparsers.add_parser(cmd, description=desc, help=desc)
-        sps[cmd].add_argument(
+        subparser = subparsers.add_parser(cmd, description=desc, help=desc)
+        subparser.add_argument(
             "--st-index",
             required=False,
             type=str,
             help=f"Sample table index to use, samples are identified by '{SAMPLE_NAME_ATTR}' by default.",
         )
         if cmd != CONVERT_CMD:
-            sps[cmd].add_argument(
+            subparser.add_argument(
                 "pep",
                 metavar="PEP",
                 help="Path to a PEP configuration file in yaml format.",
                 default=None,
             )
         else:
-            sps[cmd].add_argument(
+            subparser.add_argument(
                 "pep",
                 metavar="PEP",
                 nargs="?",
                 help="Path to a PEP configuration file in yaml format.",
                 default=None,
             )
+
+        sps[cmd] = subparser
 
     sps[VALIDATE_CMD].add_argument(
         "-s",

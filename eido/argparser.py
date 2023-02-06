@@ -45,7 +45,22 @@ def build_argparser():
             "--st-index",
             required=False,
             type=str,
+            default=SAMPLE_NAME_ATTR,
             help=f"Sample table index to use, samples are identified by '{SAMPLE_NAME_ATTR}' by default.",
+        )
+        subparser.add_argument(
+            "--sst-index",
+            required=False,
+            type=str,
+            default=SAMPLE_NAME_ATTR,
+            help=f"Subsample table index to use, samples are identified by '{SAMPLE_NAME_ATTR}' by default.",
+        )
+        subparser.add_argument(
+            "--amendments",
+            required=False,
+            type=str,
+            nargs="+",
+            help=f"Names of the amendments to activate."
         )
         if cmd != CONVERT_CMD:
             subparser.add_argument(

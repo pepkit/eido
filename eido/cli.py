@@ -131,6 +131,7 @@ def main():
             print(e)
             return False
         _LOGGER.info("Validation successful")
+        sys.exit(0)
 
     if args.command == INSPECT_CMD:
         p = Project(cfg=args.pep, sample_table_index=args.st_index)

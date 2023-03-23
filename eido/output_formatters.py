@@ -26,7 +26,6 @@ class MultilineOutputFormatter(BaseOutputFormatter):
         header = MultilineOutputFormatter._get_header(sample_attributes)
 
         for sample in samples:
-
             attribute_with_multiple_properties = MultilineOutputFormatter._get_the_name_of_the_first_attribute_with_multiple_properties(
                 sample, sample_attributes
             )
@@ -104,7 +103,6 @@ class MultilineOutputFormatter(BaseOutputFormatter):
         """
         sample_row = []
         for attribute in sample_attributes:
-
             if MultilineOutputFormatter._sample_attribute_is_list(
                 sample, attribute
             ) and getattr(sample, attribute):

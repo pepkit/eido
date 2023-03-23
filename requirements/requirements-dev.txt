@@ -1,2 +1,0 @@
--e git+https://github.com/pepkit/attmap@dev#egg=attmap
--e git+https://github.com/pepkit/peppy@dev#egg=peppy

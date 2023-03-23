@@ -6,7 +6,11 @@ from peppy import Project
 
 from .argparser import LEVEL_BY_VERBOSITY, build_argparser
 from .const import *
-from .conversion import convert_project, get_available_pep_filters, pep_conversion_plugins
+from .conversion import (
+    convert_project,
+    get_available_pep_filters,
+    pep_conversion_plugins,
+)
 from .exceptions import EidoFilterError, EidoValidationError
 from .inspection import inspect_project
 from .validation import validate_config, validate_project, validate_sample
@@ -120,7 +124,7 @@ def main():
                 validate_config(p, args.schema, args.exclude_case)
             except EidoValidationError as e:
                 print(e)
-                return False    
+                return False
         else:
             _LOGGER.debug(
                 f"Comparing Project ('{args.pep}') against a schema: {args.schema}"
@@ -129,7 +133,7 @@ def main():
                 validate_project(p, args.schema, args.exclude_case)
             except EidoValidationError as e:
                 print(e)
-                return False      
+                return False
         _LOGGER.info("Validation successful")
 
     if args.command == INSPECT_CMD:

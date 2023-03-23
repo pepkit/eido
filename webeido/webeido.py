@@ -68,7 +68,9 @@ async def validate_specific_schema(
 # Provide an external schema
 @app.post("/validate_one")
 async def validate_one(
-    request: Request, files: List[UploadFile] = File(...), schemas_to_test=schemas_to_test
+    request: Request,
+    files: List[UploadFile] = File(...),
+    schemas_to_test=schemas_to_test,
 ):
     # TODO implement this
     return False
@@ -104,7 +106,9 @@ async def validate_fromhub(namespace: str, pep_id: str):
 
 @app.post("/validate")
 async def validate_pep(
-    request: Request, files: List[UploadFile] = File(...), schemas_to_test=schemas_to_test
+    request: Request,
+    files: List[UploadFile] = File(...),
+    schemas_to_test=schemas_to_test,
 ):
     ufiles = []
     upload_folder = "uploads"

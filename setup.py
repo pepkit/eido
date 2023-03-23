@@ -19,6 +19,7 @@ with open("requirements/requirements-all.txt", "r") as reqs_file:
 
 extra["install_requires"] = DEPENDENCIES
 
+
 # Additional files to include with package
 def get_static(name, condition=None):
     static = [

@@ -2,7 +2,12 @@
 
 from abc import ABCMeta
 
-_all__ = ["EidoFilterError", "EidoSchemaInvalidError", "EidoValidationError", "PathAttrNotFoundError"]
+_all__ = [
+    "EidoFilterError",
+    "EidoSchemaInvalidError",
+    "EidoValidationError",
+    "PathAttrNotFoundError",
+]
 
 
 class EidoException(Exception):

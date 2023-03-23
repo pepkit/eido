@@ -9,7 +9,9 @@ class TestConversionInfrastructure:
     def test_plugins_contents(self):
         avail_plugins = pep_conversion_plugins()
         avail_filters = get_available_pep_filters()
-        assert all([plugin_name in avail_filters for plugin_name in avail_plugins.keys()])
+        assert all(
+            [plugin_name in avail_filters for plugin_name in avail_plugins.keys()]
+        )
 
     def test_plugins_are_callable(self):
         avail_plugins = pep_conversion_plugins()

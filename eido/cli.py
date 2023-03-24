@@ -111,30 +111,27 @@ def main():
                 f"Comparing Sample ('{args.pep}') in Project ('{args.pep}') "
                 f"against a schema: {args.schema}"
             )
-            try:
-                validate_sample(p, args.sample_name, args.schema, args.exclude_case)
-            except EidoValidationError as e:
-                print(e)
-                return False
+            validator = validate_sample
+            arguments = [p, arg.sample_name, args.schema, args.exclude_case]
         elif args.just_config:
             _LOGGER.debug(
                 f"Comparing Project ('{args.pep}') against a schema: {args.schema}"
             )
-            try:
-                validate_config(p, args.schema, args.exclude_case)
-            except EidoValidationError as e:
-                print(e)
-                return False
+            validator = validate_config
+            arguments = [p, args.schema, args.exclude_case]
         else:
             _LOGGER.debug(
                 f"Comparing Project ('{args.pep}') against a schema: {args.schema}"
             )
-            try:
-                validate_project(p, args.schema, args.exclude_case)
-            except EidoValidationError as e:
-                print(e)
-                return False
+            validator = validate_project
+            arguments = [p, args.schema, args.exclude_case]
+        try:
+            validator(*arguments)
+        except EidoValidationError as e:
+            print(e)
+            return False
         _LOGGER.info("Validation successful")
+        sys.exit(0)
 
     if args.command == INSPECT_CMD:
         p = Project(cfg=args.pep, sample_table_index=args.st_index)

@@ -1,7 +1,7 @@
 import os
 from copy import deepcopy as dpcpy
 from logging import getLogger
-from warnings import catch_warnings as cw
+from warnings import catch_warnings
 from .exceptions import EidoValidationError
 
 from pandas.core.common import flatten
@@ -36,14 +36,34 @@ def _validate_object(object, schema, exclude_case=False):
     validator = Draft7Validator(schema)
     if not validator.is_valid(object):
         errors = sorted(validator.iter_errors(object), key=lambda e: e.path)
+        errors_by_type = {}
+        # Accumulate and restructure error objects by error type
         for error in errors:
-            print(
-                error.message,
-                f'''in the following location "{".".join(error.absolute_schema_path)}"''',
-            )
-        raise EidoValidationError(
-            f"Validation unsuccessful. {len(errors)} error(s) found.", errors
-        )
+            if not error.message in errors_by_type:
+                errors_by_type[error.message] = []
+            errors_by_type[error.message].append(
+                {
+                    "type": error.message,
+                    "message": f"{error.message} on instance {error.instance['sample_name']}",
+                    "sample_name": error.instance['sample_name']
+                })
+
+        # Print a summary of errors, organized by error type
+        n_error_types = len(errors_by_type)
+        print(f"Found {n_error_types} types of error:")
+        for type in errors_by_type:
+            n = len(errors_by_type[type])
+            msg = f"  - {type}: ({n} samples) "
+            if n < 50:
+                msg += ", ".join([x["sample_name"] for x in errors_by_type[type]])
+            print(msg)
+
+        if len(errors) > 1:
+            final_msg = f"Validation unsuccessful. {len(errors)} errors found."
+        else:
+            final_msg = f"Validation unsuccessful. {len(errors)} error found."
+
+        raise EidoValidationError(final_msg, errors)
 
 
 def validate_project(project, schema, exclude_case=False):
@@ -130,7 +150,7 @@ def validate_config(project, schema, exclude_case=False):
 def validate_inputs(sample, schema, exclude_case=False):
     """
     Determine which of this Sample's required attributes/files are missing
-    and calculate sizes of the inputs.
+    and calculate sizes of the files (inputs).
 
     The names of the attributes that are required and/or deemed as inputs
     are sourced from the schema, more specifically from required_input_attrs
@@ -169,7 +189,7 @@ def validate_inputs(sample, schema, exclude_case=False):
     if isinstance(schema, str):
         schema = read_schema(schema)
 
-    # validate attrs existence first
+    # first, validate attrs existence using jsonschema
     _validate_sample_object(schemas=schema, sample=sample, exclude_case=exclude_case)
 
     all_inputs = set()
@@ -183,7 +203,7 @@ def validate_inputs(sample, schema, exclude_case=False):
             _get_attr_values(sample, sample_schema_dict[REQUIRED_FILES_KEY])
         )
         all_inputs.update(required_inputs)
-    with cw(record=True) as w:
+    with catch_warnings(record=True) as w:
         input_file_size = sum(
             [size(f, size_str=False) or 0.0 for f in all_inputs if f != ""]
         ) / (1024**3)

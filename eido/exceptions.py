@@ -40,6 +40,6 @@ class EidoFilterError(EidoException):
 class EidoValidationError(EidoException):
     """Object was not validated successfully according to schema."""
 
-    def __init__(self, message, errors):
+    def __init__(self, message, errors_by_type):
         super().__init__(message)
-        self.errors = errors
+        self.errors_by_type = errors_by_type

@@ -23,7 +23,7 @@ from .schema import preprocess_schema, read_schema
 _LOGGER = getLogger(__name__)
 
 
-def _validate_object(object, schema, exclude_case=False):
+def _validate_object(object, schema, exclude_case=False, sample_name_colname=False):
     """
     Generic function to validate object against a schema
 
@@ -34,37 +34,30 @@ def _validate_object(object, schema, exclude_case=False):
     """
 
     validator = Draft7Validator(schema)
+    print(object,schema)
     if not validator.is_valid(object):
         errors = sorted(validator.iter_errors(object), key=lambda e: e.path)
         errors_by_type = {}
+
         # Accumulate and restructure error objects by error type
         for error in errors:
             if not error.message in errors_by_type:
                 errors_by_type[error.message] = []
+            
+            try:
+                instance_name = error.instance[sample_name_colname]
+            except KeyError:
+                instance_name = "unnamed"
             errors_by_type[error.message].append(
                 {
                     "type": error.message,
-                    "message": f"{error.message} on instance {error.instance['sample_name']}",
-                    "sample_name": error.instance['sample_name']
+                    "message": f"{error.message} on instance {instance_name}",
+                    "sample_name": instance_name
                 })
-
-        # Print a summary of errors, organized by error type
-        n_error_types = len(errors_by_type)
-        print(f"Found {n_error_types} types of error:")
-        for type in errors_by_type:
-            n = len(errors_by_type[type])
-            msg = f"  - {type}: ({n} samples) "
-            if n < 50:
-                msg += ", ".join([x["sample_name"] for x in errors_by_type[type]])
-            print(msg)
-
-        if len(errors) > 1:
-            final_msg = f"Validation unsuccessful. {len(errors)} errors found."
-        else:
-            final_msg = f"Validation unsuccessful. {len(errors)} error found."
-
-        raise EidoValidationError(final_msg, errors)
-
+            
+        raise EidoValidationError("Validation failed", errors_by_type)
+    else:
+        _LOGGER.debug("Validation was successful...")
 
 def validate_project(project, schema, exclude_case=False):
     """
@@ -75,6 +68,7 @@ def validate_project(project, schema, exclude_case=False):
     :param bool exclude_case: whether to exclude validated objects
     from the error. Useful when used ith large projects
     """
+    sample_name_colname = project.sample_name_colname
     schema_dicts = read_schema(schema=schema)
     for schema_dict in schema_dicts:
         project_dict = project.to_dict()

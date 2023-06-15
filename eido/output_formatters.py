@@ -104,9 +104,10 @@ class MultilineOutputFormatter(BaseOutputFormatter):
         sample_row = []
 
         for attribute in sample_attributes:
-            if MultilineOutputFormatter._sample_attribute_is_list(
-                sample, attribute
-            ) and sample[attribute]:
+            if (
+                MultilineOutputFormatter._sample_attribute_is_list(sample, attribute)
+                and sample[attribute]
+            ):
                 value = sample[attribute][sample_index]
             else:
                 value = sample[attribute]

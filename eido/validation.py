@@ -43,7 +43,7 @@ def _validate_object(object, schema, sample_name_colname=False):
         for error in errors:
             if not error.message in errors_by_type:
                 errors_by_type[error.message] = []
-            
+
             try:
                 instance_name = error.instance[sample_name_colname]
             except KeyError:
@@ -52,9 +52,10 @@ def _validate_object(object, schema, sample_name_colname=False):
                 {
                     "type": error.message,
                     "message": f"{error.message} on instance {instance_name}",
-                    "sample_name": instance_name
-                })
-            
+                    "sample_name": instance_name,
+                }
+            )
+
         raise EidoValidationError("Validation failed", errors_by_type)
     else:
         _LOGGER.debug("Validation was successful...")

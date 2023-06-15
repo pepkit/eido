@@ -1,12 +1,17 @@
 import os
 from copy import deepcopy as dpcpy
 from logging import getLogger
+
 from warnings import catch_warnings as cw
 from warnings import warn
 
-import jsonschema
+from .exceptions import EidoValidationError
+
+
 from pandas.core.common import flatten
 from ubiquerg import size
+
+from jsonschema import Draft7Validator
 
 from .const import (
     ALL_INPUTS_KEY,
@@ -23,21 +28,42 @@ from .schema import preprocess_schema, read_schema
 _LOGGER = getLogger(__name__)
 
 
-def _validate_object(object, schema, exclude_case=False):
+def _validate_object(object, schema, sample_name_colname=False):
     """
     Generic function to validate object against a schema
 
     :param Mapping object: an object to validate
     :param str | dict schema: schema dict to validate against or a path to one
-    :param bool exclude_case: whether to exclude validated objects
         from the error. Useful when used ith large projects
+    :raises EidoValidationError: if validation is unsuccessful
     """
-    try:
-        jsonschema.validate(object, schema)
-    except jsonschema.exceptions.ValidationError as e:
-        if not exclude_case:
-            raise
-        raise jsonschema.exceptions.ValidationError(e.message)
+
+    validator = Draft7Validator(schema)
+    print(object, schema)
+    if not validator.is_valid(object):
+        errors = sorted(validator.iter_errors(object), key=lambda e: e.path)
+        errors_by_type = {}
+
+        # Accumulate and restructure error objects by error type
+        for error in errors:
+            if not error.message in errors_by_type:
+                errors_by_type[error.message] = []
+
+            try:
+                instance_name = error.instance[sample_name_colname]
+            except KeyError:
+                instance_name = "unnamed"
+            errors_by_type[error.message].append(
+                {
+                    "type": error.message,
+                    "message": f"{error.message} on instance {instance_name}",
+                    "sample_name": instance_name,
+                }
+            )
+
+        raise EidoValidationError("Validation failed", errors_by_type)
+    else:
+        _LOGGER.debug("Validation was successful...")
 
 
 def validate_project(project, schema, exclude_case=False):
@@ -49,6 +75,7 @@ def validate_project(project, schema, exclude_case=False):
     :param bool exclude_case: whether to exclude validated objects
     from the error. Useful when used ith large projects
     """
+    sample_name_colname = project.sample_name_colname
     schema_dicts = read_schema(schema=schema)
     for schema_dict in schema_dicts:
         project_dict = project.to_dict()
@@ -69,7 +96,7 @@ def _validate_sample_object(sample, schemas, exclude_case=False):
     for schema_dict in schemas:
         schema_dict = preprocess_schema(schema_dict)
         sample_schema_dict = schema_dict[PROP_KEY]["_samples"]["items"]
-        _validate_object(sample, sample_schema_dict, exclude_case)
+        _validate_object(sample.to_dict(), sample_schema_dict, exclude_case)
         _LOGGER.debug(
             f"{getattr(sample, 'sample_name', '')} sample validation successful"
         )
@@ -119,12 +146,32 @@ def validate_config(project, schema, exclude_case=False):
         project_dict = project.to_dict()
         _validate_object(project_dict, schema_cpy, exclude_case)
         _LOGGER.debug("Config validation successful")
+     
+def _get_attr_values(obj, attrlist):
+    """
+    Get value corresponding to each given attribute.
+
+    :param Mapping obj: an object to get the attributes from
+    :param str | Iterable[str] attrlist: names of attributes to
+        retrieve values for
+    :return dict: value corresponding to
+        each named attribute; null if this Sample's value for the
+        attribute given by the argument to the "attrlist" parameter is
+        empty/null, or if this Sample lacks the indicated attribute
+    """
+    # If attribute is None, then value is also None.
+    if not attrlist:
+        return None
+    if not isinstance(attrlist, list):
+        attrlist = [attrlist]
+    # Strings contained here are appended later so shouldn't be null.
+    return list(flatten([getattr(obj, attr, "") for attr in attrlist]))
 
 
 def validate_inputs_looper(sample, schema, exclude_case=False):
     """
     Determine which of this Sample's required attributes/files are missing
-    and calculate sizes of the inputs.
+    and calculate sizes of the files (inputs).
 
     The names of the attributes that are required and/or deemed as inputs
     are sourced from the schema, more specifically from required_input_attrs
@@ -139,31 +186,10 @@ def validate_inputs_looper(sample, schema, exclude_case=False):
         from the error. Useful when used ith large projects
     :raise ValidationError: if any required sample attribute is missing
     """
-
-    def _get_attr_values(obj, attrlist):
-        """
-        Get value corresponding to each given attribute.
-
-        :param Mapping obj: an object to get the attributes from
-        :param str | Iterable[str] attrlist: names of attributes to
-            retrieve values for
-        :return dict: value corresponding to
-            each named attribute; null if this Sample's value for the
-            attribute given by the argument to the "attrlist" parameter is
-            empty/null, or if this Sample lacks the indicated attribute
-        """
-        # If attribute is None, then value is also None.
-        if not attrlist:
-            return None
-        if not isinstance(attrlist, list):
-            attrlist = [attrlist]
-        # Strings contained here are appended later so shouldn't be null.
-        return list(flatten([getattr(obj, attr, "") for attr in attrlist]))
-
     if isinstance(schema, str):
         schema = read_schema(schema)
 
-    # validate attrs existence first
+    # first, validate attrs existence using jsonschema
     _validate_sample_object(schemas=schema, sample=sample, exclude_case=exclude_case)
 
     all_inputs = set()
@@ -177,10 +203,10 @@ def validate_inputs_looper(sample, schema, exclude_case=False):
             _get_attr_values(sample, sample_schema_dict[REQUIRED_FILES_KEY])
         )
         all_inputs.update(required_inputs)
-    with cw(record=True) as w:
+    with catch_warnings(record=True) as w:
         input_file_size = sum(
             [size(f, size_str=False) or 0.0 for f in all_inputs if f != ""]
-        ) / (1024 ** 3)
+        ) / (1024**3)
         if w:
             _LOGGER.warning(
                 f"{len(w)} input files missing, job input size was "
@@ -195,7 +221,7 @@ def validate_inputs_looper(sample, schema, exclude_case=False):
     }
 
 
-def validate_inputs(project, schema, sample_name=None, exclude_case=False):
+def validate_input_files(project, schema, sample_name=None, exclude_case=False):
     """
     Determine which of the required and optional files are missing.
 
@@ -226,26 +252,6 @@ def validate_inputs(project, schema, sample_name=None, exclude_case=False):
             else project.get_sample(sample_name)
         )
         samples = [samples]
-
-    def _get_attr_values(obj, attrlist):
-        """
-        Get value corresponding to each given attribute.
-
-        :param Mapping obj: an object to get the attributes from
-        :param str | Iterable[str] attrlist: names of attributes to
-            retrieve values for
-        :return dict: value corresponding to
-            each named attribute; null if this Sample's value for the
-            attribute given by the argument to the "attrlist" parameter is
-            empty/null, or if this Sample lacks the indicated attribute
-        """
-        # If attribute is None, then value is also None.
-        if not attrlist:
-            return None
-        if not isinstance(attrlist, list):
-            attrlist = [attrlist]
-        # Strings contained here are appended later so shouldn't be null.
-        return list(flatten([getattr(obj, attr, "") for attr in attrlist]))
 
     if isinstance(schema, str):
         schema = read_schema(schema)

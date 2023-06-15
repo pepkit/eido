@@ -1,5 +1,5 @@
 imports:
-    - https://schema.databio.org/pep/2.0.0.yaml
+    - http://schema.databio.org/pep/2.0.0.yaml
 description: Schema for a more restrictive PEP
 properties:
   samples:

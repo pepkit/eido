@@ -1,18 +1,15 @@
 from logging import CRITICAL, DEBUG, ERROR, INFO, WARN
 
 from peppy.const import SAMPLE_NAME_ATTR
+from peppy import __version__ as peppy_version
 from ubiquerg import VersionInHelpParser
 
 from . import __version__
 from .const import *
 
-LEVEL_BY_VERBOSITY = [
-    ERROR,
-    CRITICAL,
-    WARN,
-    INFO,
-    DEBUG,
-]
+LEVEL_BY_VERBOSITY = [ERROR, CRITICAL, WARN, INFO, DEBUG]
+
+version_combined = f"{__version__} (peppy {peppy_version})"
 
 
 def build_argparser():
@@ -23,7 +20,7 @@ def build_argparser():
         prog=PKG_NAME,
         description=banner,
         epilog=additional_description,
-        version=__version__,
+        version=version_combined,
     )
 
     subparsers = parser.add_subparsers(dest="command")
@@ -164,5 +161,12 @@ def build_argparser():
         default=False,
         action="store_true",
         help="Show description for a given filter.",
+    )
+
+    sps[CONVERT_CMD].add_argument(
+        "-p",
+        "--paths",
+        nargs="+",
+        help="Paths to dump conversion result as key=value pairs.",
     )
     return parser, sps

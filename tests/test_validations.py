@@ -6,6 +6,7 @@ from peppy import Project
 from peppy.utils import load_yaml
 
 from eido import *
+from eido.exceptions import EidoValidationError
 
 
 def _check_remote_file_accessible(url):
@@ -23,13 +24,13 @@ class TestProjectValidation:
         validate_project(project=project_object, schema=schema_file_path)
 
     def test_validate_detects_invalid(self, project_object, schema_invalid_file_path):
-        with pytest.raises(ValidationError):
+        with pytest.raises(EidoValidationError):
             validate_project(project=project_object, schema=schema_invalid_file_path)
 
     def test_validate_detects_invalid_imports(
         self, project_object, schema_imports_file_path
     ):
-        with pytest.raises(ValidationError):
+        with pytest.raises(EidoValidationError):
             validate_project(project=project_object, schema=schema_imports_file_path)
 
     def test_validate_converts_samples_to_private_attr(
@@ -80,7 +81,7 @@ class TestSampleValidation:
     def test_validate_detects_invalid(
         self, project_object, sample_name, schema_sample_invalid_file_path
     ):
-        with pytest.raises(ValidationError):
+        with pytest.raises(EidoValidationError):
             validate_sample(
                 project=project_object,
                 sample_name=sample_name,
@@ -96,9 +97,7 @@ class TestConfigValidation:
 
 
 class TestRemoteValidation:
-    @pytest.mark.parametrize(
-        "schema_url", ["https://schema.databio.org/pep/2.0.0.yaml"]
-    )
+    @pytest.mark.parametrize("schema_url", ["http://schema.databio.org/pep/2.0.0.yaml"])
     def test_validate_works_with_remote_schemas(self, project_object, schema_url):
         _check_remote_file_accessible(schema_url)
         validate_project(project=project_object, schema=schema_url)
@@ -135,8 +134,7 @@ class TestProjectWithoutConfigValidation:
     )
     def test_validate_detects_invalid(self, schema_invalid_file_path, remote_pep_cfg):
         _check_remote_file_accessible(remote_pep_cfg)
-        with pytest.raises(ValidationError):
+        with pytest.raises(EidoValidationError):
             validate_project(
-                project=Project(remote_pep_cfg),
-                schema=schema_invalid_file_path,
+                project=Project(remote_pep_cfg), schema=schema_invalid_file_path
             )

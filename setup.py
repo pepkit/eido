@@ -19,6 +19,7 @@ with open("requirements/requirements-all.txt", "r") as reqs_file:
 
 extra["install_requires"] = DEPENDENCIES
 
+
 # Additional files to include with package
 def get_static(name, condition=None):
     static = [
@@ -54,15 +55,15 @@ setup(
     classifiers=[
         "Development Status :: 4 - Beta",
         "License :: OSI Approved :: BSD License",
-        "Programming Language :: Python :: 3.6",
-        "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
+        "Programming Language :: Python :: 3.11",
         "Topic :: Scientific/Engineering :: Bio-Informatics",
     ],
     keywords="project, metadata, bioinformatics, sequencing, ngs, workflow",
     url="https://github.com/pepkit/eido/",
-    author=u"Michal Stolarczyk, Nathan Sheffield",
+    author="Michal Stolarczyk, Nathan Sheffield",
     license="BSD2",
     entry_points={
         "console_scripts": ["eido = eido.__main__:main"],

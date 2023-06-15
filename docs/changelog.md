@@ -1,12 +1,34 @@
 # Changelog
 
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html) and [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) format.
+## [0.1.9] - 2022-09-12
+### Fixed
+- CSV filter bug
+### Added
+- New test cases
+## [0.1.8] - 2022-08-29
+### Changed
+- the way of merging tables for multiline output format from eido convert
+### Added
+- better architecture for output formatters that goes well with **open-closed principle**
+- using mock in some testcases
+- test data in the format that was causing the errors previously
+### Fixed
+- passing plugin keyword arguments to `run_filter` function
+- saving output file will now work for path like `file.txt`, no need to pass full path
 
-## [0.1.6] - unreleased
 
+## [0.1.7] - 2022-08-11
+### Changed
+- When a validation fails, `eido` will now return all errors instead of just the first one it finds.
+
+## [0.1.6] - 2022-05-16
 ### Added
 - a possibility to set a custom sample table index with `-s/--st-index` option
 - an option to see filters docs via CLI: `eido filters -f <filter_name>`
+- PEP filters now return their conversion result for progrommatic use.
+- PEP filters can write to files.
+- A filter can write multiple outputs to multiple files using the `paths` keyword arg.
 
 ### Fixed
 - Some error messages with incorrectly defined schemas.

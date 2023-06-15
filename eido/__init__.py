@@ -23,4 +23,5 @@ __all__ = [
     "yaml_pep_filter",
     "csv_pep_filter",
     "yaml_samples_pep_filter",
+    "EidoValidationError",
 ]

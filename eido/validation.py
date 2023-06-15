@@ -23,18 +23,18 @@ from .schema import preprocess_schema, read_schema
 _LOGGER = getLogger(__name__)
 
 
-def _validate_object(object, schema, exclude_case=False, sample_name_colname=False):
+def _validate_object(object, schema, sample_name_colname=False):
     """
     Generic function to validate object against a schema
 
     :param Mapping object: an object to validate
     :param str | dict schema: schema dict to validate against or a path to one
-    :param bool exclude_case: whether to exclude validated objects
         from the error. Useful when used ith large projects
+    :raises EidoValidationError: if validation is unsuccessful
     """
 
     validator = Draft7Validator(schema)
-    print(object,schema)
+    print(object, schema)
     if not validator.is_valid(object):
         errors = sorted(validator.iter_errors(object), key=lambda e: e.path)
         errors_by_type = {}
@@ -58,6 +58,7 @@ def _validate_object(object, schema, exclude_case=False, sample_name_colname=Fal
         raise EidoValidationError("Validation failed", errors_by_type)
     else:
         _LOGGER.debug("Validation was successful...")
+
 
 def validate_project(project, schema, exclude_case=False):
     """
@@ -89,7 +90,7 @@ def _validate_sample_object(sample, schemas, exclude_case=False):
     for schema_dict in schemas:
         schema_dict = preprocess_schema(schema_dict)
         sample_schema_dict = schema_dict[PROP_KEY]["_samples"]["items"]
-        _validate_object(sample, sample_schema_dict, exclude_case)
+        _validate_object(sample.to_dict(), sample_schema_dict, exclude_case)
         _LOGGER.debug(
             f"{getattr(sample, 'sample_name', '')} sample validation successful"
         )

@@ -32,7 +32,6 @@ def _validate_object(object, schema, sample_name_colname=False):
         from the error. Useful when used ith large projects
     :raises EidoValidationError: if validation is unsuccessful
     """
-
     validator = Draft7Validator(schema)
     print(object, schema)
     if not validator.is_valid(object):
@@ -47,7 +46,7 @@ def _validate_object(object, schema, sample_name_colname=False):
             try:
                 instance_name = error.instance[sample_name_colname]
             except KeyError:
-                instance_name = "unnamed"
+                instance_name = "project"
             errors_by_type[error.message].append(
                 {
                     "type": error.message,
@@ -61,20 +60,21 @@ def _validate_object(object, schema, sample_name_colname=False):
         _LOGGER.debug("Validation was successful...")
 
 
-def validate_project(project, schema, exclude_case=False):
+def validate_project(project, schema):
     """
     Validate a project object against a schema
 
     :param peppy.Sample project: a project object to validate
     :param str | dict schema: schema dict to validate against or a path to one
-    :param bool exclude_case: whether to exclude validated objects
     from the error. Useful when used ith large projects
     """
     sample_name_colname = project.sample_name_colname
     schema_dicts = read_schema(schema=schema)
     for schema_dict in schema_dicts:
         project_dict = project.to_dict()
-        _validate_object(project_dict, preprocess_schema(schema_dict), exclude_case)
+        _validate_object(
+            project_dict, preprocess_schema(schema_dict), sample_name_colname
+        )
         _LOGGER.debug("Project validation successful")
 
 

@@ -60,7 +60,7 @@ def build_argparser():
             required=False,
             type=str,
             nargs="+",
-            help=f"Names of the amendments to activate."
+            help=f"Names of the amendments to activate.",
         )
         if cmd != CONVERT_CMD:
             subparser.add_argument(

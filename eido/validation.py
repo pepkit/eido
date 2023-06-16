@@ -114,7 +114,8 @@ def validate_sample(project, sample_name, schema):
         else project.get_sample(sample_name)
     )
     _validate_sample_object(
-        sample=sample, schemas=read_schema(schema=schema),
+        sample=sample,
+        schemas=read_schema(schema=schema),
     )
 
 
@@ -198,9 +199,7 @@ def validate_input_files(project, schema, sample_name=None):
 
     for sample in samples:
         # validate attrs existence first
-        _validate_sample_object(
-            schemas=schema, sample=sample
-        )
+        _validate_sample_object(schemas=schema, sample=sample)
 
         all_inputs = set()
         required_inputs = set()

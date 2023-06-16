@@ -109,9 +109,12 @@ def main():
         else:
             paths = None
 
-        p = Project(args.pep, sample_table_index=args.st_index,
-                subsample_table_index=args.sst_index,
-                amendments=args.amendments)
+        p = Project(
+            args.pep,
+            sample_table_index=args.st_index,
+            subsample_table_index=args.sst_index,
+            amendments=args.amendments,
+        )
         plugin_kwargs = _parse_filter_args_str(args.args)
 
         # append paths
@@ -123,9 +126,12 @@ def main():
 
     _LOGGER.debug(f"Creating a Project object from: {args.pep}")
     if args.command == VALIDATE_CMD:
-        p = Project(args.pep, sample_table_index=args.st_index,
-                subsample_table_index=args.sst_index,
-                amendments=args.amendments)
+        p = Project(
+            args.pep,
+            sample_table_index=args.st_index,
+            subsample_table_index=args.sst_index,
+            amendments=args.amendments,
+        )
         if args.sample_name:
             try:
                 args.sample_name = int(args.sample_name)
@@ -136,7 +142,7 @@ def main():
                 f"against a schema: {args.schema}"
             )
             validator = validate_sample
-            arguments = [p, arg.sample_name, args.schema, args.exclude_case]
+            arguments = [p, args.sample_name, args.schema, args.exclude_case]
         elif args.just_config:
             _LOGGER.debug(
                 f"Comparing Project ('{args.pep}') against a schema: {args.schema}"
@@ -158,8 +164,11 @@ def main():
         sys.exit(0)
 
     if args.command == INSPECT_CMD:
-        p = Project(args.pep, sample_table_index=args.st_index,
-                subsample_table_index=args.sst_index,
-                amendments=args.amendments)
+        p = Project(
+            args.pep,
+            sample_table_index=args.st_index,
+            subsample_table_index=args.sst_index,
+            amendments=args.amendments,
+        )
         inspect_project(p, args.sample_name, args.attr_limit)
         sys.exit(0)

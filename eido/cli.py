@@ -109,7 +109,9 @@ def main():
         else:
             paths = None
 
-        p = Project(args.pep, sample_table_index=args.st_index)
+        p = Project(args.pep, sample_table_index=args.st_index,
+                subsample_table_index=args.sst_index,
+                amendments=args.amendments)
         plugin_kwargs = _parse_filter_args_str(args.args)
 
         # append paths
@@ -121,7 +123,9 @@ def main():
 
     _LOGGER.debug(f"Creating a Project object from: {args.pep}")
     if args.command == VALIDATE_CMD:
-        p = Project(cfg=args.pep, sample_table_index=args.st_index)
+        p = Project(args.pep, sample_table_index=args.st_index,
+                subsample_table_index=args.sst_index,
+                amendments=args.amendments)
         if args.sample_name:
             try:
                 args.sample_name = int(args.sample_name)
@@ -154,6 +158,8 @@ def main():
         sys.exit(0)
 
     if args.command == INSPECT_CMD:
-        p = Project(cfg=args.pep, sample_table_index=args.st_index)
+        p = Project(args.pep, sample_table_index=args.st_index,
+                subsample_table_index=args.sst_index,
+                amendments=args.amendments)
         inspect_project(p, args.sample_name, args.attr_limit)
         sys.exit(0)

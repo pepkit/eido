@@ -2,7 +2,7 @@ import os
 from copy import deepcopy as dpcpy
 from logging import getLogger
 
-from warnings import catch_warnings as cw
+from warnings import catch_warnings
 from warnings import warn
 
 from .exceptions import EidoValidationError
@@ -69,7 +69,7 @@ def validate_project(project, schema):
     """
     Validate a project object against a schema
 
-    :param peppy.Sample project: a project object to validate
+    :param peppy.Project project: a project object to validate
     :param str | dict schema: schema dict to validate against or a path to one
     from the error. Useful when used ith large projects
     """
@@ -83,34 +83,30 @@ def validate_project(project, schema):
         _LOGGER.debug("Project validation successful")
 
 
-def _validate_sample_object(sample, schemas, exclude_case=False):
+def _validate_sample_object(sample, schemas):
     """
     Internal function that allows to validate a peppy.Sample object without
     requiring a reference to peppy.Project.
 
     :param peppy.Sample sample: a sample object to validate
     :param list[dict] schemas: list of schemas to validate against or a path to one
-    :param bool exclude_case: whether to exclude validated objects
-        from the error. Useful when used ith large projects
     """
     for schema_dict in schemas:
         schema_dict = preprocess_schema(schema_dict)
         sample_schema_dict = schema_dict[PROP_KEY]["_samples"]["items"]
-        _validate_object(sample.to_dict(), sample_schema_dict, exclude_case)
+        _validate_object(sample.to_dict(), sample_schema_dict)
         _LOGGER.debug(
             f"{getattr(sample, 'sample_name', '')} sample validation successful"
         )
 
 
-def validate_sample(project, sample_name, schema, exclude_case=False):
+def validate_sample(project, sample_name, schema):
     """
     Validate the selected sample object against a schema
 
     :param peppy.Project project: a project object to validate
     :param str | int sample_name: name or index of the sample to validate
     :param str | dict schema: schema dict to validate against or a path to one
-    :param bool exclude_case: whether to exclude validated objects
-        from the error. Useful when used ith large projects
     """
     sample = (
         project.samples[sample_name]
@@ -118,18 +114,16 @@ def validate_sample(project, sample_name, schema, exclude_case=False):
         else project.get_sample(sample_name)
     )
     _validate_sample_object(
-        sample=sample, schemas=read_schema(schema=schema), exclude_case=exclude_case
+        sample=sample, schemas=read_schema(schema=schema),
     )
 
 
-def validate_config(project, schema, exclude_case=False):
+def validate_config(project, schema):
     """
     Validate the config part of the Project object against a schema
 
     :param peppy.Project project: a project object to validate
     :param str | dict schema: schema dict to validate against or a path to one
-    :param bool exclude_case: whether to exclude validated objects
-        from the error. Useful when used ith large projects
     """
     schema_dicts = read_schema(schema=schema)
     for schema_dict in schema_dicts:
@@ -144,9 +138,10 @@ def validate_config(project, schema, exclude_case=False):
             except ValueError:
                 pass
         project_dict = project.to_dict()
-        _validate_object(project_dict, schema_cpy, exclude_case)
+        _validate_object(project_dict, schema_cpy)
         _LOGGER.debug("Config validation successful")
-     
+
+
 def _get_attr_values(obj, attrlist):
     """
     Get value corresponding to each given attribute.
@@ -168,7 +163,71 @@ def _get_attr_values(obj, attrlist):
     return list(flatten([getattr(obj, attr, "") for attr in attrlist]))
 
 
-def validate_inputs_looper(sample, schema, exclude_case=False):
+def validate_input_files(project, schema, sample_name=None):
+    """
+    Determine which of the required and optional files are missing.
+
+    The names of the attributes that are required and/or deemed as inputs
+    are sourced from the schema, more specifically from `required_files`
+    and `files` sections in samples section:
+
+    - If any of the required files are missing, this function raises an error.
+    - If any of the optional files are missing, the function raises a warning.
+
+    Note, this function also performs Sample object validation with jsonschema.
+
+    :param peppy.Project project: project that defines the samples to validate
+    :param str | dict schema: schema dict to validate against or a path to one
+    :param str | int sample_name: name or index of the sample to validate. If None,
+        validate all samples in the project
+    :raise PathAttrNotFoundError: if any required sample attribute is missing
+    """
+
+    if sample_name is None:
+        samples = project.samples
+    else:
+        samples = (
+            project.samples[sample_name]
+            if isinstance(sample_name, int)
+            else project.get_sample(sample_name)
+        )
+        samples = [samples]
+
+    if isinstance(schema, str):
+        schema = read_schema(schema)
+
+    for sample in samples:
+        # validate attrs existence first
+        _validate_sample_object(
+            schemas=schema, sample=sample
+        )
+
+        all_inputs = set()
+        required_inputs = set()
+        schema = schema[-1]  # use only first schema, in case there are imports
+        sample_schema_dict = schema["properties"]["_samples"]["items"]
+        if FILES_KEY in sample_schema_dict:
+            all_inputs.update(_get_attr_values(sample, sample_schema_dict[FILES_KEY]))
+        if REQUIRED_FILES_KEY in sample_schema_dict:
+            required_inputs = set(
+                _get_attr_values(sample, sample_schema_dict[REQUIRED_FILES_KEY])
+            )
+            all_inputs.update(required_inputs)
+        missing_required_inputs = [i for i in required_inputs if not os.path.exists(i)]
+        missing_inputs = [i for i in all_inputs if not os.path.exists(i)]
+        if missing_inputs:
+            warn(
+                f"For sample '{getattr(sample, project.sample_table_index)}'. "
+                f"Optional inputs not found: {missing_inputs}"
+            )
+        if missing_required_inputs:
+            raise PathAttrNotFoundError(
+                f"For sample '{getattr(sample, project.sample_table_index)}'. "
+                f"Required inputs not found: {required_inputs}"
+            )
+
+
+def validate_input_files_looper(sample, schema):
     """
     Determine which of this Sample's required attributes/files are missing
     and calculate sizes of the files (inputs).
@@ -182,15 +241,13 @@ def validate_inputs_looper(sample, schema, exclude_case=False):
     :param list[dict] | str schema: schema dict to validate against or a path to one
     :return dict: dictionary with validation data, i.e missing,
         required_inputs, all_inputs, input_file_size
-    :param bool exclude_case: whether to exclude validated objects
-        from the error. Useful when used ith large projects
     :raise ValidationError: if any required sample attribute is missing
     """
     if isinstance(schema, str):
         schema = read_schema(schema)
 
     # first, validate attrs existence using jsonschema
-    _validate_sample_object(schemas=schema, sample=sample, exclude_case=exclude_case)
+    _validate_sample_object(schemas=schema, sample=sample)
 
     all_inputs = set()
     required_inputs = set()
@@ -219,69 +276,3 @@ def validate_inputs_looper(sample, schema, exclude_case=False):
         ALL_INPUTS_KEY: all_inputs,
         INPUT_FILE_SIZE_KEY: input_file_size,
     }
-
-
-def validate_input_files(project, schema, sample_name=None, exclude_case=False):
-    """
-    Determine which of the required and optional files are missing.
-
-    The names of the attributes that are required and/or deemed as inputs
-    are sourced from the schema, more specifically from `required_files`
-    and `files` sections in samples section:
-
-    - If any of the required files are missing, this function raises an error.
-    - If any of the optional files are missing, the function raises a warning.
-
-    Note, this function also performs Sample object validation with jsonschema.
-
-    :param peppy.Project project: project that defines the samples to validate
-    :param str | dict schema: schema dict to validate against or a path to one
-    :param str | int sample_name: name or index of the sample to validate. If None,
-        validate all samples in the project
-    :param bool exclude_case: whether to exclude validated objects
-        from the error. Useful when used ith large projects
-    :raise PathAttrNotFoundError: if any required sample attribute is missing
-    """
-
-    if sample_name is None:
-        samples = project.samples
-    else:
-        samples = (
-            project.samples[sample_name]
-            if isinstance(sample_name, int)
-            else project.get_sample(sample_name)
-        )
-        samples = [samples]
-
-    if isinstance(schema, str):
-        schema = read_schema(schema)
-
-    for sample in samples:
-        # validate attrs existence first
-        _validate_sample_object(
-            schemas=schema, sample=sample, exclude_case=exclude_case
-        )
-
-        all_inputs = set()
-        required_inputs = set()
-        schema = schema[-1]  # use only first schema, in case there are imports
-        sample_schema_dict = schema["properties"]["_samples"]["items"]
-        if FILES_KEY in sample_schema_dict:
-            all_inputs.update(_get_attr_values(sample, sample_schema_dict[FILES_KEY]))
-        if REQUIRED_FILES_KEY in sample_schema_dict:
-            required_inputs = set(
-                _get_attr_values(sample, sample_schema_dict[REQUIRED_FILES_KEY])
-            )
-            all_inputs.update(required_inputs)
-        missing_required_inputs = [i for i in required_inputs if not os.path.exists(i)]
-        missing_inputs = [i for i in all_inputs if not os.path.exists(i)]
-        if missing_inputs:
-            warn(
-                f"For sample '{getattr(sample, project.sample_table_index)}'. "
-                f"Optional inputs not found: {missing_inputs}"
-            )
-        if missing_required_inputs:
-            raise PathAttrNotFoundError(
-                f"For sample '{getattr(sample, project.sample_table_index)}'. "
-                f"Required inputs not found: {required_inputs}"
-            )

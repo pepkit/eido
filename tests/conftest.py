@@ -90,9 +90,14 @@ def output_pep_with_fasta_column(path_pep_with_fasta_column):
 
 @pytest.fixture
 def taxprofiler_csv_multiline_output(path_to_taxprofiler_csv_multiline_output):
-    return pd.read_csv(path_to_taxprofiler_csv_multiline_output).to_csv(
-        path_or_buf=None, index=None
-    )
+    with open(path_to_taxprofiler_csv_multiline_output, "r") as file:
+        data = file.read()
+    return data
+    # This is broken unless I add na_filter=False. But it's a bad idea anyway, since
+    # we're just using this for string comparison anyway...
+    return pd.read_csv(
+        path_to_taxprofiler_csv_multiline_output, na_filter=False
+    ).to_csv(path_or_buf=None, index=None)
 
 
 @pytest.fixture

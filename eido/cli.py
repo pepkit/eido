@@ -34,6 +34,26 @@ def _parse_filter_args_str(input):
     )
 
 
+def print_error_summary(errors_by_type):
+    """Print a summary of errors, organized by error type"""
+    n_error_types = len(errors_by_type)
+    print(f"Found {n_error_types} types of error:")
+    for type in errors_by_type:
+        n = len(errors_by_type[type])
+        msg = f"  - {type}: ({n} samples) "
+        if n < 50:
+            msg += ", ".join([x["sample_name"] for x in errors_by_type[type]])
+        print(msg)
+
+    if len(errors_by_type) > 1:
+        final_msg = f"Validation unsuccessful. {len(errors_by_type)} error types found."
+    else:
+        final_msg = f"Validation unsuccessful. {len(errors_by_type)} error type found."
+
+    print(final_msg)
+    return final_msg
+
+
 def main():
     """Primary workflow"""
     parser, sps = build_argparser()
@@ -128,7 +148,7 @@ def main():
         try:
             validator(*arguments)
         except EidoValidationError as e:
-            print(e)
+            print_error_summary(e.errors_by_type)
             return False
         _LOGGER.info("Validation successful")
         sys.exit(0)

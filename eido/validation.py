@@ -164,7 +164,7 @@ def _get_attr_values(obj, attrlist):
     return list(flatten([getattr(obj, attr, "") for attr in attrlist]))
 
 
-def validate_input_files(project, schema, sample_name=None):
+def validate_input_files(project, schemas, sample_name=None):
     """
     Determine which of the required and optional files are missing.
 
@@ -194,16 +194,16 @@ def validate_input_files(project, schema, sample_name=None):
         )
         samples = [samples]
 
-    if isinstance(schema, str):
-        schema = read_schema(schema)
+    if isinstance(schemas, str):
+        schemas = read_schema(schemas)
 
     for sample in samples:
         # validate attrs existence first
-        _validate_sample_object(schemas=schema, sample=sample)
+        _validate_sample_object(schemas=schemas, sample=sample)
 
         all_inputs = set()
         required_inputs = set()
-        schema = schema[-1]  # use only first schema, in case there are imports
+        schema = schemas[-1]  # use only first schema, in case there are imports
         sample_schema_dict = schema["properties"]["_samples"]["items"]
         if FILES_KEY in sample_schema_dict:
             all_inputs.update(_get_attr_values(sample, sample_schema_dict[FILES_KEY]))
@@ -212,6 +212,7 @@ def validate_input_files(project, schema, sample_name=None):
                 _get_attr_values(sample, sample_schema_dict[REQUIRED_FILES_KEY])
             )
             all_inputs.update(required_inputs)
+
         missing_required_inputs = [i for i in required_inputs if not os.path.exists(i)]
         missing_inputs = [i for i in all_inputs if not os.path.exists(i)]
         if missing_inputs:

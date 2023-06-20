@@ -6,7 +6,7 @@ from peppy import Project
 from peppy.utils import load_yaml
 
 from eido import *
-from eido.exceptions import EidoValidationError
+from eido.exceptions import EidoValidationError, PathAttrNotFoundError
 
 
 def _check_remote_file_accessible(url):
@@ -138,3 +138,11 @@ class TestProjectWithoutConfigValidation:
             validate_project(
                 project=Project(remote_pep_cfg), schema=schema_invalid_file_path
             )
+
+    def test_validate_file_existance(
+        self, test_file_existance_pep, test_file_existence_schema
+    ):
+        schema_path = test_file_existence_schema
+        prj = Project(test_file_existance_pep)
+        with pytest.raises(PathAttrNotFoundError):
+            validate_input_files(prj, schema_path)

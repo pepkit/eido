@@ -121,3 +121,13 @@ def output_pep_nextflow_taxprofiler(path_pep_nextflow_taxprofiler):
 @pytest.fixture
 def save_result_mock(mocker):
     return mocker.patch("eido.conversion.save_result")
+
+
+@pytest.fixture
+def test_file_existence_schema(schemas_path):
+    return os.path.join(schemas_path, "schema_test_file_exist.yaml")
+
+
+@pytest.fixture
+def test_file_existance_pep(peps_path):
+    return os.path.join(peps_path, "test_file_existence", "project_config.yaml")

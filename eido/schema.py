@@ -30,7 +30,9 @@ def preprocess_schema(schema_dict):
         schema_dict[PROP_KEY]["_samples"] = schema_dict[PROP_KEY]["samples"]
         del schema_dict[PROP_KEY]["samples"]
         if "required" in schema_dict:
-            schema_dict["required"][schema_dict["required"].index("samples")] = "_samples"
+            schema_dict["required"][
+                schema_dict["required"].index("samples")
+            ] = "_samples"
         if (
             "items" in schema_dict[PROP_KEY]["_samples"]
             and PROP_KEY in schema_dict[PROP_KEY]["_samples"]["items"]
@@ -71,10 +73,11 @@ def read_schema(schema):
 
     schema_list = []
     if isinstance(schema, str):
-        return _recursively_read_schemas(load_yaml(schema), schema_list)
-    elif isinstance(schema, dict):
-        return _recursively_read_schemas(schema, schema_list)
-    raise TypeError(
-        f"schema has to be a dict, path to an existing file or URL to a remote one. "
-        f"Got: {type(schema)}"
-    )
+        _LOGGER.debug(f"Reading schema: {schema}")
+        schema = load_yaml(schema)
+    if not isinstance(schema, dict):
+        raise TypeError(
+            f"schema has to be a dict, path to an existing file or URL to a remote one. "
+            f"Got: {type(schema)}"
+        )
+    return _recursively_read_schemas(schema, schema_list)

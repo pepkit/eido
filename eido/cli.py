@@ -6,8 +6,12 @@ from peppy import Project
 
 from .argparser import LEVEL_BY_VERBOSITY, build_argparser
 from .const import *
-from .conversion import convert_project, get_available_pep_filters, pep_conversion_plugins
-from .exceptions import EidoFilterError
+from .conversion import (
+    convert_project,
+    get_available_pep_filters,
+    pep_conversion_plugins,
+)
+from .exceptions import EidoFilterError, EidoValidationError
 from .inspection import inspect_project
 from .validation import validate_config, validate_project, validate_sample
 
@@ -28,6 +32,26 @@ def _parse_filter_args_str(input):
         if lst is not None
         else lst
     )
+
+
+def print_error_summary(errors_by_type):
+    """Print a summary of errors, organized by error type"""
+    n_error_types = len(errors_by_type)
+    print(f"Found {n_error_types} types of error:")
+    for type in errors_by_type:
+        n = len(errors_by_type[type])
+        msg = f"  - {type}: ({n} samples) "
+        if n < 50:
+            msg += ", ".join([x["sample_name"] for x in errors_by_type[type]])
+        print(msg)
+
+    if len(errors_by_type) > 1:
+        final_msg = f"Validation unsuccessful. {len(errors_by_type)} error types found."
+    else:
+        final_msg = f"Validation unsuccessful. {len(errors_by_type)} error type found."
+
+    print(final_msg)
+    return final_msg
 
 
 def main():
@@ -85,7 +109,12 @@ def main():
         else:
             paths = None
 
-        p = Project(args.pep, sample_table_index=args.st_index)
+        p = Project(
+            args.pep,
+            sample_table_index=args.st_index,
+            subsample_table_index=args.sst_index,
+            amendments=args.amendments,
+        )
         plugin_kwargs = _parse_filter_args_str(args.args)
 
         # append paths
@@ -97,7 +126,12 @@ def main():
 
     _LOGGER.debug(f"Creating a Project object from: {args.pep}")
     if args.command == VALIDATE_CMD:
-        p = Project(cfg=args.pep, sample_table_index=args.st_index)
+        p = Project(
+            args.pep,
+            sample_table_index=args.st_index,
+            subsample_table_index=args.sst_index,
+            amendments=args.amendments,
+        )
         if args.sample_name:
             try:
                 args.sample_name = int(args.sample_name)
@@ -107,20 +141,34 @@ def main():
                 f"Comparing Sample ('{args.pep}') in Project ('{args.pep}') "
                 f"against a schema: {args.schema}"
             )
-            validate_sample(p, args.sample_name, args.schema, args.exclude_case)
+            validator = validate_sample
+            arguments = [p, args.sample_name, args.schema, args.exclude_case]
         elif args.just_config:
             _LOGGER.debug(
                 f"Comparing Project ('{args.pep}') against a schema: {args.schema}"
             )
-            validate_config(p, args.schema, args.exclude_case)
+            validator = validate_config
+            arguments = [p, args.schema, args.exclude_case]
         else:
             _LOGGER.debug(
                 f"Comparing Project ('{args.pep}') against a schema: {args.schema}"
             )
-            validate_project(p, args.schema, args.exclude_case)
+            validator = validate_project
+            arguments = [p, args.schema, args.exclude_case]
+        try:
+            validator(*arguments)
+        except EidoValidationError as e:
+            print_error_summary(e.errors_by_type)
+            return False
         _LOGGER.info("Validation successful")
+        sys.exit(0)
 
     if args.command == INSPECT_CMD:
-        p = Project(cfg=args.pep, sample_table_index=args.st_index)
+        p = Project(
+            args.pep,
+            sample_table_index=args.st_index,
+            subsample_table_index=args.sst_index,
+            amendments=args.amendments,
+        )
         inspect_project(p, args.sample_name, args.attr_limit)
         sys.exit(0)

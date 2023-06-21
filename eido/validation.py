@@ -1,95 +1,105 @@
 import os
 from copy import deepcopy as dpcpy
 from logging import getLogger
-from warnings import catch_warnings as cw
+
+from warnings import warn
+
 from .exceptions import EidoValidationError
 
-from pandas.core.common import flatten
-from ubiquerg import size
 
+from pandas.core.common import flatten
 from jsonschema import Draft7Validator
 
 from .const import (
-    ALL_INPUTS_KEY,
     FILES_KEY,
-    INPUT_FILE_SIZE_KEY,
-    MISSING_KEY,
     PROP_KEY,
     REQUIRED_FILES_KEY,
-    REQUIRED_INPUTS_KEY,
 )
+from .exceptions import PathAttrNotFoundError
 from .schema import preprocess_schema, read_schema
 
 _LOGGER = getLogger(__name__)
 
 
-def _validate_object(object, schema, exclude_case=False):
+def _validate_object(object, schema, sample_name_colname=False):
     """
     Generic function to validate object against a schema
 
     :param Mapping object: an object to validate
     :param str | dict schema: schema dict to validate against or a path to one
-    :param bool exclude_case: whether to exclude validated objects
         from the error. Useful when used ith large projects
+    :raises EidoValidationError: if validation is unsuccessful
     """
-
     validator = Draft7Validator(schema)
+    print(object, schema)
     if not validator.is_valid(object):
         errors = sorted(validator.iter_errors(object), key=lambda e: e.path)
+        errors_by_type = {}
+
+        # Accumulate and restructure error objects by error type
         for error in errors:
-            print(
-                error.message,
-                f'''in the following location "{".".join(error.absolute_schema_path)}"''',
+            if not error.message in errors_by_type:
+                errors_by_type[error.message] = []
+
+            try:
+                instance_name = error.instance[sample_name_colname]
+            except KeyError:
+                instance_name = "project"
+            errors_by_type[error.message].append(
+                {
+                    "type": error.message,
+                    "message": f"{error.message} on instance {instance_name}",
+                    "sample_name": instance_name,
+                }
             )
-        raise EidoValidationError(
-            f"Validation unsuccessful. {len(errors)} error(s) found.", errors
-        )
+
+        raise EidoValidationError("Validation failed", errors_by_type)
+    else:
+        _LOGGER.debug("Validation was successful...")
 
 
-def validate_project(project, schema, exclude_case=False):
+def validate_project(project, schema):
     """
     Validate a project object against a schema
 
-    :param peppy.Sample project: a project object to validate
+    :param peppy.Project project: a project object to validate
     :param str | dict schema: schema dict to validate against or a path to one
-    :param bool exclude_case: whether to exclude validated objects
     from the error. Useful when used ith large projects
     """
+    sample_name_colname = project.sample_name_colname
     schema_dicts = read_schema(schema=schema)
     for schema_dict in schema_dicts:
         project_dict = project.to_dict()
-        _validate_object(project_dict, preprocess_schema(schema_dict), exclude_case)
+        _validate_object(
+            project_dict, preprocess_schema(schema_dict), sample_name_colname
+        )
         _LOGGER.debug("Project validation successful")
 
 
-def _validate_sample_object(sample, schemas, exclude_case=False):
+def _validate_sample_object(sample, schemas):
     """
     Internal function that allows to validate a peppy.Sample object without
     requiring a reference to peppy.Project.
 
     :param peppy.Sample sample: a sample object to validate
     :param list[dict] schemas: list of schemas to validate against or a path to one
-    :param bool exclude_case: whether to exclude validated objects
-        from the error. Useful when used ith large projects
     """
     for schema_dict in schemas:
         schema_dict = preprocess_schema(schema_dict)
         sample_schema_dict = schema_dict[PROP_KEY]["_samples"]["items"]
-        _validate_object(sample, sample_schema_dict, exclude_case)
+        _validate_object(sample.to_dict(), sample_schema_dict)
         _LOGGER.debug(
             f"{getattr(sample, 'sample_name', '')} sample validation successful"
         )
 
 
-def validate_sample(project, sample_name, schema, exclude_case=False):
+def validate_sample(project, sample_name, schema):
     """
     Validate the selected sample object against a schema
 
     :param peppy.Project project: a project object to validate
     :param str | int sample_name: name or index of the sample to validate
     :param str | dict schema: schema dict to validate against or a path to one
-    :param bool exclude_case: whether to exclude validated objects
-        from the error. Useful when used ith large projects
     """
     sample = (
         project.samples[sample_name]
@@ -97,18 +107,17 @@ def validate_sample(project, sample_name, schema, exclude_case=False):
         else project.get_sample(sample_name)
     )
     _validate_sample_object(
-        sample=sample, schemas=read_schema(schema=schema), exclude_case=exclude_case
+        sample=sample,
+        schemas=read_schema(schema=schema),
     )
 
 
-def validate_config(project, schema, exclude_case=False):
+def validate_config(project, schema):
     """
     Validate the config part of the Project object against a schema
 
     :param peppy.Project project: a project object to validate
     :param str | dict schema: schema dict to validate against or a path to one
-    :param bool exclude_case: whether to exclude validated objects
-        from the error. Useful when used ith large projects
     """
     schema_dicts = read_schema(schema=schema)
     for schema_dict in schema_dicts:
@@ -123,79 +132,89 @@ def validate_config(project, schema, exclude_case=False):
             except ValueError:
                 pass
         project_dict = project.to_dict()
-        _validate_object(project_dict, schema_cpy, exclude_case)
+        _validate_object(project_dict, schema_cpy)
         _LOGGER.debug("Config validation successful")
 
 
-def validate_inputs(sample, schema, exclude_case=False):
+def _get_attr_values(obj, attrlist):
     """
-    Determine which of this Sample's required attributes/files are missing
-    and calculate sizes of the inputs.
+    Get value corresponding to each given attribute.
+
+    :param Mapping obj: an object to get the attributes from
+    :param str | Iterable[str] attrlist: names of attributes to
+        retrieve values for
+    :return dict: value corresponding to
+        each named attribute; null if this Sample's value for the
+        attribute given by the argument to the "attrlist" parameter is
+        empty/null, or if this Sample lacks the indicated attribute
+    """
+    # If attribute is None, then value is also None.
+    if not attrlist:
+        return None
+    if not isinstance(attrlist, list):
+        attrlist = [attrlist]
+    # Strings contained here are appended later so shouldn't be null.
+    return list(flatten([getattr(obj, attr, "") for attr in attrlist]))
+
+
+def validate_input_files(project, schemas, sample_name=None):
+    """
+    Determine which of the required and optional files are missing.
 
     The names of the attributes that are required and/or deemed as inputs
-    are sourced from the schema, more specifically from required_input_attrs
-    and input_attrs sections in samples section. Note, this function does
-    perform actual Sample object validation with jsonschema.
+    are sourced from the schema, more specifically from `required_files`
+    and `files` sections in samples section:
 
-    :param peppy.Sample sample: sample to investigate
-    :param list[dict] | str schema: schema dict to validate against or a path to one
-    :return dict: dictionary with validation data, i.e missing,
-        required_inputs, all_inputs, input_file_size
-    :param bool exclude_case: whether to exclude validated objects
-        from the error. Useful when used ith large projects
-    :raise ValidationError: if any required sample attribute is missing
+    - If any of the required files are missing, this function raises an error.
+    - If any of the optional files are missing, the function raises a warning.
+
+    Note, this function also performs Sample object validation with jsonschema.
+
+    :param peppy.Project project: project that defines the samples to validate
+    :param str | dict schema: schema dict to validate against or a path to one
+    :param str | int sample_name: name or index of the sample to validate. If None,
+        validate all samples in the project
+    :raise PathAttrNotFoundError: if any required sample attribute is missing
     """
 
-    def _get_attr_values(obj, attrlist):
-        """
-        Get value corresponding to each given attribute.
-
-        :param Mapping obj: an object to get the attributes from
-        :param str | Iterable[str] attrlist: names of attributes to
-            retrieve values for
-        :return dict: value corresponding to
-            each named attribute; null if this Sample's value for the
-            attribute given by the argument to the "attrlist" parameter is
-            empty/null, or if this Sample lacks the indicated attribute
-        """
-        # If attribute is None, then value is also None.
-        if not attrlist:
-            return None
-        if not isinstance(attrlist, list):
-            attrlist = [attrlist]
-        # Strings contained here are appended later so shouldn't be null.
-        return list(flatten([getattr(obj, attr, "") for attr in attrlist]))
-
-    if isinstance(schema, str):
-        schema = read_schema(schema)
-
-    # validate attrs existence first
-    _validate_sample_object(schemas=schema, sample=sample, exclude_case=exclude_case)
-
-    all_inputs = set()
-    required_inputs = set()
-    schema = schema[-1]  # use only first schema, in case there are imports
-    sample_schema_dict = schema["properties"]["_samples"]["items"]
-    if FILES_KEY in sample_schema_dict:
-        all_inputs.update(_get_attr_values(sample, sample_schema_dict[FILES_KEY]))
-    if REQUIRED_FILES_KEY in sample_schema_dict:
-        required_inputs = set(
-            _get_attr_values(sample, sample_schema_dict[REQUIRED_FILES_KEY])
+    if sample_name is None:
+        samples = project.samples
+    else:
+        samples = (
+            project.samples[sample_name]
+            if isinstance(sample_name, int)
+            else project.get_sample(sample_name)
         )
-        all_inputs.update(required_inputs)
-    with cw(record=True) as w:
-        input_file_size = sum(
-            [size(f, size_str=False) or 0.0 for f in all_inputs if f != ""]
-        ) / (1024 ** 3)
-        if w:
-            _LOGGER.warning(
-                f"{len(w)} input files missing, job input size was "
-                f"not calculated accurately"
-            )
+        samples = [samples]
 
-    return {
-        MISSING_KEY: [i for i in required_inputs if not os.path.exists(i)],
-        REQUIRED_INPUTS_KEY: required_inputs,
-        ALL_INPUTS_KEY: all_inputs,
-        INPUT_FILE_SIZE_KEY: input_file_size,
-    }
+    if isinstance(schemas, str):
+        schemas = read_schema(schemas)
+
+    for sample in samples:
+        # validate attrs existence first
+        _validate_sample_object(schemas=schemas, sample=sample)
+
+        all_inputs = set()
+        required_inputs = set()
+        schema = schemas[-1]  # use only first schema, in case there are imports
+        sample_schema_dict = schema["properties"]["_samples"]["items"]
+        if FILES_KEY in sample_schema_dict:
+            all_inputs.update(_get_attr_values(sample, sample_schema_dict[FILES_KEY]))
+        if REQUIRED_FILES_KEY in sample_schema_dict:
+            required_inputs = set(
+                _get_attr_values(sample, sample_schema_dict[REQUIRED_FILES_KEY])
+            )
+            all_inputs.update(required_inputs)
+
+        missing_required_inputs = [i for i in required_inputs if not os.path.exists(i)]
+        missing_inputs = [i for i in all_inputs if not os.path.exists(i)]
+        if missing_inputs:
+            warn(
+                f"For sample '{getattr(sample, project.sample_table_index)}'. "
+                f"Optional inputs not found: {missing_inputs}"
+            )
+        if missing_required_inputs:
+            raise PathAttrNotFoundError(
+                f"For sample '{getattr(sample, project.sample_table_index)}'. "
+                f"Required inputs not found: {required_inputs}"
+            )

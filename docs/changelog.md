@@ -1,18 +1,39 @@
 # Changelog
 
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html) and [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) format.
+
+
+## [0.2.0] - 2023-06-21
+
+### Added
+- CLI options for modulating peppy project (#50)
+
+### Fixed
+- Rewrote history to remove large files committed by mistake
+- You can now check for existing of files in subsample table (#26)
+
+### Changed
+- All validation functions now use similar error-raising behavior
+- Validation functions now return all individual error objects grouped by type
+
+
 ## [0.1.9] - 2022-09-12
+
 ### Fixed
 - CSV filter bug
+
 ### Added
 - New test cases
+
 ## [0.1.8] - 2022-08-29
 ### Changed
 - the way of merging tables for multiline output format from eido convert
+
 ### Added
 - better architecture for output formatters that goes well with **open-closed principle**
 - using mock in some testcases
 - test data in the format that was causing the errors previously
+
 ### Fixed
 - passing plugin keyword arguments to `run_filter` function
 - saving output file will now work for path like `file.txt`, no need to pass full path

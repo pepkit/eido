@@ -25,4 +25,5 @@ __all__ = [
     "yaml_samples_pep_filter",
     "EidoValidationError",
     "validate_input_files",
+    "get_input_files_size",
 ]

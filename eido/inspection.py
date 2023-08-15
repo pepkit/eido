@@ -77,7 +77,7 @@ def get_input_files_size(sample, schema):
         all_inputs.update(required_inputs)
     with catch_warnings(record=True) as w:
         input_file_size = sum(
-            [size(f, size_str=False) or 0.0 for f in all_inputs if f != ""]
+            [size(f, size_str=False) or 0.0 for f in all_inputs if f != "" and f != None]
         ) / (1024**3)
         if w:
             _LOGGER.warning(

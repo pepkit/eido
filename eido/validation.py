@@ -31,7 +31,7 @@ def _validate_object(object, schema, sample_name_colname=False):
     :raises EidoValidationError: if validation is unsuccessful
     """
     validator = Draft7Validator(schema)
-    print(object, schema)
+    _LOGGER.debug(f"{object},\n {schema}")
     if not validator.is_valid(object):
         errors = sorted(validator.iter_errors(object), key=lambda e: e.path)
         errors_by_type = {}

@@ -21,19 +21,19 @@ from .schema import preprocess_schema, read_schema
 _LOGGER = getLogger(__name__)
 
 
-def _validate_object(object, schema, sample_name_colname=False):
+def _validate_object(obj, schema, sample_name_colname=False):
     """
     Generic function to validate object against a schema
 
-    :param Mapping object: an object to validate
+    :param Mapping obj: an object to validate
     :param str | dict schema: schema dict to validate against or a path to one
         from the error. Useful when used ith large projects
     :raises EidoValidationError: if validation is unsuccessful
     """
     validator = Draft7Validator(schema)
-    _LOGGER.debug(f"{object},\n {schema}")
-    if not validator.is_valid(object):
-        errors = sorted(validator.iter_errors(object), key=lambda e: e.path)
+    _LOGGER.debug(f"{obj},\n {schema}")
+    if not validator.is_valid(obj):
+        errors = sorted(validator.iter_errors(obj), key=lambda e: e.path)
         errors_by_type = {}
 
         # Accumulate and restructure error objects by error type

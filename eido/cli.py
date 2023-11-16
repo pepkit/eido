@@ -142,19 +142,19 @@ def main():
                 f"against a schema: {args.schema}"
             )
             validator = validate_sample
-            arguments = [p, args.sample_name, args.schema, args.exclude_case]
+            arguments = [p, args.sample_name, args.schema]
         elif args.just_config:
             _LOGGER.debug(
                 f"Comparing Project ('{args.pep}') against a schema: {args.schema}"
             )
             validator = validate_config
-            arguments = [p, args.schema, args.exclude_case]
+            arguments = [p, args.schema]
         else:
             _LOGGER.debug(
                 f"Comparing Project ('{args.pep}') against a schema: {args.schema}"
             )
             validator = validate_project
-            arguments = [p, args.schema, args.exclude_case]
+            arguments = [p, args.schema]
         try:
             validator(*arguments)
         except EidoValidationError as e:

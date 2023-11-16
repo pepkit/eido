@@ -88,16 +88,6 @@ def build_argparser():
         metavar="S",
     )
 
-    sps[VALIDATE_CMD].add_argument(
-        "-e",
-        "--exclude-case",
-        default=False,
-        action="store_true",
-        help="Whether to exclude the validation case from an error. "
-        "Only the human readable message explaining the error will "
-        "be raised. Useful when validating large PEPs.",
-    )
-
     sps[INSPECT_CMD].add_argument(
         "-n",
         "--sample-name",

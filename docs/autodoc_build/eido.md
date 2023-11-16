@@ -30,7 +30,7 @@ h4 .content {
 # Package `eido` Documentation
 
 ```python
-def validate_project(project, schema, exclude_case=False)
+def validate_project(project, schema)
 ```
 
 Validate a project object against a schema
@@ -38,13 +38,11 @@ Validate a project object against a schema
 
 - `project` (`peppy.Sample`):  a project object to validate
 - `schema` (`str | dict`):  schema dict to validate against or a path to one
-- `exclude_case` (`bool`):  whether to exclude validated objectsfrom the error. Useful when used ith large projects
-
 
 
 
 ```python
-def validate_sample(project, sample_name, schema, exclude_case=False)
+def validate_sample(project, sample_name, schema)
 ```
 
 Validate the selected sample object against a schema
@@ -53,13 +51,10 @@ Validate the selected sample object against a schema
 - `project` (`peppy.Project`):  a project object to validate
 - `sample_name` (`str | int`):  name or index of the sample to validate
 - `schema` (`str | dict`):  schema dict to validate against or a path to one
-- `exclude_case` (`bool`):  whether to exclude validated objectsfrom the error. Useful when used ith large projects
-
-
 
 
 ```python
-def validate_config(project, schema, exclude_case=False)
+def validate_config(project, schema)
 ```
 
 Validate the config part of the Project object against a schema
@@ -67,9 +62,6 @@ Validate the config part of the Project object against a schema
 
 - `project` (`peppy.Project`):  a project object to validate
 - `schema` (`str | dict`):  schema dict to validate against or a path to one
-- `exclude_case` (`bool`):  whether to exclude validated objectsfrom the error. Useful when used ith large projects
-
-
 
 
 ```python

@@ -43,3 +43,7 @@ class EidoValidationError(EidoException):
     def __init__(self, message, errors_by_type):
         super().__init__(message)
         self.errors_by_type = errors_by_type
+        self.message = message
+
+    def __str__(self):
+        return f"EidoValidationError ({self.message}): {self.errors_by_type}"

@@ -112,7 +112,7 @@ async def validate_pep(request: Request, files: List[UploadFile] = File(...)):
     def vwrap(p, schema):
         x = None
         try:
-            eido.validate_project(project=p, schema=schema, exclude_case=True)
+            eido.validate_project(project=p, schema=schema)
         except Exception as e:
             x = e
             print(x)

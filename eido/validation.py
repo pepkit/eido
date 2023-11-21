@@ -1,4 +1,5 @@
 import os
+from typing import NoReturn, Mapping, Union
 from copy import deepcopy as dpcpy
 from logging import getLogger
 
@@ -9,6 +10,7 @@ from .exceptions import EidoValidationError
 
 from pandas.core.common import flatten
 from jsonschema import Draft7Validator
+import peppy
 
 from .const import (
     FILES_KEY,
@@ -21,13 +23,14 @@ from .schema import preprocess_schema, read_schema
 _LOGGER = getLogger(__name__)
 
 
-def _validate_object(obj, schema, sample_name_colname=False):
+def _validate_object(obj: Mapping, schema: Union[str, dict], sample_name_colname=False):
     """
     Generic function to validate object against a schema
 
     :param Mapping obj: an object to validate
     :param str | dict schema: schema dict to validate against or a path to one
         from the error. Useful when used ith large projects
+
     :raises EidoValidationError: if validation is unsuccessful
     """
     validator = Draft7Validator(schema)
@@ -58,13 +61,16 @@ def _validate_object(obj, schema, sample_name_colname=False):
         _LOGGER.debug("Validation was successful...")
 
 
-def validate_project(project, schema):
+def validate_project(project: peppy.Project, schema: Union[str, dict]) -> NoReturn:
     """
     Validate a project object against a schema
 
     :param peppy.Project project: a project object to validate
     :param str | dict schema: schema dict to validate against or a path to one
     from the error. Useful when used ith large projects
+
+    :return: NoReturn
+    :raises EidoValidationError: if validation is unsuccessful
     """
     sample_name_colname = project.sample_name_colname
     schema_dicts = read_schema(schema=schema)
@@ -76,7 +82,7 @@ def validate_project(project, schema):
         _LOGGER.debug("Project validation successful")
 
 
-def _validate_sample_object(sample, schemas):
+def _validate_sample_object(sample: peppy.Sample, schemas):
     """
     Internal function that allows to validate a peppy.Sample object without
     requiring a reference to peppy.Project.
@@ -93,13 +99,17 @@ def _validate_sample_object(sample, schemas):
         )
 
 
-def validate_sample(project, sample_name, schema):
+def validate_sample(
+    project: peppy.Project, sample_name: Union[str, int], schema: Union[str, dict]
+) -> NoReturn:
     """
     Validate the selected sample object against a schema
 
     :param peppy.Project project: a project object to validate
     :param str | int sample_name: name or index of the sample to validate
     :param str | dict schema: schema dict to validate against or a path to one
+
+    :raises EidoValidationError: if validation is unsuccessful
     """
     sample = (
         project.samples[sample_name]
@@ -112,7 +122,7 @@ def validate_sample(project, sample_name, schema):
     )
 
 
-def validate_config(project, schema):
+def validate_config(project: peppy.Project, schema: Union[str, dict]) -> NoReturn:
     """
     Validate the config part of the Project object against a schema
 
@@ -157,7 +167,11 @@ def _get_attr_values(obj, attrlist):
     return list(flatten([getattr(obj, attr, "") for attr in attrlist]))
 
 
-def validate_input_files(project, schemas, sample_name=None):
+def validate_input_files(
+    project: peppy.Project,
+    schemas: Union[str, dict],
+    sample_name: Union[str, int] = None,
+):
     """
     Determine which of the required and optional files are missing.
 

@@ -1,3 +1,4 @@
+importlib-metadata; python_version < '3.10'
 jsonschema>=3.0.1
 logmuse>=0.2.5
 pandas

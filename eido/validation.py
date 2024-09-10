@@ -12,12 +12,7 @@ from pandas.core.common import flatten
 from jsonschema import Draft7Validator
 import peppy
 
-from .const import (
-    PROP_KEY,
-    SIZING_KEY,
-    TANGIBLE_KEY,
-    SAMPLES_KEY
-)
+from .const import PROP_KEY, SIZING_KEY, TANGIBLE_KEY, SAMPLES_KEY
 from .exceptions import PathAttrNotFoundError
 from .schema import preprocess_schema, read_schema
 

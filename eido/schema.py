@@ -24,18 +24,7 @@ def preprocess_schema(schema_dict):
     if "project" not in schema_dict[PROP_KEY]:
         _LOGGER.debug("No project section found in schema")
 
-    # if "config" in schema_dict[PROP_KEY]:
-    #     schema_dict[PROP_KEY]["_config"] = schema_dict[PROP_KEY]["config"]
-    #     del schema_dict[PROP_KEY]["config"]
-    # else:
-    #     _LOGGER.debug("No config section found in schema")
     if SAMPLES_KEY in schema_dict[PROP_KEY]:
-        #schema_dict[PROP_KEY]["_samples"] = schema_dict[PROP_KEY]["samples"]
-        #del schema_dict[PROP_KEY]["samples"]
-        # if "required" in schema_dict:
-        #     schema_dict["required"][
-        #         schema_dict["required"].index("samples")
-        #     ] = "_samples"
         if (
             "items" in schema_dict[PROP_KEY][SAMPLES_KEY]
             and PROP_KEY in schema_dict[PROP_KEY][SAMPLES_KEY]["items"]

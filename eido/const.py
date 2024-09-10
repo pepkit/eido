@@ -15,6 +15,8 @@ SUBPARSER_MSGS = {
 }
 PROP_KEY = "properties"
 
+SAMPLES_KEY = "samples"
+
 TANGIBLE_KEY = "tangible"
 SIZING_KEY = "sizing"
 

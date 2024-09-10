@@ -16,6 +16,7 @@ from .const import (
     PROP_KEY,
     SIZING_KEY,
     TANGIBLE_KEY,
+    SAMPLES_KEY
 )
 from .exceptions import PathAttrNotFoundError
 from .schema import preprocess_schema, read_schema
@@ -92,7 +93,7 @@ def _validate_sample_object(sample: peppy.Sample, schemas):
     """
     for schema_dict in schemas:
         schema_dict = preprocess_schema(schema_dict)
-        sample_schema_dict = schema_dict[PROP_KEY]["_samples"]["items"]
+        sample_schema_dict = schema_dict[PROP_KEY][SAMPLES_KEY]["items"]
         _validate_object(sample.to_dict(), sample_schema_dict)
         _LOGGER.debug(
             f"{getattr(sample, 'sample_name', '')} sample validation successful"
@@ -133,12 +134,12 @@ def validate_config(project: peppy.Project, schema: Union[str, dict]) -> NoRetur
     for schema_dict in schema_dicts:
         schema_cpy = preprocess_schema(dpcpy(schema_dict))
         try:
-            del schema_cpy[PROP_KEY]["_samples"]
+            del schema_cpy[PROP_KEY][SAMPLES_KEY]
         except KeyError:
             pass
         if "required" in schema_cpy:
             try:
-                schema_cpy["required"].remove("_samples")
+                schema_cpy["required"].remove(SAMPLES_KEY)
             except ValueError:
                 pass
         project_dict = project.to_dict()
@@ -211,7 +212,7 @@ def validate_input_files(
         all_inputs = set()
         required_inputs = set()
         schema = schemas[-1]  # use only first schema, in case there are imports
-        sample_schema_dict = schema["properties"]["_samples"]["items"]
+        sample_schema_dict = schema[PROP_KEY][SAMPLES_KEY]["items"]
         if SIZING_KEY in sample_schema_dict:
             all_inputs.update(_get_attr_values(sample, sample_schema_dict[SIZING_KEY]))
         if TANGIBLE_KEY in sample_schema_dict:

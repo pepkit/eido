@@ -2,7 +2,7 @@ from logging import getLogger
 
 from peppy.utils import load_yaml
 
-from .const import *
+from .const import SAMPLES_KEY, PROP_KEY
 
 _LOGGER = getLogger(__name__)
 
@@ -21,23 +21,26 @@ def preprocess_schema(schema_dict):
     :return dict: preprocessed schema
     """
     _LOGGER.debug(f"schema ori: {schema_dict}")
-    if "config" in schema_dict[PROP_KEY]:
-        schema_dict[PROP_KEY]["_config"] = schema_dict[PROP_KEY]["config"]
-        del schema_dict[PROP_KEY]["config"]
-    else:
-        _LOGGER.debug("No config section found in schema")
-    if "samples" in schema_dict[PROP_KEY]:
-        schema_dict[PROP_KEY]["_samples"] = schema_dict[PROP_KEY]["samples"]
-        del schema_dict[PROP_KEY]["samples"]
-        if "required" in schema_dict:
-            schema_dict["required"][
-                schema_dict["required"].index("samples")
-            ] = "_samples"
+    if "project" not in schema_dict[PROP_KEY]:
+        _LOGGER.debug("No project section found in schema")
+
+    # if "config" in schema_dict[PROP_KEY]:
+    #     schema_dict[PROP_KEY]["_config"] = schema_dict[PROP_KEY]["config"]
+    #     del schema_dict[PROP_KEY]["config"]
+    # else:
+    #     _LOGGER.debug("No config section found in schema")
+    if SAMPLES_KEY in schema_dict[PROP_KEY]:
+        #schema_dict[PROP_KEY]["_samples"] = schema_dict[PROP_KEY]["samples"]
+        #del schema_dict[PROP_KEY]["samples"]
+        # if "required" in schema_dict:
+        #     schema_dict["required"][
+        #         schema_dict["required"].index("samples")
+        #     ] = "_samples"
         if (
-            "items" in schema_dict[PROP_KEY]["_samples"]
-            and PROP_KEY in schema_dict[PROP_KEY]["_samples"]["items"]
+            "items" in schema_dict[PROP_KEY][SAMPLES_KEY]
+            and PROP_KEY in schema_dict[PROP_KEY][SAMPLES_KEY]["items"]
         ):
-            s_props = schema_dict[PROP_KEY]["_samples"]["items"][PROP_KEY]
+            s_props = schema_dict[PROP_KEY][SAMPLES_KEY]["items"][PROP_KEY]
             for prop, val in s_props.items():
                 if "type" in val and val["type"] in ["string", "number", "boolean"]:
                     s_props[prop] = {}

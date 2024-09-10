@@ -13,6 +13,7 @@ from .const import (
     REQUIRED_INPUTS_KEY,
     SIZING_KEY,
     TANGIBLE_KEY,
+    SAMPLES_KEY,
 )
 from .schema import read_schema
 from .validation import _validate_sample_object, _get_attr_values
@@ -67,7 +68,7 @@ def get_input_files_size(sample, schema):
     all_inputs = set()
     required_inputs = set()
     schema = schema[-1]  # use only first schema, in case there are imports
-    sample_schema_dict = schema["properties"]["_samples"]["items"]
+    sample_schema_dict = schema[PROP_KEY][SAMPLES_KEY]["items"]
     if SIZING_KEY in sample_schema_dict:
         all_inputs.update(_get_attr_values(sample, sample_schema_dict[SIZING_KEY]))
     if TANGIBLE_KEY in sample_schema_dict:

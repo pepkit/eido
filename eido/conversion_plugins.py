@@ -1,4 +1,5 @@
 """ built-in PEP filters """
+
 from typing import Dict
 from .output_formatters import MultilineOutputFormatter
 
@@ -73,10 +74,12 @@ def processed_pep_filter(p, **kwargs) -> Dict[str, str]:
 
     return {
         "project": str(prj_repr),
-        "samples": str(p.samples)
-        if samples_as_objects
-        else str(p.sample_table.to_csv()),
-        "subsamples": str(p.subsamples)
-        if subsamples_as_objects
-        else str(p.subsample_table.to_csv()),
+        "samples": (
+            str(p.samples) if samples_as_objects else str(p.sample_table.to_csv())
+        ),
+        "subsamples": (
+            str(p.subsamples)
+            if subsamples_as_objects
+            else str(p.subsample_table.to_csv())
+        ),
     }

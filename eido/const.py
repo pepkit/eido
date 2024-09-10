@@ -14,8 +14,11 @@ SUBPARSER_MSGS = {
     CONVERT_CMD: "Convert PEP format using filters",
 }
 PROP_KEY = "properties"
-REQUIRED_FILES_KEY = "required_files"
-FILES_KEY = "files"
+
+SAMPLES_KEY = "samples"
+
+TANGIBLE_KEY = "tangible"
+SIZING_KEY = "sizing"
 
 # sample schema input validation key names, these values are required by looper
 # to refer to the dict values
@@ -34,7 +37,9 @@ GENERAL = [
     "FILTERS_CMD",
     "SUBPARSER_MSGS",
 ]
-SCHEMA_SECTIONS = ["PROP_KEY", "REQUIRED_FILES_KEY", "FILES_KEY"]
+
+SCHEMA_SECTIONS = ["PROP_KEY", "TANGIBLE_KEY", "SIZING_KEY"]
+
 SCHEMA_VALIDAION_KEYS = [
     "MISSING_KEY",
     "REQUIRED_INPUTS_KEY",

@@ -21,10 +21,10 @@ properties:
             - type: array
               items:
                 type: string
-      files:
+      sizing:
         - local_files
 
-      required_files:
+      tangible:
         - local_files
 
       required:

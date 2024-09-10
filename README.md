@@ -5,4 +5,4 @@
 [![PEP compatible](http://pepkit.github.io/img/PEP-compatible-green.svg)](http://pepkit.github.io)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
-[PEP](http://pepkit.github.io) validation tool based on [jsonschema](https://github.com/Julian/jsonschema). See [documentation](http://eido.databio.org) for usage.
+[PEP](https://pep.databio.org) validation tool based on [jsonschema](https://github.com/Julian/jsonschema). See [documentation](http://pep.databio.org/eido) for usage.

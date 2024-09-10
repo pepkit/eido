@@ -1,12 +1,15 @@
-import inspect
 import sys
-import os
-from logging import getLogger
 
-from pkg_resources import iter_entry_points
+if sys.version_info < (3, 10):
+    from importlib_metadata import entry_points
+else:
+    from importlib.metadata import entry_points
+import inspect
+from logging import getLogger
+import os
+from typing import NoReturn
 
 from .exceptions import *
-from typing import NoReturn
 
 _LOGGER = getLogger(__name__)
 
@@ -21,7 +24,7 @@ def pep_conversion_plugins():
     :raise EidoFilterError: if any of the filters has an invalid signature.
     """
     plugins = {}
-    for ep in iter_entry_points("pep.filters"):
+    for ep in entry_points(group="pep.filters"):
         plugin_fun = ep.load()
         if len(list(inspect.signature(plugin_fun).parameters)) != 2:
             raise EidoFilterError(

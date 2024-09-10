@@ -13,9 +13,9 @@ from jsonschema import Draft7Validator
 import peppy
 
 from .const import (
-    FILES_KEY,
     PROP_KEY,
-    REQUIRED_FILES_KEY,
+    SIZING_KEY,
+    TANGIBLE_KEY,
 )
 from .exceptions import PathAttrNotFoundError
 from .schema import preprocess_schema, read_schema
@@ -212,11 +212,11 @@ def validate_input_files(
         required_inputs = set()
         schema = schemas[-1]  # use only first schema, in case there are imports
         sample_schema_dict = schema["properties"]["_samples"]["items"]
-        if FILES_KEY in sample_schema_dict:
-            all_inputs.update(_get_attr_values(sample, sample_schema_dict[FILES_KEY]))
-        if REQUIRED_FILES_KEY in sample_schema_dict:
+        if SIZING_KEY in sample_schema_dict:
+            all_inputs.update(_get_attr_values(sample, sample_schema_dict[SIZING_KEY]))
+        if TANGIBLE_KEY in sample_schema_dict:
             required_inputs = set(
-                _get_attr_values(sample, sample_schema_dict[REQUIRED_FILES_KEY])
+                _get_attr_values(sample, sample_schema_dict[TANGIBLE_KEY])
             )
             all_inputs.update(required_inputs)
 

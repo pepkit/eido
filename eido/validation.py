@@ -7,7 +7,6 @@ from warnings import warn
 
 from .exceptions import EidoValidationError
 
-
 from pandas.core.common import flatten
 from jsonschema import Draft7Validator
 import peppy
@@ -118,7 +117,9 @@ def validate_sample(
     )
 
 
-def validate_config(project: peppy.Project, schema: Union[str, dict]) -> NoReturn:
+def validate_config(
+    project: Union[peppy.Project, dict], schema: Union[str, dict]
+) -> NoReturn:
     """
     Validate the config part of the Project object against a schema
 
@@ -137,9 +138,13 @@ def validate_config(project: peppy.Project, schema: Union[str, dict]) -> NoRetur
                 schema_cpy["required"].remove(SAMPLES_KEY)
             except ValueError:
                 pass
-        project_dict = project.to_dict()
-        _validate_object(project_dict, schema_cpy)
-        _LOGGER.debug("Config validation successful")
+        if isinstance(project, dict):
+            _validate_object({"project": project}, schema_cpy)
+
+        else:
+            project_dict = project.to_dict()
+            _validate_object(project_dict, schema_cpy)
+            _LOGGER.debug("Config validation successful")
 
 
 def _get_attr_values(obj, attrlist):

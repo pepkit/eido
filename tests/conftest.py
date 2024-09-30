@@ -141,3 +141,8 @@ def test_schema_value_check(schemas_path):
 @pytest.fixture
 def test_file_value_check(peps_path):
     return os.path.join(peps_path, "value_check_pep", "project_config.yaml")
+
+
+@pytest.fixture
+def test_multiple_subs(peps_path):
+    return os.path.join(peps_path, "multiple_subsamples", "project_config.yaml")

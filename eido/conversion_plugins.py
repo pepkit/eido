@@ -42,8 +42,7 @@ def yaml_pep_filter(p, **kwargs) -> Dict[str, str]:
     """
     from yaml import dump
 
-    data = p.config.to_dict()
-    return {"project": dump(data, default_flow_style=False)}
+    return {"project": dump(p.config, default_flow_style=False)}
 
 
 def csv_pep_filter(p, **kwargs) -> Dict[str, str]:

@@ -110,7 +110,7 @@ class MultilineOutputFormatter(BaseOutputFormatter):
             ):
                 value = sample[attribute][sample_index]
             else:
-                value = sample[attribute]
+                value = sample.get(attribute)
 
             sample_row.append(value or "")
 

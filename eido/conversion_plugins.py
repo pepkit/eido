@@ -42,8 +42,7 @@ def yaml_pep_filter(p, **kwargs) -> Dict[str, str]:
     """
     from yaml import dump
 
-    data = p.config.to_dict()
-    return {"project": dump(data, default_flow_style=False)}
+    return {"project": dump(p.config, default_flow_style=False)}
 
 
 def csv_pep_filter(p, **kwargs) -> Dict[str, str]:
@@ -70,7 +69,7 @@ def processed_pep_filter(p, **kwargs) -> Dict[str, str]:
     samples_as_objects = kwargs.get("samples_as_objects")
     subsamples_as_objects = kwargs.get("subsamples_as_objects")
 
-    prj_repr = p.config.to_dict()
+    prj_repr = p.config
 
     return {
         "project": str(prj_repr),

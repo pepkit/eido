@@ -1,4 +1,10 @@
-from eido.conversion import *
+from eido.conversion import (
+    run_filter,
+    get_available_pep_filters,
+    pep_conversion_plugins,
+    convert_project,
+)
+import peppy
 
 
 class TestConversionInfrastructure:
@@ -74,3 +80,27 @@ class TestConversionInfrastructure:
 
         assert save_result_mock.called
         assert conv_result == {"samples": output_pep_nextflow_taxprofiler}
+
+    def test_multiple_subsamples(self, test_multiple_subs):
+        project = peppy.Project(test_multiple_subs, sample_table_index="sample_id")
+
+        conversion = convert_project(
+            project,
+            "csv",
+        )
+        assert isinstance(conversion["samples"], str)
+        conversion = convert_project(
+            project,
+            "basic",
+        )
+        assert isinstance(conversion["project"], str)
+        conversion = convert_project(
+            project,
+            "yaml",
+        )
+        assert isinstance(conversion["project"], str)
+        conversion = convert_project(
+            project,
+            "yaml-samples",
+        )
+        assert isinstance(conversion["samples"], str)

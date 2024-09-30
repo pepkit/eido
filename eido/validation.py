@@ -43,6 +43,10 @@ def _validate_object(obj: Mapping, schema: Union[str, dict], sample_name_colname
                 instance_name = error.instance[sample_name_colname]
             except KeyError:
                 instance_name = "project"
+            except TypeError:
+                instance_name = obj["samples"][error.absolute_path[1]][
+                    sample_name_colname
+                ]
             errors_by_type[error.message].append(
                 {
                     "type": error.message,

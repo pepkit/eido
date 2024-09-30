@@ -1,7 +1,6 @@
 import urllib
 
 import pytest
-from jsonschema.exceptions import ValidationError
 from peppy import Project
 from peppy.utils import load_yaml
 
@@ -140,9 +139,15 @@ class TestProjectWithoutConfigValidation:
             )
 
     def test_validate_file_existance(
-        self, test_file_existance_pep, test_file_existence_schema
+        self, test_file_existing_pep, test_file_existing_schema
     ):
-        schema_path = test_file_existence_schema
-        prj = Project(test_file_existance_pep)
+        schema_path = test_file_existing_schema
+        prj = Project(test_file_existing_pep)
         with pytest.raises(PathAttrNotFoundError):
             validate_input_files(prj, schema_path)
+
+    def test_validation_values(self, test_schema_value_check, test_file_value_check):
+        schema_path = test_schema_value_check
+        prj = Project(test_file_value_check)
+        with pytest.raises(EidoValidationError):
+            validate_project(project=prj, schema=schema_path)

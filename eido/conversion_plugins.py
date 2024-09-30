@@ -69,7 +69,7 @@ def processed_pep_filter(p, **kwargs) -> Dict[str, str]:
     samples_as_objects = kwargs.get("samples_as_objects")
     subsamples_as_objects = kwargs.get("subsamples_as_objects")
 
-    prj_repr = p.config.to_dict()
+    prj_repr = p.config
 
     return {
         "project": str(prj_repr),

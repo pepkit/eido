@@ -82,11 +82,25 @@ class TestConversionInfrastructure:
         assert conv_result == {"samples": output_pep_nextflow_taxprofiler}
 
     def test_multiple_subsamples(self, test_multiple_subs):
-        project = peppy.Project(test_multiple_subs)
+        project = peppy.Project(test_multiple_subs, sample_table_index="sample_id")
 
-        # ff = convert_project(project, "yaml", )
-        ff = convert_project(
+        conversion = convert_project(
             project,
             "csv",
         )
-        ff
+        assert isinstance(conversion["samples"], str)
+        conversion = convert_project(
+            project,
+            "basic",
+        )
+        assert isinstance(conversion["project"], str)
+        conversion = convert_project(
+            project,
+            "yaml",
+        )
+        assert isinstance(conversion["project"], str)
+        conversion = convert_project(
+            project,
+            "yaml-samples",
+        )
+        assert isinstance(conversion["samples"], str)

@@ -1,4 +1,4 @@
-sample_name,file_path,subsample_name
+sample_id,file_path,subsample_name
 frog_1,file/a.txt,a
 frog_1,file/b.txt,b
 frog_1,file/c.txt,c

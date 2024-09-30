@@ -4,11 +4,16 @@ subsample_table:
   - subsample_table1.csv
   - subsample_table2.csv
 
-
 sample_modifiers:
   append:
     local_files: LOCAL
+    genome: "fg"
   derive:
     attributes: [local_files]
     sources:
       LOCAL: "../data/{file_path}"
+  imply:
+    - if:
+        identifier: "frog1"
+      then:
+        genome: "frog_frog"

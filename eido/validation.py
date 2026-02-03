@@ -1,5 +1,5 @@
 import os
-from typing import NoReturn, Mapping, Union
+from typing import Mapping, Union
 from copy import deepcopy as dpcpy
 from logging import getLogger
 
@@ -60,7 +60,7 @@ def _validate_object(obj: Mapping, schema: Union[str, dict], sample_name_colname
         _LOGGER.debug("Validation was successful...")
 
 
-def validate_project(project: peppy.Project, schema: Union[str, dict]) -> NoReturn:
+def validate_project(project: peppy.Project, schema: Union[str, dict]) -> None:
     """
     Validate a project object against a schema
 
@@ -68,7 +68,7 @@ def validate_project(project: peppy.Project, schema: Union[str, dict]) -> NoRetu
     :param str | dict schema: schema dict to validate against or a path to one
     from the error. Useful when used ith large projects
 
-    :return: NoReturn
+    :return: None
     :raises EidoValidationError: if validation is unsuccessful
     """
     sample_name_colname = project.sample_name_colname
@@ -100,7 +100,7 @@ def _validate_sample_object(sample: peppy.Sample, schemas):
 
 def validate_sample(
     project: peppy.Project, sample_name: Union[str, int], schema: Union[str, dict]
-) -> NoReturn:
+) -> None:
     """
     Validate the selected sample object against a schema
 
@@ -123,7 +123,7 @@ def validate_sample(
 
 def validate_config(
     project: Union[peppy.Project, dict], schema: Union[str, dict]
-) -> NoReturn:
+) -> None:
     """
     Validate the config part of the Project object against a schema
 

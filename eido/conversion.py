@@ -7,7 +7,6 @@ else:
 import inspect
 from logging import getLogger
 import os
-from typing import NoReturn
 
 from .exceptions import *
 
@@ -107,7 +106,7 @@ def run_filter(prj, filter_name, verbose=True, plugin_kwargs=None):
     return conv_result
 
 
-def save_result(result_path: str, content: str) -> NoReturn:
+def save_result(result_path: str, content: str) -> None:
     with open(result_path, "w") as f:
         f.write(content)
 

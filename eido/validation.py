@@ -1,32 +1,33 @@
 import os
-from typing import Mapping, Union
+from collections.abc import Mapping
 from copy import deepcopy as dpcpy
 from logging import getLogger
-
 from warnings import warn
 
-from .exceptions import EidoValidationError
-
-from pandas.core.common import flatten
-from jsonschema import Draft7Validator
 import peppy
+from jsonschema import Draft7Validator
+from pandas.core.common import flatten
 
-from .const import PROP_KEY, SIZING_KEY, TANGIBLE_KEY, SAMPLES_KEY
-from .exceptions import PathAttrNotFoundError
+from .const import PROP_KEY, SAMPLES_KEY, SIZING_KEY, TANGIBLE_KEY
+from .exceptions import EidoValidationError, PathAttrNotFoundError
 from .schema import preprocess_schema, read_schema
 
 _LOGGER = getLogger(__name__)
 
 
-def _validate_object(obj: Mapping, schema: Union[str, dict], sample_name_colname=False):
+def _validate_object(
+    obj: Mapping, schema: str | dict, sample_name_colname: str | bool = False
+) -> None:
     """
-    Generic function to validate object against a schema
+    Generic function to validate object against a schema.
 
-    :param Mapping obj: an object to validate
-    :param str | dict schema: schema dict to validate against or a path to one
-        from the error. Useful when used ith large projects
+    Args:
+        obj: An object to validate.
+        schema: Schema dict to validate against or a path to one.
+        sample_name_colname: Name of the column holding the sample name.
 
-    :raises EidoValidationError: if validation is unsuccessful
+    Raises:
+        EidoValidationError: If validation is unsuccessful.
     """
     validator = Draft7Validator(schema)
     _LOGGER.debug(f"{obj},\n {schema}")
@@ -36,7 +37,7 @@ def _validate_object(obj: Mapping, schema: Union[str, dict], sample_name_colname
 
         # Accumulate and restructure error objects by error type
         for error in errors:
-            if not error.message in errors_by_type:
+            if error.message not in errors_by_type:
                 errors_by_type[error.message] = []
 
             try:
@@ -60,16 +61,16 @@ def _validate_object(obj: Mapping, schema: Union[str, dict], sample_name_colname
         _LOGGER.debug("Validation was successful...")
 
 
-def validate_project(project: peppy.Project, schema: Union[str, dict]) -> None:
+def validate_project(project: peppy.Project, schema: str | dict) -> None:
     """
-    Validate a project object against a schema
+    Validate a project object against a schema.
 
-    :param peppy.Project project: a project object to validate
-    :param str | dict schema: schema dict to validate against or a path to one
-    from the error. Useful when used ith large projects
+    Args:
+        project: A project object to validate.
+        schema: Schema dict to validate against or a path to one.
 
-    :return: None
-    :raises EidoValidationError: if validation is unsuccessful
+    Raises:
+        EidoValidationError: If validation is unsuccessful.
     """
     sample_name_colname = project.sample_name_colname
     schema_dicts = read_schema(schema=schema)
@@ -81,13 +82,13 @@ def validate_project(project: peppy.Project, schema: Union[str, dict]) -> None:
         _LOGGER.debug("Project validation successful")
 
 
-def _validate_sample_object(sample: peppy.Sample, schemas):
+def _validate_sample_object(sample: peppy.Sample, schemas: list[dict]) -> None:
     """
-    Internal function that allows to validate a peppy.Sample object without
-    requiring a reference to peppy.Project.
+    Validate a peppy.Sample object without requiring a reference to peppy.Project.
 
-    :param peppy.Sample sample: a sample object to validate
-    :param list[dict] schemas: list of schemas to validate against or a path to one
+    Args:
+        sample: A sample object to validate.
+        schemas: List of schemas to validate against.
     """
     for schema_dict in schemas:
         schema_dict = preprocess_schema(schema_dict)
@@ -99,16 +100,18 @@ def _validate_sample_object(sample: peppy.Sample, schemas):
 
 
 def validate_sample(
-    project: peppy.Project, sample_name: Union[str, int], schema: Union[str, dict]
+    project: peppy.Project, sample_name: str | int, schema: str | dict
 ) -> None:
     """
-    Validate the selected sample object against a schema
+    Validate the selected sample object against a schema.
 
-    :param peppy.Project project: a project object to validate
-    :param str | int sample_name: name or index of the sample to validate
-    :param str | dict schema: schema dict to validate against or a path to one
+    Args:
+        project: A project object to validate.
+        sample_name: Name or index of the sample to validate.
+        schema: Schema dict to validate against or a path to one.
 
-    :raises EidoValidationError: if validation is unsuccessful
+    Raises:
+        EidoValidationError: If validation is unsuccessful.
     """
     sample = (
         project.samples[sample_name]
@@ -121,14 +124,13 @@ def validate_sample(
     )
 
 
-def validate_config(
-    project: Union[peppy.Project, dict], schema: Union[str, dict]
-) -> None:
+def validate_config(project: peppy.Project | dict, schema: str | dict) -> None:
     """
-    Validate the config part of the Project object against a schema
+    Validate the config part of the Project object against a schema.
 
-    :param peppy.Project project: a project object to validate
-    :param str | dict schema: schema dict to validate against or a path to one
+    Args:
+        project: A project object to validate.
+        schema: Schema dict to validate against or a path to one.
     """
     schema_dicts = read_schema(schema=schema)
     for schema_dict in schema_dicts:
@@ -151,17 +153,19 @@ def validate_config(
             _LOGGER.debug("Config validation successful")
 
 
-def _get_attr_values(obj, attrlist):
+def _get_attr_values(obj: Mapping, attrlist: str | list[str]) -> list | None:
     """
     Get value corresponding to each given attribute.
 
-    :param Mapping obj: an object to get the attributes from
-    :param str | Iterable[str] attrlist: names of attributes to
-        retrieve values for
-    :return dict: value corresponding to
-        each named attribute; null if this Sample's value for the
-        attribute given by the argument to the "attrlist" parameter is
-        empty/null, or if this Sample lacks the indicated attribute
+    Args:
+        obj: An object to get the attributes from.
+        attrlist: Names of attributes to retrieve values for.
+
+    Returns:
+        Value corresponding to each named attribute; null if this Sample's
+        value for the attribute given by the argument to the "attrlist"
+        parameter is empty/null, or if this Sample lacks the indicated
+        attribute.
     """
     # If attribute is None, then value is also None.
     if not attrlist:
@@ -174,9 +178,9 @@ def _get_attr_values(obj, attrlist):
 
 def validate_input_files(
     project: peppy.Project,
-    schemas: Union[str, dict],
-    sample_name: Union[str, int] = None,
-):
+    schemas: str | dict,
+    sample_name: str | int | None = None,
+) -> None:
     """
     Determine which of the required and optional files are missing.
 
@@ -189,11 +193,14 @@ def validate_input_files(
 
     Note, this function also performs Sample object validation with jsonschema.
 
-    :param peppy.Project project: project that defines the samples to validate
-    :param str | dict schema: schema dict to validate against or a path to one
-    :param str | int sample_name: name or index of the sample to validate. If None,
-        validate all samples in the project
-    :raise PathAttrNotFoundError: if any required sample attribute is missing
+    Args:
+        project: Project that defines the samples to validate.
+        schemas: Schema dict to validate against or a path to one.
+        sample_name: Name or index of the sample to validate. If None,
+            validate all samples in the project.
+
+    Raises:
+        PathAttrNotFoundError: If any required sample attribute is missing.
     """
 
     if sample_name is None:

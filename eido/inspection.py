@@ -1,9 +1,10 @@
 import os
+from collections.abc import Iterable
 from logging import getLogger
-
 from warnings import catch_warnings
-from ubiquerg import size
 
+import peppy
+from ubiquerg import size
 
 from .const import (
     ALL_INPUTS_KEY,
@@ -11,24 +12,26 @@ from .const import (
     MISSING_KEY,
     PROP_KEY,
     REQUIRED_INPUTS_KEY,
+    SAMPLES_KEY,
     SIZING_KEY,
     TANGIBLE_KEY,
-    SAMPLES_KEY,
 )
 from .schema import read_schema
-from .validation import _validate_sample_object, _get_attr_values
+from .validation import _get_attr_values, _validate_sample_object
 
 _LOGGER = getLogger(__name__)
 
 
-def inspect_project(p, sample_names=None, max_attr=10):
+def inspect_project(
+    p: peppy.Project, sample_names: Iterable[str] | None = None, max_attr: int = 10
+) -> None:
     """
-    Print inspection info: Project or,
-    if sample_names argument is provided, matched samples
+    Print inspection info: Project or, if sample_names is provided, matched samples.
 
-    :param peppy.Project p: project to inspect
-    :param Iterable[str] sample_names: list of samples to inspect
-    :param int max_attr: max number of sample attributes to display
+    Args:
+        p: Project to inspect.
+        sample_names: List of samples to inspect.
+        max_attr: Max number of sample attributes to display.
     """
     if sample_names:
         samples = p.get_samples(sample_names)
@@ -43,21 +46,25 @@ def inspect_project(p, sample_names=None, max_attr=10):
     return
 
 
-def get_input_files_size(sample, schema):
+def get_input_files_size(sample: peppy.Sample, schema: list[dict] | str) -> dict:
     """
-    Determine which of this Sample's required attributes/files are missing
-    and calculate sizes of the files (inputs).
+    Determine which required attributes/files are missing and size the inputs.
 
     The names of the attributes that are required and/or deemed as inputs
     are sourced from the schema, more specifically from required_input_attrs
     and input_attrs sections in samples section. Note, this function does
     perform actual Sample object validation with jsonschema.
 
-    :param peppy.Sample sample: sample to investigate
-    :param list[dict] | str schema: schema dict to validate against or a path to one
-    :return dict: dictionary with validation data, i.e missing,
-        required_inputs, all_inputs, input_file_size
-    :raise ValidationError: if any required sample attribute is missing
+    Args:
+        sample: Sample to investigate.
+        schema: Schema dict to validate against or a path to one.
+
+    Returns:
+        Dictionary with validation data, i.e. missing, required_inputs,
+        all_inputs, input_file_size.
+
+    Raises:
+        ValidationError: If any required sample attribute is missing.
     """
     if isinstance(schema, str):
         schema = read_schema(schema)
@@ -81,7 +88,7 @@ def get_input_files_size(sample, schema):
             [
                 size(f, size_str=False) or 0.0
                 for f in all_inputs
-                if f != "" and f != None
+                if f != "" and f is not None
             ]
         ) / (1024**3)
         if w:

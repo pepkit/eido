@@ -16,13 +16,16 @@ from .inspection import inspect_project
 from .validation import validate_config, validate_project, validate_sample
 
 
-def _parse_filter_args_str(input):
+def _parse_filter_args_str(input: list[list[str]] | None) -> dict[str, str]:
     """
     Parse user input specification.
 
-    :param Iterable[Iterable[str]] input: user command line input,
-        formatted as follows: [[arg=txt, arg1=txt]]
-    :return dict: mapping of keys, which are input names and values
+    Args:
+        input: User command line input, formatted as follows:
+            [[arg=txt, arg1=txt]].
+
+    Returns:
+        A mapping of input names to their values.
     """
     lst = []
     for i in input or []:
@@ -34,8 +37,8 @@ def _parse_filter_args_str(input):
     )
 
 
-def print_error_summary(errors_by_type):
-    """Print a summary of errors, organized by error type"""
+def print_error_summary(errors_by_type: dict) -> str:
+    """Print a summary of errors, organized by error type."""
     n_error_types = len(errors_by_type)
     print(f"Found {n_error_types} types of error:")
     for type in errors_by_type:
@@ -54,8 +57,8 @@ def print_error_summary(errors_by_type):
     return final_msg
 
 
-def main():
-    """Primary workflow"""
+def main() -> bool | None:
+    """Primary workflow."""
     parser, sps = build_argparser()
     args, remaining_args = parser.parse_known_args()
 
@@ -88,7 +91,7 @@ def main():
             for filter_name in filters:
                 _LOGGER.info(f" - {filter_name}")
             sys.exit(0)
-        if not "format" in args:
+        if "format" not in args:
             _LOGGER.info("The following arguments are required: --format")
             sps[CONVERT_CMD].print_help(sys.stderr)
             sys.exit(1)

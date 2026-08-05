@@ -1,8 +1,9 @@
 """
-Project configuration
+Project configuration.
 """
 
-from ._version import __version__
+from importlib.metadata import version
+
 from .const import *
 from .conversion import *
 from .conversion_plugins import *
@@ -10,6 +11,8 @@ from .exceptions import *
 from .inspection import *
 from .schema import *
 from .validation import *
+
+__version__ = version("eido")
 
 __all__ = [
     "validate_project",

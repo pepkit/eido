@@ -2,6 +2,7 @@
 Project configuration.
 """
 
+import warnings
 from importlib.metadata import version
 
 from .const import *
@@ -13,6 +14,8 @@ from .schema import *
 from .validation import *
 
 __version__ = version("eido")
+
+warnings.warn(DEPRECATION_MESSAGE, DeprecationWarning, stacklevel=2)
 
 __all__ = [
     "validate_project",

@@ -59,6 +59,7 @@ def print_error_summary(errors_by_type: dict) -> str:
 
 def main() -> bool | None:
     """Primary workflow."""
+    print(f"WARNING: {DEPRECATION_MESSAGE}", file=sys.stderr)
     parser, sps = build_argparser()
     args, remaining_args = parser.parse_known_args()
 

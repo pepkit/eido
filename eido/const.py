@@ -15,6 +15,13 @@ SUBPARSER_MSGS: dict[str, str] = {
 }
 PROP_KEY: str = "properties"
 
+# eido is archived; it is now shipped as the peppy.eido module within peppy
+DEPRECATION_MESSAGE: str = (
+    "eido is deprecated and this repository is now a public archive. "
+    "It is now part of the peppy package as the 'peppy.eido' module "
+    "(https://github.com/pepkit/peppy). Please migrate to 'import peppy.eido'."
+)
+
 SAMPLES_KEY: str = "samples"
 
 TANGIBLE_KEY: str = "tangible"
@@ -31,6 +38,7 @@ INPUT_FILE_SIZE_KEY: str = "input_file_size"
 GENERAL: list[str] = [
     "LOGGING_LEVEL",
     "PKG_NAME",
+    "DEPRECATION_MESSAGE",
     "INSPECT_CMD",
     "VALIDATE_CMD",
     "CONVERT_CMD",

@@ -1,27 +1,36 @@
-"""built-in PEP filters"""
+"""Built-in PEP filters."""
 
-from typing import Dict
+import peppy
+
 from .output_formatters import MultilineOutputFormatter
 
 
-def basic_pep_filter(p, **kwargs) -> Dict[str, str]:
+def basic_pep_filter(p: peppy.Project, **kwargs) -> dict[str, str]:
     """
     Basic PEP filter, that does not convert the Project object.
 
     This filter can save the PEP representation to file, if kwargs include `path`.
 
-    :param peppy.Project p: a Project to run filter on
+    Args:
+        p: A Project to run filter on.
+
+    Returns:
+        A mapping with the project representation.
     """
     return {"project": str(p)}
 
 
-def yaml_samples_pep_filter(p, **kwargs) -> Dict[str, str]:
+def yaml_samples_pep_filter(p: peppy.Project, **kwargs) -> dict[str, str]:
     """
     YAML samples PEP filter, that returns only Sample object representations.
 
     This filter can save the YAML to file, if kwargs include `path`.
 
-    :param peppy.Project p: a Project to run filter on
+    Args:
+        p: A Project to run filter on.
+
+    Returns:
+        A mapping with the samples serialized as YAML.
     """
     from yaml import dump
 
@@ -32,38 +41,52 @@ def yaml_samples_pep_filter(p, **kwargs) -> Dict[str, str]:
     return {"samples": dump(samples_yaml, default_flow_style=False)}
 
 
-def yaml_pep_filter(p, **kwargs) -> Dict[str, str]:
+def yaml_pep_filter(p: peppy.Project, **kwargs) -> dict[str, str]:
     """
     YAML PEP filter, that returns Project object representation.
 
     This filter can save the YAML to file, if kwargs include `path`.
 
-    :param peppy.Project p: a Project to run filter on
+    Args:
+        p: A Project to run filter on.
+
+    Returns:
+        A mapping with the project config serialized as YAML.
     """
     from yaml import dump
 
     return {"project": dump(p.config, default_flow_style=False)}
 
 
-def csv_pep_filter(p, **kwargs) -> Dict[str, str]:
+def csv_pep_filter(p: peppy.Project, **kwargs) -> dict[str, str]:
     """
-    CSV PEP filter, that returns Sample object representations
+    CSV PEP filter, that returns Sample object representations.
 
     This filter can save the CSVs to files, if kwargs include
     `sample_table_path` and/or `subsample_table_path`.
 
-    :param peppy.Project p: a Project to run filter on
+    Args:
+        p: A Project to run filter on.
+
+    Returns:
+        A mapping with the samples serialized as CSV.
     """
     return {"samples": MultilineOutputFormatter.format(p.samples)}
 
 
-def processed_pep_filter(p, **kwargs) -> Dict[str, str]:
+def processed_pep_filter(p: peppy.Project, **kwargs) -> dict[str, str]:
     """
     Processed PEP filter, that returns the converted sample and subsample tables.
+
     This filter can return the tables as a table or a document.
-    :param peppy.Project p: a Project to run filter on
-    :param bool samples_as_objects: Flag to write as a table
-    :param bool subsamples_as_objects: Flag to write as a table
+
+    Args:
+        p: A Project to run filter on.
+        samples_as_objects: Flag to write as a table.
+        subsamples_as_objects: Flag to write as a table.
+
+    Returns:
+        A mapping with the project, samples, and subsamples representations.
     """
     # get params
     samples_as_objects = kwargs.get("samples_as_objects")

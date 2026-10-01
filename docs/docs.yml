@@ -1,0 +1,29 @@
+site_name: Eido
+nav:
+  - Eido: README.md
+  - Getting started:
+    - Install and configure: install.md
+  - How-to guides:
+    - 'Tutorial: eido in Python': code/demo.md
+    - 'Tutorial: eido in a shell': code/cli.md
+    - Using eido filters: filters.md
+    - Writing a custom filter: writing-a-filter.md
+    - Writing a schema: writing-a-schema.md
+  - Reference:
+    - How to cite: /citations/
+    - Example schemas: example-schemas.md
+    - Eido Python API: code/python-api.md
+    - Built-in filters API: code/plugin-api-docs.md
+    - Support: https://github.com/pepkit/eido/issues
+    - Contributing: contributing.md
+    - Changelog: changelog.md
+
+renderers:
+  - hub-notebooks:
+      include: [notebooks/*.ipynb]
+      execute: false
+  - hub-python-api:
+      package_root: ..
+      packages: [eido]
+      include: [code/python-api.md, code/plugin-api-docs.md]
+      docstring_style: google

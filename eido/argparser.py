@@ -1,18 +1,25 @@
+from argparse import ArgumentParser
 from logging import CRITICAL, DEBUG, ERROR, INFO, WARN
 
-from peppy.const import SAMPLE_NAME_ATTR
 from peppy import __version__ as peppy_version
+from peppy.const import SAMPLE_NAME_ATTR
 from ubiquerg import VersionInHelpParser
 
 from . import __version__
 from .const import *
 
-LEVEL_BY_VERBOSITY = [ERROR, CRITICAL, WARN, INFO, DEBUG]
+LEVEL_BY_VERBOSITY: list[int] = [ERROR, CRITICAL, WARN, INFO, DEBUG]
 
-version_combined = f"{__version__} (peppy {peppy_version})"
+version_combined: str = f"{__version__} (peppy {peppy_version})"
 
 
-def build_argparser():
+def build_argparser() -> tuple[ArgumentParser, dict[str, ArgumentParser]]:
+    """
+    Build the command line argument parser.
+
+    Returns:
+        The main parser and a mapping of subcommand names to their subparsers.
+    """
     banner = "%(prog)s - Interact with PEPs"
     additional_description = "\nhttp://eido.databio.org/"
 
@@ -60,7 +67,7 @@ def build_argparser():
             required=False,
             type=str,
             nargs="+",
-            help=f"Names of the amendments to activate.",
+            help="Names of the amendments to activate.",
         )
         if cmd != CONVERT_CMD:
             subparser.add_argument(

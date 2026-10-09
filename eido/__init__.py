@@ -1,8 +1,10 @@
 """
-Project configuration
+Project configuration.
 """
 
-from ._version import __version__
+import warnings
+from importlib.metadata import version
+
 from .const import *
 from .conversion import *
 from .conversion_plugins import *
@@ -10,6 +12,10 @@ from .exceptions import *
 from .inspection import *
 from .schema import *
 from .validation import *
+
+__version__ = version("eido")
+
+warnings.warn(DEPRECATION_MESSAGE, DeprecationWarning, stacklevel=2)
 
 __all__ = [
     "validate_project",

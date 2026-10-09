@@ -11,7 +11,7 @@ from eido.exceptions import EidoValidationError, PathAttrNotFoundError
 def _check_remote_file_accessible(url):
     try:
         code = urllib.request.urlopen(url).getcode()
-    except:
+    except Exception:
         pytest.skip(f"Remote file not found: {url}")
     else:
         if code != 200:

@@ -1,11 +1,12 @@
+import peppy
+
 from eido.conversion import (
-    run_filter,
+    convert_project,
     get_available_pep_filters,
     pep_conversion_plugins,
-    convert_project,
+    run_filter,
 )
 from eido.output_formatters import MultilineOutputFormatter
-import peppy
 
 
 class TestConversionInfrastructure:
